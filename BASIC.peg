@@ -1,0 +1,104 @@
+grammar HitBASIC
+
+Program            <- Space? ( EndOfFile / Commands ) Space?
+Commands           <- Command EndOfCommand Commands?
+
+Command            <- SelectClause
+                    / DoLoopClause
+                    / ForClause
+                    / `NEXT` SpaceOnly? ForVarList
+                    / `NEXT` %pop_forloop
+                    / `LET` SpaceOnly? VarDecl
+                    / AttributionClause
+                    / `CLS`
+                    / `DEF` RangeTypeDecl
+                    / `INPUT` SpaceOnly? InputParams
+                    / ( "?" / `PRINT` ) SpaceOnly? PrintParams
+                    / `END`
+
+# SELECT rules
+SelectClause       <- `SELECT` Space? Expression EndOfCommand SelectCases SelectClauseEnd
+SelectClauseEnd    <- `END` Space? `SELECT`
+SelectCases        <- `CASE` SpaceOnly? `ELSE` EndOfCommand CaseCmmdBlock
+                    / ( `CASE` SpaceOnly? CaseParamList EndOfCommand CaseCmmdBlock )*
+CaseParamList      <- `IS` SpaceOnly? CompOp ( SpaceOnly? "," SpaceOnly? `IS` CompOp )*
+                    / Expression `TO` Expression (SpaceOnly? "," Expression `TO` Expression )*
+                    / Expression ( SpaceOnly? "," SpaceOnly? Expression )*
+CaseCmmdBlock      <- Commands* &( `CASE` / `END` )
+
+# DO LOOP rules
+DoLoopClause       <- DoLoopIniCond EndOfCommand DoCmmdBlock `LOOP`
+                    / `DO` EndOfCommand DoCmmdBlock DoLoopEndCond
+DoLoopIniCond      <- `DO` Space? ( `WHILE` / `UNTIL` ) Space? DoLoopCond
+DoLoopEndCond      <- `LOOP` SpaceOnly? ( `WHILE` / `UNTIL` ) Space? DoLoopCond
+DoCmmdBlock        <- Commands* &`LOOP`
+DoLoopCond         <- Expression
+
+# DEF<type> rules
+RangeTypeDecl      <- ( `STR` / `SNG` / `DBL` / `INT` ) SpaceOnly? VarRangeList
+VarRangeList       <- VarRange (SpaceOnly? "," SpaceOnly? VarRange)*
+VarRange           <- [a-zA-Z] SpaceOnly? "-" SpaceOnly? [a-zA-Z] %check_var_range
+
+# ForClause rules
+ForClause          <- `FOR` SpaceOnly? Variable SpaceOnly? "=" SpaceOnly? ForRangeDecl %push_forloop_var
+ForRangeDecl       <- Expression SpaceOnly? `TO` SpaceOnly? Expression SpaceOnly? ( `STEP` SpaceOnly? Expression )?
+ForVarList         <- ForVariable SpaceOnly? ( ',' SpaceOnly? ForVariable )*
+ForVariable        <- [a-zA-Z] [ \ta-zA-Z0-9]* Typedes? %pop_forloop_var
+
+# LET rules
+VarDecl            <- Variable SpaceOnly? "=" SpaceOnly? Expression %declare_var
+
+# Attribution rules
+AttributionClause  <- Variable SpaceOnly? "=" SpaceOnly? Expression %define_var
+
+# INPUT rules
+InputParams        <- VarList
+
+# PRINT rules
+PrintParams        <- FileNo? ( PrintUsingFmt / PrintParamList* )
+FileNo             <- "#" Integer SpaceOnly? "," SpaceOnly?
+PrintUsingFmt      <- `USING` SpaceOnly? ( String / Variable ) SpaceOnly? ';' SpaceOnly? PrintParamList+
+PrintParamList     <- Expression SpaceOnly? (PrintSep*) SpaceOnly?
+PrintSep           <- [,;]
+
+# Expression solving rules
+Expression          <- ImpOp "" %store_val
+ImpOp              <- EqvOp SpaceOnly? ( `IMP` SpaceOnly? EqvOp )*
+EqvOp              <- XorOp SpaceOnly? ( `EQV` SpaceOnly? XorOp )*
+XorOp              <- OrOp SpaceOnly? ( `XOR` SpaceOnly? OrOp )*
+OrOp               <- AndOp SpaceOnly? ( `OR` SpaceOnly? AndOp )*
+AndOp              <- NotOp SpaceOnly? ( `AND` SpaceOnly? NotOp )*
+NotOp              <- `NOT`? SpaceOnly? CompOp
+CompOp             <- AddSubOp SpaceOnly? ( ( "=" / "<>" / "<=" / "<" / ">=" / ">" / `IS` / `ISNOT` ) SpaceOnly? AddSubOp )* %check_comparison
+AddSubOp           <- ModuloOp SpaceOnly? ( ( "+" / "-" ) SpaceOnly? ModuloOp )* %check_addsub
+ModuloOp           <- IntDivOp SpaceOnly? ( `MOD` SpaceOnly? IntDivOp )* %check_modulo
+IntDivOp           <- MulDivOp SpaceOnly? ( "\\" SpaceOnly? MulDivOp )* %check_intdiv
+MulDivOp           <- NegOp SpaceOnly? ( ( "*" / "/" ) SpaceOnly? NegOp )* %check_muldiv
+NegOp              <- ( "+" / "-" )? SpaceOnly? ( ExpOp ) %check_neg
+ExpOp              <- Operator SpaceOnly? ( "^" SpaceOnly? Operator )* %check_exp
+Operator           <- "(" Logical ")" / Numeral / String / Variable
+
+# Base and reusable rules
+Literal            <- Numeral / String
+String             <- '"' NotQuoteChar+ '"' %mark_type_string
+Numeral            <- Fractional '' %mark_type_single / Integer '' %mark_type_integer
+Fractional         <- [-+]? [0-9]? '.' [0-9]?
+Integer            <- [-+]? [0-9]+
+                    / [-+]? `&H` [0-9a-fA-F]* %check_overflow_hex
+                    / [-+]? `&O` [0-7]* %check_overflow_oct
+                    / [-+]? `&B` [01]* %check_overflow_bin
+
+NotQuoteChar       <- [^"]
+
+VarList            <- Variable SpaceOnly? ( ',' SpaceOnly? Variable )*
+Variable           <- [a-zA-Z] [a-zA-Z0-9]* Typedes? %store_var_name
+#Variable           <- [a-zA-Z] [ \ta-zA-Z0-9]* Typedes? %store_var_name # MSX-BASIC accepts spaces between variable components
+Typedes            <- "$" / "#" / "!" / "%"                                 # String / Double / Single / Integer
+
+Space              <- [\s]+
+SpaceOnly          <- [ \t]+
+NewLine            <- "\n"
+LineBreak          <- SpaceOnly? NewLine+ SpaceOnly?
+EndOfCommand       <- SpaceOnly? ( NewLine+ / ":" ) Space?
+QuoteChar          <- '"'
+EndOfFile          <- !.

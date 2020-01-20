@@ -1,0 +1,176 @@
+================================================================================
+SELECT CASE
+================================================================================
+
+select <testexpression>
+	case <expressionlist>
+		...
+	case else
+		...
+end select
+
+
+For example:
+
+select num
+	case 1
+		...
+	case 2
+		...
+	case else
+		...
+end select
+
+
+num gets transpiled to, say, A:
+
+@SelectStart
+IF NOT(A=1) THEN @SelectCase2
+	...
+@SelectCase2
+IF NOT(A=2) THEN @SelectCaseElse
+	...
+@SelectCaseElse
+	...
+@SelectEnd
+
+
+If there is no case else clause, last condition test goes to @SelectEnd.
+
+
+Conditions can be tested against an expression list. For example:
+
+select num
+	case 1, 3
+		...
+	case 2
+		...
+end select
+
+
+Assuming num gets transpiled to A:
+
+
+@SelectStart
+IF NOT(A=1 OR A=3) THEN @SelectCase2
+	...
+@SelectCase2
+IF NOT(A=2) THEN @SelectEnd
+	...
+@SelectEnd
+
+
+The keyword is represents the test expression inside the expression list, and
+can be used with any comparison operator (=, <>, <, <=, > or >=):
+
+
+select num
+	case num > min
+		print "It's larger"
+	case num < min
+		print "It's smaller"
+	case else
+		print "It's the same"
+end select
+
+
+@SelectStart
+IF NOT(A>B) THEN @SelectCase2
+	PRINT "It's larger"
+@SelectCase2
+IF NOT(A<B) THEN @SelectCaseElse
+    PRINT "It's smaller"
+@SelectCaseElse
+	PRINT "It's the same"
+@SelectEnd
+
+
+The keyword to is used to represent an interval inside the expression list:
+
+
+select num
+	case 1 to 5
+		print "From 1 to 5"
+	case 6 to 10
+		print "From 6 to 10"
+end select
+
+
+@SelectStart
+IF NOT(A>=1 AND A<=5) THEN @SelectCase2
+	PRINT "From 1 to 5"
+@SelectCase2
+IF NOT(A>=6 AND A<=10) THEN @SelectEnd
+	PRINT "From 6 to 10"
+@SelectEnd
+
+
+The exit select statement should be transpiled as GOTO @SelectEnd
+
+================================================================================
+DO ... LOOP
+================================================================================
+
+do
+	...
+loop
+
+
+@DoLoopStart
+	...
+GOTO @DoLoopStart
+@DoLoopEnd
+
+--------------------------------------------------------------------------------
+
+do while <condition>
+	...
+loop
+
+
+@DoLoopStart
+IF NOT(<condition>) THEN @DoLoopEnd
+	...
+GOTO @DoLoopStart
+@DoLoopEnd
+
+--------------------------------------------------------------------------------
+
+do
+	...
+loop while <condition>
+
+
+@DoLoopStart
+	...
+IF <condition> THEN @DoLoopStart
+@DoLoopEnd
+
+--------------------------------------------------------------------------------
+
+do until <condition>
+	...
+loop
+
+
+@DoLoopStart
+IF <condition> THEN @DoLoopEnd
+	...
+GOTO @DoLoopStart
+@DoLoopEnd
+
+--------------------------------------------------------------------------------
+
+do
+	...
+loop until <condition>
+
+
+@DoLoopStart
+	...
+IF NOT(<condition>) THEN @DoLoopStart
+@DoLoopEnd
+
+--------------------------------------------------------------------------------
+
+The exit do statement should be transpiled as GOTO @DoLoopEnd
