@@ -1,0 +1,7 @@
+__pycache__
+.*.swp
+*.dot
+*.pdf
+out.bas
+out.asc
+traceback*.txt

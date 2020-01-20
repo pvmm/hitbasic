@@ -1,0 +1,6 @@
+[Dim | var1 | = | " | H | e | l | l | o | , |   | w | o | r | l | d | ! | " | 
+ | Dim | var2 | As | String | = | " | H | e | l | l | o |   | a | g | a | i | n | ! | " | 
+ | Dim | var3 | 
+ | Dim | var4 | As | Integer | = | 1 | 0 | 
+ | Dim | var5 | As | Integer | = | 9 | 9 | 9 | + | 1 | 
+ | Dim | var6 | = | 1 | 0 | , | var5 | = | 1 | 1 | ]

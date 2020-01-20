@@ -1,0 +1,132 @@
+#!/usr/bin/env python3
+import sys
+import argparse
+import textwrap
+import shutil
+
+from pprint import pprint
+
+
+if __name__ == '__main__':
+    argp = argparse.ArgumentParser(prog='hb', description='HitBasic transpiles high level Visual Basic like language into MSX-BASIC.',
+            epilog="For bug report, suggestions, praises or complains, please go to: <https://github.com/pvmm/hitbasic>.")
+
+    group1 = argp.add_mutually_exclusive_group(required=True)
+    group1.add_argument('-t', '--tests', action='store_true', required=False, help='run collection of tests')
+    group1.add_argument('--version', action='store_true', required=False, help='display version and finishes')
+    group1.add_argument('-c', metavar='.ASC infile', nargs='+', type=argparse.FileType('r'), help='compile source from infile(s)')
+    group1.add_argument('-s', '--stdin', action='store_true', required=False, help='transpile to MSX-BASIC program from standard input')
+    group2 = argp.add_argument_group('override default configuration')
+    group2.add_argument('-o', '--output', metavar='outfile', default='out.asc', type=str, help='write into outfile (default: out.asc)')
+    group2.add_argument('-p', '--pretty-print', action='store_true', required=False, help='generate code in pretty-print version')
+    group2.add_argument('-d', '--debug', action='store_true', required=False, help='raise exception all the way up if it happens (for debugging)')
+    group2.add_argument('-g', '--graphviz', action='store_true', required=False, help='generate Graphviz files program_parse_tree.dot and program_parser_model.dot')
+    group2.add_argument('-v', '--short-vars', action='store_false', required=False, help='force BASIC short length variables mode')
+    group2.add_argument('-b', '--begin', metavar='n', default=10, type=int, help='begin line number at n (default: 10)')
+    group2.add_argument('-i', '--increment', metavar='n', default=10, type=int, help='set line number increments by n (default: 10)')
+    group2.add_argument('-n', '--no-dim', action='store_true', required=False, help="no need to declare non-arrays with Dim before using them")
+    group2.add_argument('-l', '--line-size', metavar='n', default=254, required=False, help="maximum line size (default: 254)")
+    group2.add_argument('-k', '--tokenize', action='store_true', required=False, help="generate tokenized MSX-BASIC output")
+    group2.add_argument('-e', '--clean', action='store_true', required=False, help="generate clean and readable source code")
+    args = argp.parse_args(None if sys.argv[1:] else ['--help'])
+
+    if args.tests is True:
+        # Go to test routine
+        import inspect
+        from importlib import import_module
+        import os
+        from os import path
+        from glob import glob
+        import unittest
+
+        os.chdir(path.dirname(path.realpath(__file__)))
+        test_modules = glob(path.join('tests', 'test_*.py'))
+        test_suite = unittest.TestSuite()
+
+        for file in test_modules:
+            module_name = file.replace('.py', '').replace(os.sep, '.')
+            print(' * Selecting test module "%s"...' % module_name.replace('tests.', ''))
+            module = import_module(module_name)
+
+            for class_name in filter(lambda c: inspect.isclass(module.__dict__[c]) and issubclass(module.__dict__[c], unittest.TestCase), module.__dict__):
+                print(' * Selecting test class "%s"...' % class_name)
+                klass = module.__dict__[class_name]
+                methods = list(filter(lambda method: method.startswith('test_'), klass.__dict__))
+                runner = unittest.TextTestRunner(verbosity=0, stream=sys.stdout, buffer=True)
+
+                for method in methods:
+                    suite = unittest.TestSuite([klass(method)])
+                    runner.run(suite)
+
+        print(' * Running tests done.')
+        argp.exit(status=0)
+
+    elif args.version:
+        term = shutil.get_terminal_size((80, 25))
+        title = textwrap.fill('HitBasic version 0.4.0', width=term.columns)
+        copyright = textwrap.fill('Copyright (c) 2020, Pedro Vaz de Mello de Medeiros', width=term.columns)
+        disclaimer = textwrap.fill('''\
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
+                width=term.columns)
+
+        print("%s\n\n%s\n\n%s\n" % (title, copyright, disclaimer))
+        argp.exit(status=0)
+
+    if args.stdin is True:
+        args.c = [sys.stdin]
+
+    if args.output is None:
+        args.output = open('./out.asc', 'w')
+    else:
+        args.output = open(args.output, 'w')
+
+    # Create text string from file or stdin and run it through the parser
+    from lib import hitbasic
+    parser = hitbasic.create_parser(debug=args.graphviz)
+    source = ''
+    for file in args.c:
+        source += args.c[0].read()
+
+    try:
+        tree = parser.parse(source.strip())
+    except Exception as e:
+        print('* %s error: %s' % (e.__class__.__name__, str(e)))
+        if hasattr(args, 'debug') and args.debug:
+            raise e
+        sys.exit(-1)
+
+    # Run output tree through the node visitor
+    from arpeggio import visit_parse_tree
+    from lib.visitor import MSXBasicVisitor
+
+    try:
+        children, symbol_table = visit_parse_tree(tree, MSXBasicVisitor(parser=parser,
+            begin_line=args.begin, debug=False))
+    except Exception as e:
+        print('* %s error: %s' % (e.__class__.__name__, str(e)))
+        if hasattr(args, 'debug') and args.debug:
+            raise e
+        sys.exit(-1)
+    else:
+        pprint(symbol_table)
+        print('============================================')
+        term = shutil.get_terminal_size((80, 25))
+        pprint(children, width=term[0])
+        sys.exit(0)
+
+    if args.tokenize:
+        from lib.printers.tokenized import Generator as TokenizedGenerator
+        TokenizedGenerator(symbol_table, args.output).print(children)
+    else:
+        from lib.printers.text import Generator as TextGenerator
+        TextGenerator(symbol_table, args.output).print(children)
+

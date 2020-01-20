@@ -1,0 +1,29 @@
+from . import NO_RULE
+from .hitbasic import Surrogate
+from .translations import token as token_module
+
+
+ALLOWED_TOKENS = [ '=', ',', ';', 'And', 'As', 'B', 'BF', 'L', 'Or', 'R', 'Step', 'Tand', 'To', 'Tor', 'Tpreset', 'Tpset', 'Txor', 'Xor' ]
+token_type = type('Token', (Surrogate,), token_module.__dict__)
+nil_type = type('Nil', (Surrogate,), {})
+
+
+def create_nil(**kwargs):
+    position = kwargs.pop('pos', 0)
+    return nil_type(NO_RULE, position, False, **kwargs)
+
+
+def create_token(*tokens, **kwargs):
+    # *tokens allow a composite token
+    printable_tokens = ' '.join([token.title() for token in tokens])
+    if ALLOWED_TOKENS and not printable_tokens in ALLOWED_TOKENS:
+        raise NotImplementedError('token %s are not recognised' % printable_tokens)
+    position = kwargs.pop('pos', 0)
+    language_tokens = tuple([token.upper() for token in tokens])
+    return Surrogate(NO_RULE, position, False, token=language_tokens, **kwargs)
+
+
+class Token:
+    def __init__(self, *tokens):
+        self.token = tuple([token.upper() for token in tokens])
+

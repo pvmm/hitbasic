@@ -1,0 +1,22 @@
+[
+ | Dim | a | = | 4 | 
+ | 
+ | Select | a | 
+ | Case | 1 | : | 
+ | Cls | 
+ | End | 
+ | Case | 2 | , | 3 | : | 
+ | Cls | 
+ | End | 
+ | Case | Is | > | 3 | : | 
+ | Cls | 
+ | Cls | 
+ | Case | Is | < | 1 | 0 | : | 
+ | End | 
+ | Cls | 
+ | Case | 1 | 1 | To | 2 | 0 | : | 
+ | Cls | 
+ | Case | Else | : | 
+ | End | 
+ | End | 
+ | End | Select | ]
