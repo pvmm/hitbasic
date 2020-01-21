@@ -65,9 +65,9 @@ can be used with any comparison operator (=, <>, <, <=, > or >=):
 
 
 select num
-	case num > min
+	case is > min
 		print "It's larger"
-	case num < min
+	case is < min
 		print "It's smaller"
 	case else
 		print "It's the same"
@@ -79,9 +79,28 @@ IF NOT(A>B) THEN @SelectCase2
 	PRINT "It's larger"
 @SelectCase2
 IF NOT(A<B) THEN @SelectCaseElse
-    PRINT "It's smaller"
+	PRINT "It's smaller"
 @SelectCaseElse
 	PRINT "It's the same"
+@SelectEnd
+
+
+Conversely, there's the keyword isnot:
+
+
+select num
+	case isnot 5
+		print "It's not 5"
+	case isnot 10
+		print "It's not 10"
+end select
+
+
+@SelectStart
+IF A=5 THEN @SelectCase2
+	PRINT "It's not 5"
+IF A=10 THEN @SelectEnd
+	PRINT "It's not 10"
 @SelectEnd
 
 
