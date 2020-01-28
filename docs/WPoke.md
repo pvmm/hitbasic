@@ -29,7 +29,7 @@ Assuming _memPos_ gets transpiled as _A_ and _memVal_ gets transpiled as _B_:
 
 ```vb
 POKE (A),VAL("&H"+HEX$(B)) AND 255
-IF (B)<0 THEN POKE (A)+1,VAL(LEFT$("&H"+HEX$(B),2)) ELSE POKE (A)+1,(B)\256
+IF (B)<0 THEN POKE (A)+1,VAL("&H"+LEFT$(HEX$(B),2)) ELSE POKE (A)+1,(B)\256
 ```
 
 The parenthesis are to ensure the expressions are evaluated first.
