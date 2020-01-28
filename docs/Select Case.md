@@ -1,6 +1,6 @@
 # Select Case
 
-This is the Select Case structure. It works like this:
+This is the _Select Case_ structure. It works like this:
 
 ```vb
 Select <testexpression>
@@ -38,7 +38,7 @@ IF NOT(A=2) THEN @SelectCaseElse
 @SelectEnd
 ```
 
-If there is no case else clause, the last condition test goes to @SelectEnd.
+If there is no _Case Else_ clause, the last condition test goes to @SelectEnd.
 
 ## Expression lists
 
@@ -72,11 +72,11 @@ The keyword _Is_ represents the test expression inside the expression list, and 
 ```vb
 Select num
 Case Is > min
-    print "It's larger"
+	Print "It's larger"
 Case Is < min
-    print "It's smaller"
+	Print "It's smaller"
 Case Else
-    print "It's the same"
+	Print "It's the same"
 End Select
 ```
 
@@ -96,7 +96,7 @@ IF NOT(A<B) THEN @SelectCaseElse
 
 ## Keyword _To_
 
-The keyword _to_ is used to represent an interval inside the expression list:
+The keyword _To_ is used to represent an interval inside the expression list:
 
 ```vb
 Select num
@@ -121,4 +121,4 @@ IF NOT(A>=6 AND A<=10) THEN @SelectEnd
 
 ## Keyword _Exit Select_
 
-The _Exit Select_ keyword is used to break out of a _Select Case_ block and should be transpiled as _GOTO @SelectEnd_.
+The _Exit Select_ keyword is used to break out of a _Select Case_ block and should be transpiled as `GOTO @SelectEnd`.
