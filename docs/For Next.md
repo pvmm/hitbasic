@@ -78,4 +78,4 @@ NEXT
 RETURN
 ```
 
-The loop is moved to a subroutine because in MSX-BASIC, _RETURN_ empties the stack. If we just _GOTO_ed outside the _FOR_ loop, the counter variable would remain in the stack and an error would eventually be caused.
+The loop is moved to a subroutine because in MSX-BASIC, _RETURN_ empties the stack. If we just *GOTO*ed outside the _FOR_ loop, the counter variable would remain in the stack and an error would eventually be caused.
