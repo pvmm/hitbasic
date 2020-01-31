@@ -6,7 +6,7 @@ This is the _Select Case_ structure. It tests an expression against a list of ca
 Select <testexpression>
 Case <expressionlist>
     ...
-Case Else
+[Case Else]
     ...
 End Select
 ```
