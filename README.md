@@ -4,7 +4,7 @@ PEG parser for MSX-BASIC on steroids
 How to generate a new grammar
 -----------------------------
 
-`BASIC.py` contains the grammar transformed into code and it's generated from the rules contained in the file `BASIC.peg`. So if you change the rules, you should generate a new `BASIC.py` file. To generate this file you will need node.js and npm installed on your system. In the root directory execute the following commands:
+`BASIC.py` contains the grammar transformed into code and it's generated from the rules contained in the file `BASIC.peg`. So if you change the rules, you should generate a new `BASIC.py`. To generate this file you will need node.js and npm installed on your system. In the root directory execute the following commands:
 
 ```
 $ npm install
