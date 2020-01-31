@@ -1,6 +1,6 @@
 # Select Case
 
-This is the _Select Case_ structure. It works like this:
+This is the _Select Case_ structure. It tests an expression against a list of cases and execute instructions when the test returns _True_. The structure itself looks like this:
 
 ```vb
 Select <testexpression>
