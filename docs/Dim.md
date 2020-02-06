@@ -16,5 +16,6 @@ Integer|%     |Integer                              |-32768 to 32767            
 Single |!     |Floating point with single precision |6 significant digits, exponent from -64 to +62  |4 bytes
 Double |#     |Floating point with double precision |14 significant digits, exponent from -64 to +62 |8 bytes
 String |$     |String                               |0 to 255 characters                             |As many bytes as the number of characters, plus 3
+Boolean|      |Boolean logic                        |_False_ or _True_                               |2 bytes (it's stored as an integer)
 
-If omitted, type is always floating point with double precision.
+If omitted, type is always floating point with double precision, unless defined otherwise (see keywords _DefInt_, _DefSng_, _DefDbl_, _DefStr_ and _DefBool_). _Boolean_ is a new type to HitBasic which can only hold values _False_ or _True_. These are internally converted to integer.

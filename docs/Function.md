@@ -3,7 +3,7 @@
 _Function_ is used to define functions and parameters to be passed. A function is a subroutine that returns with one or more values. The structure looks like this:
 
 ```vb
-Function <name>[(<parameter 1> [As <type 1>]{[, <parameter 2...>] [As <type 2...>]})] [As <type>]
+Function <name>[(<parameter 1> [As <type 1>]{[, <parameter 2...>] [As <type 2...>]})] [As <type> | As (list of types)]
 	...
 	[Return [<value 1>{[, <value 2>]}]
 	...
@@ -42,6 +42,44 @@ RETURN
 ```
 
 Just like with _Sub_, function parameters are not the same as variables when they share the same name. Beware when using parameters with the same name as previously declared variables, as it may lead to unintended behavior.
+
+## Tuples
+
+As seen above, a function can return more than one value. These are called _tuples_. In this case, _As_ should refer to a list of types (inside parenthesis), instead of only one type. For example:
+
+```vb
+Input date
+day, month, year = stringToDate(date)
+Print "Today is "; strMonth(month - 1); day; " of"; year
+End
+
+Function stringToDate(myDate As String) As (Integer, Integer, Integer) 
+    Dim myDay, myMonth, myYear As Integer
+    myDay = Val(Left(myDate, 2))
+    myMonth = Val(Mid(myDate, 3, 2))
+    myYear = Val(Right(myDate, 4))
+    Return myDay, myMonth, myYear
+End Function
+```
+
+The above would be transpiled as something like this:
+
+```vb
+Input A$
+B$=A$:GOSUB @stringToDate
+F%=C%:G%=D%:H%=E%
+PRINT "Today is "; C$(G%-1);F%;" of";H%
+END
+
+@stringToDate
+C%=VAL(LEFT$(B$,2))
+D%=VAL(MID$(B$,3,2))
+E%=VAL(RIGHT$(B$,4))
+RETURN
+```
+
+In the previous example, _date_ became _A$_, while _day_, _month_ and _year_ became, respectively, _F%_, _G%_ and _H%_. The function _stringToDate()_ had its parameters and values (_myDate_, _myDay_, _myMonth_, _myYear_) transpiled into _B$_, _C%_, _D%_ and _E%_.
+
 
 ## Keyword _Exit Function_
 
