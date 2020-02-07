@@ -45,7 +45,7 @@ Just like with _Sub_, function parameters are not the same as variables when the
 
 ## Tuples
 
-As seen above, a function can return more than one value. These are called _tuples_. In this case, _As_ should refer to a list of types (inside parenthesis), instead of only one type. For example:
+As seen above, a function can return more than one value. These are called _tuples_. In this case, _As_ should refer to a list of types (inside parentheses), instead of only one type. For example:
 
 ```vb
 Input date
@@ -106,7 +106,7 @@ Function wordYear(lang As String) As String
 End Function
 ```
 
-The two previous snippets would both become something like this, if _wordYear_ is transpiled to _A$_ and lang to _B$_:
+The two previous snippets would both become something like this, if _wordYear_ is transpiled to _A$_ and _lang_ to _B$_:
 
 ```vb
 @wordYearStart

@@ -28,7 +28,7 @@ NEXT
 
 ## Keyword _Continue For_
 
-_Continue For_ just transfer control to the next loop iteration. For example:
+_Continue For_ just transfers control to the next loop iteration. For example:
 
 ```vb
 For counter = 1 To 10

@@ -34,7 +34,7 @@ GOTO @DoLoopStart
 @DoLoopEnd
 ```
 
-## _Do While__
+## _Do While_
 
 ```vb
 Do While <condition>
