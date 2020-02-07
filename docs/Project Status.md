@@ -1,7 +1,7 @@
 Project Status
 ==============
 
-This document reflects the status of the HitBASIC transpiler.  It is a live document and will be updated as work progresses, features are added as work on features progresses.  This is not an exhaustive list of our features but rather the ones which have active development efforts behind them.
+This document reflects the status of the HitBASIC transpiler.  It is a live document and will be updated as work progresses and new features are planned.  This is not an exhaustive list of our features but rather the ones which have active development efforts behind them.
 
 
 | Language Feature   | Grammar% | Parser% |
