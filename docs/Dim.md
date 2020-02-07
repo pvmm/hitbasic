@@ -50,6 +50,20 @@ Declaring multiple variables with starting values:
 Dim year As Integer = 2020, pi As Single = 3.14159
 ```
 
+If you try to assign a starting value without an explicit type, HitBasic will use type inference to determine the type instead of just using the default. For example:
+
+```vb
+Dim name = "John"
+```
+
+In the previous case, the variable is considered as a string. In the case of numeric values, type will always be the smaller type that can hold the value. Like this:
+
+```vb
+Dim year = 2020 ' The type is _Integer_ because the value is an integer in the range from -32768 to 32767
+Dim tau = 6.28319 ' The type is _Single_ because the value is floating point and it has 6 or less significant digits
+Dim pi = 3.1415926535898 ' The type is _Double_ because the value is floating point
+```
+
 Declaring multiple variables of the same type:
 
 ```vb
@@ -62,9 +76,11 @@ Declaring multiple variables with multiple types:
 Dim name, surname, address As String, year, month, day As Integer
 ```
 
+In both previous cases, since multiple variables are being defined with a single type, it isn't possible to assign a starting value to the variables.
+
 ## Arrays
 
-If you follow the variable name with parentheses, it means you are declaring an array. Arrays in HitBasic and MSX-BASIC can have up to 3 dimensions. The bounds list is composed by each dimension's bounds, separated by commas (,), like this:
+If you follow the variable name with parentheses, it means you are declaring an array. Arrays can have up to 3 dimensions. The bounds list is composed by each dimension's bounds, separated by commas (,), like this:
 
 ```vb
 Dim a(1 To 20, 1 To 10) As Double
