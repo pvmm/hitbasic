@@ -20,9 +20,9 @@ This document reflects the status of the HitBASIC transpiler.  It is a live docu
 | Def Fn functions       | 0%   | 0%  |
 | Remaining instruction set | 1%   | 0%  |
 
-| Software components    | Remaining% |
-| ---------------------- | ---------- |
-| Preprocessor           | 90% |
+| Software components & features   | Status |
+| -------------------------------- | ------ |
+| Preprocessor (*)       | 90% |
 | Scope management       | 20% |
 | MSX-BASIC translation  | 10% |
 | MSX-BASIC tokenizer    | 0%  |
@@ -30,3 +30,6 @@ This document reflects the status of the HitBASIC transpiler.  It is a live docu
 | Errors and warnings reporting | 10% |
 | Boolean type support   | 0%   |
 | Python unit tests      | 100% |
+
+(*) For PEG parsers, a preprocessor was not really necessary, but it has proven useful for making the grammar simpler to read and maintain. It also makes parser error reports more meaningful for the user.
+
