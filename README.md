@@ -1,4 +1,4 @@
-# HitBASIC
+# HitBasic
 PEG parser for MSX-BASIC on steroids
 
 How to generate a new grammar
@@ -14,10 +14,10 @@ $ ./scripts/generate-grammar.sh
 Executing the parser
 --------------------
 
-The parser reads standard input and generate debug information for output (no transpilation yet). But you can at least use it to verify if the input is a valid HitBASIC program (the `docs` directory contains specifications of what constitutes a valid HitBASIC program).
+The parser reads standard input and generate debug information for output (no transpilation yet). But you can at least use it to verify if the input is a valid HitBasic program (the `docs` directory contains specifications of what constitutes a valid HitBasic program).
 
 ```
-$ python ./parser.py
+$ ./hb
 for i 1 to 20
 print i
 next i

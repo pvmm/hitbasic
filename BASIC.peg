@@ -1,4 +1,4 @@
-grammar HitBASIC
+grammar HitBasic
 
 Program            <- Space? ( EndOfFile / Commands ) Space?
 Commands           <- Command EndOfCommand Commands?
