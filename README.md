@@ -21,7 +21,5 @@ $ ./hb
 for i 1 to 20
 print i
 next i
-Parse error: line 1: expected [ \t], "="
-for i 1 to 20
-      ^
+arpeggio.NoMatch: Expected '(' or '=' at position (1, 7) => 'for i *1 to 20'.
 ```
