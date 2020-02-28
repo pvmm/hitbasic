@@ -10,7 +10,7 @@ It looks like this:
 If <condition> Then <action> [Else <else-action>]
 ```
 
-Just like in MSX-BASIC, the actions can be a single statement, a sequence of statements separated by a colon (:) or a label (in this case, it's equivalent to a line number). If it's a label, it's equivalent as `GoTo <label>`. There's also a variation that, in MSX-BASIC, only supports line numbers, and in HitBasic, labels:
+Just like in MSX-BASIC, the actions can be a single statement, a sequence of statements separated by a colon (:) or a label (in this case, it's equivalent to a line number). If it's a label, it's equivalent to `GoTo <label>`. There's also a variation that, in MSX-BASIC, only supports line numbers, and in HitBasic, labels:
 
 ```vb
 If <condition> GoTo <label> [Else <else-label>]
