@@ -1,8 +1,0 @@
-[Select | a | 
- | Case | 1 | 
- | Nop | 
- | Nop | 
- | Case | Else | 
- | Nop | 
- | Nop | 
- | End | Select | ]

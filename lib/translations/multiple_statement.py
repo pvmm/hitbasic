@@ -4,5 +4,5 @@ from . import StatementComponents, CodeComponents
 class Statement:
 
     def translate(self):
-        return CodeComponents(self.code_block).translate()
+        return CodeComponents.from_arg_list(*self.code_block).translate()
 

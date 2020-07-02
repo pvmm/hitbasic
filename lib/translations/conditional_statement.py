@@ -3,6 +3,14 @@ from . import StatementComponents
 
 class Statement:
 
+    def __str__(self):
+        return 'Conditional(%s)' % self.expression
+
+
+    def __repr__(self):
+        return str(self)
+
+
     def translate(self):
         statement = StatementComponents.from_arg_list('IF', ' ', self.expression, ' ', 'THEN')
 
@@ -15,4 +23,3 @@ class Statement:
             statement.append('\n') # force newline
 
         return statement.translate()
-

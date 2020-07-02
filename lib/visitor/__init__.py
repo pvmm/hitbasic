@@ -83,15 +83,17 @@ class MSXBasicVisitor(StatementVisitor,
         main.append(self.end_label)
         main.append(self.create_statement('End'))
         program = main + functions
-        print(program)
-        print('=====================================================')
 
         try:
-            result = CodeComponents(program).translate().freeze()
+            code = CodeComponents(program).translate().freeze()
         except DimInitAccessError as e:
             position = child.position
             raise e.set_position(self.parser.context(position=position), self.parser.pos_to_linecol(position))
-        return result, self.symbol_table
+        return self.symbol_table, code
+
+
+    def visit_labels(self, node, children):
+        return children
 
 
     def visit_label(self, node, children):
@@ -249,6 +251,10 @@ class MSXBasicVisitor(StatementVisitor,
             raise NameNotDeclared(identifier, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
         return self.create_reference(var, params)
+
+
+    def visit_trailing_spaces(self, node, children):
+        return None
 
 
     def visit_new_line(self, node, children):

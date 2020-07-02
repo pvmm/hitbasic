@@ -25,7 +25,7 @@ class ExpressionVisitor:
     def visit_comp_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
-            result = self.create_operation(op, op1, op2)
+            result = self.create_operation(op, op1, op2, node=node[1])
         else:
             result = children.pop()
         return result
@@ -37,7 +37,7 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 + op2 if op == '+' else op1 - op2
             else:
-                result = self.create_operation(op, op1, op2)
+                result = self.create_operation(op, op1, op2, node=node[1])
         else:
             result = children.pop()
         return result
@@ -49,7 +49,7 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 % op2
             else:
-                result = self.create_operation('MOD', op1, op2)
+                result = self.create_operation('MOD', op1, op2, node=node[1])
         else:
             result = children.pop()
 
@@ -62,7 +62,7 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 // op2
             else:
-                result = self.create_operation('\\', op1, op2)
+                result = self.create_operation('\\', op1, op2, node=node[1])
         else:
             result = children.pop()
 
@@ -75,7 +75,7 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 * op2 if op == '*' else op1 / op2
             else:
-                result = self.create_operation(op, op1, op2)
+                result = self.create_operation(op, op1, op2, node=node[1])
         else:
             result = children.pop()
 
@@ -90,7 +90,7 @@ class ExpressionVisitor:
                     operand.value = -operand.value
                     result = operand
                 else:
-                    result = self.create_unary(signal, operand, node=node)
+                    result = self.create_unary_op(signal, operand)
             else:
                 result = operand # +number has obviously no effect
         else:
@@ -108,7 +108,7 @@ class ExpressionVisitor:
                 if self.pp_flag and leftmost.is_constexp and op2.is_constexp:
                     leftmost = leftmost ** op2
                 else:
-                    leftmost = self.create_operation('^', leftmost, op2)
+                    leftmost = self.create_operation('^', leftmost, op2, node=node[1])
             result = leftmost
         else:
             result = children.pop()
@@ -123,7 +123,7 @@ class ExpressionVisitor:
     def visit_str_expr(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
-            result = self.create_operation(op, op1, op2)
+            result = self.create_operation(op, op1, op2, node=node[1])
         else:
             result = children.pop()
         return result
@@ -144,7 +144,7 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 + op2
             else:
-                result = self.create_operation(op, op1, op2)
+                result = self.create_operation(op, op1, op2, node=node[1])
         else:
             result = children.pop()
         return result
@@ -174,7 +174,7 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 + op2 if op == '+' else op1 - op2
             else:
-                result = self.create_operation(op, op1, op2)
+                result = self.create_operation(op, op1, op2, node=node[1])
         else:
             result = children.pop()
         return result
@@ -186,7 +186,7 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 % op2
             else:
-                result = self.create_operation('MOD', op1, op2)
+                result = self.create_operation('MOD', op1, op2, node=nodep[1])
         else:
             result = children.pop()
         return result
@@ -198,7 +198,7 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 // op2
             else:
-                result = self.create_operation('\\', op1, op2)
+                result = self.create_operation('\\', op1, op2, node=node[1])
         else:
             result = children.pop()
         return result
@@ -210,7 +210,7 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 * op2 if op == '*' else op1 / op2
             else:
-                result = self.create_operation(op, op1, op2)
+                result = self.create_operation(op, op1, op2, node=node[1])
         else:
             result = children.pop()
         return result
@@ -224,7 +224,7 @@ class ExpressionVisitor:
                     operand.value = -operand.value
                     result = operand
                 else:
-                    result = self.create_unary(signal, operand, node=node)
+                    result = self.create_unary_op(signal, operand)
             else:
                 result = operand # +number has obviously no effect
         else:
@@ -242,7 +242,7 @@ class ExpressionVisitor:
                 if self.pp_flag and leftmost.is_constexp and op2.is_constexp:
                     leftmost = leftmost ** op2
                 else:
-                    leftmost = self.create_operation('^', leftmost, op2)
+                    leftmost = self.create_operation('^', leftmost, op2, node=node[1])
             result = leftmost
         else:
             result = children.pop()

@@ -4,7 +4,7 @@ from arpeggio import ParseTreeNode
 
 
 # Top tier
-def program():          return [ Optional( statements ), EOF ], EOF
+def program():          return trailing_spaces, [ Optional( statements ), EOF ], trailing_spaces, EOF
 def statements():       return opt_stmt_sep, [ ( labels, opt_stmt_sep, statement ), statement ], ZeroOrMore( statement_sep, statements )
 def statement():        return [ function_stmt,
                                  sub_stmt,
@@ -25,12 +25,14 @@ def statement():        return [ function_stmt,
                                  paramless_stmt,
                                  #multi_attr_stmt,
                                  attr_stmt ]
+def trailing_spaces():  return _(r'\s*')
 def comments():         return [ comments1, comments2 ]
-def comments1():        return [ ( _(r"\s*'[^\n]*"), And( EOF ) ),
-                                 ( _(r"\s*(Rem|')[^\n]*"), And( EOF ) ),
-                                 ( ':', _(r"\s*(Rem|')[^\n]*"), And( EOF ) ) ]
-def comments2():        return [ ( _(r"\s*'[^\n]*"), new_line ),
-                                 ( _(r"\s*(Rem|')[^\n]*"), new_line ),
+def comments1():        return [ 
+                                 _(r"\s*'[^\n]*"),
+                                 ( _(r"^(Rem|')[^\n]*"), new_line ),
+                                 ( ':', _(r"\s*(Rem|')[^\n]*") ) ]
+def comments2():        return [ ( _(r"^\s*'[^\n]*"), new_line ),
+                                 ( _(r"^\s*(Rem|')[^\n]*"), new_line ),
                                  ( ':', _(r"(Rem|')[^\n]*"), new_line ) ]
 
 
@@ -71,10 +73,12 @@ def end_if_stmt():        return 'End', 'If'
 
 # Select rules
 def select_stmt():      return 'Select', expr, statement_sep, ZeroOrMore( select_case, new_line ), Optional( select_case_else, new_line ), 'End', 'Select'
-def select_case():      return 'Case', case_exprs, statement_sep, Optional( case_block )
-def select_case_else(): return 'Case', 'Else', statement_sep, Optional( case_block )
-def case_block():       return [ ( labels, statement ), statement ], ZeroOrMore( statement_sep, case_block ), end_case_block
-def end_case_block():   return And( new_line, [ ( 'End', 'Select' ), 'Case' ])
+def select_case():      return 'Case', case_exprs, statement_sep, Optional( case_block ), end_case_block #, new_line
+def select_case_else(): return 'Case', 'Else', statement_sep, Optional( case_block ), end_case_block #, new_line
+def case_block():       return Not([ ( 'End', 'Select' ), 'Case' ]), [ ( labels, statement ), statement ], ZeroOrMore( statement_sep, case_block )
+def end_case_block():   return And( new_line, [ ( 'End', 'Select' ), 'Case' ] )
+#def end_case_block():   return And( [ ( 'End', 'Select' ), 'Case' ] )
+#def end_case_block():   return And( Optional( new_line ), [ ( 'End', 'Select' ), 'Case' ] )
 def case_exprs():       return [ case_comparison, case_interval, case_value ], ZeroOrMore( ',', case_exprs )
 def case_comparison():  return [ 'Is', '' ], comp_op2
 def case_interval():    return case_intvl_value, 'To', case_intvl_value

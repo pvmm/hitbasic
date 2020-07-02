@@ -1,3 +1,0 @@
-[Dim | i | ( | 1 | ) | As | Integer | 
- | 
- | For | i | ( | 0 | ) | = | 1 | To | 2 | 0 | : | Print |  | i | ( | 0 | ) | : | Next | i | ( | 0 | ) | ]

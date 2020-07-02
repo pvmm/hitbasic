@@ -1,0 +1,9 @@
+[
+ | If | var | = | 1 | Then | 
+ | Cls | 
+ | ? |  | " | 1 | " | Else | 
+ | Cls | 
+ | ? |  | " | d | o | n | e | ! | " | 
+ | End | 
+ | End | If | 
+ | ]

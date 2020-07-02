@@ -1,5 +1,0 @@
-[Function | wordYear | ( | lang | As | String | ) | As | String | 
- | Print |  | 1 | * | 2 | 
- | End | Function | 
- | 
- | Let | yearStr | = | wordYear | ( | " | P | T | " | ) | ]

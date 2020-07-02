@@ -15,6 +15,14 @@ class Statement:
         return self.identifier
 
 
+    def __str__(self):
+        return 'Label(@%s)' % self.identifier
+
+
+    def __repr__(self):
+        return str(self)
+
+
     def translate(self):
         return StatementComponents('@%s' % self.identifier)
 

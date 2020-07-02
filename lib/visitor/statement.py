@@ -233,6 +233,6 @@ class StatementVisitor:
 
 
     def visit_var_defn(self, node, children):
-        var, (expr,) = children
+        var, expr = children
         return self.create_attribution(var, expr)
 

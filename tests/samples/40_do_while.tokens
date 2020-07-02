@@ -1,0 +1,5 @@
+[Do | While | a | > | 0 | : | 
+ | Cls | 
+ | ? |  | " | P | r | o | c | e | s | s | i | n | g | . | . | . | " | 
+ | Loop | 
+ | ]

@@ -142,12 +142,30 @@ class SurrogateFactory:
         return self.clause_type[clause](self.current_rule or NO_RULE, position, False, **kwargs)
 
 
+    def create_unary_op(self, op, operand, **kwargs):
+        'legacy compatible shortcut'
+        self.create_factory_types()
+        assert op != None
+        assert operand != None
+        try:
+            return self.create_clause('unary_op', op=op, operand=operand, **kwargs)
+        except TypeMismatch as e:
+            node = kwargs.pop('node', self.current_node)
+            raise e.set_location(self.parser.context(position=node.position),
+                    self.parser.pos_to_linecol(node.position))
+
+
     def create_operation(self, op, op1, op2, **kwargs):
         'legacy compatible shortcut'
         self.create_factory_types()
         assert op != None
         assert op1 != None
-        return self.create_clause('operation', op=op, op1=op1, op2=op2, **kwargs)
+        try:
+            return self.create_clause('operation', op=op, op1=op1, op2=op2, **kwargs)
+        except TypeMismatch as e:
+            node = kwargs.pop('node', self.current_node)
+            raise e.set_location(self.parser.context(position=node.position),
+                    self.parser.pos_to_linecol(node.position))
 
 
     def create_initialisation(self, dimensions, values, type, **kwargs):

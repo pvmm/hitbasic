@@ -1,0 +1,2 @@
+Sub s(s as String) as String
+End Function

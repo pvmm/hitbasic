@@ -1,2 +1,0 @@
-[If | var | = | 1 | Then | Cls | : | ? |  | " | 1 | " | Else | Cls | : | ? |  | " | n | o | t |   | 1 | " | : | End | 
- | Nop | ]

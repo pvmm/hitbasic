@@ -179,7 +179,9 @@ class CodeComponents(Sequence_):
 
         for statement in self:
             result = statement.translate()
-            if result: output.append(result)
+            if result and type(result) == CodeComponents:
+                output.extend(result)
+            elif result: output.append(result)
         return output
 
 

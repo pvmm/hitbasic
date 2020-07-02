@@ -92,24 +92,33 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     # Create text string from file or stdin and run it through the parser
     from lib import hitbasic
     parser = hitbasic.create_parser(debug=args.graphviz)
-    source = ''
-    for file in args.c:
-        source += args.c[0].read()
 
-    try:
-        tree = parser.parse(source.strip())
-    except Exception as e:
-        print('* %s error: %s' % (e.__class__.__name__, str(e)))
-        if hasattr(args, 'debug') and args.debug:
-            raise e
-        sys.exit(-1)
+    if args.stdin == True:
+        source = ''
+        for file in args.c:
+            source += args.c[0].read()
+        try:
+            tree = parser.parse(source)
+        except Exception as e:
+            print('* %s error: %s' % (e.__class__.__name__, str(e)))
+            if hasattr(args, 'debug') and args.debug:
+                raise e
+            sys.exit(-1)
+    else:
+        try:
+            tree = parser.parse_file(args.c[0].name)
+        except Exception as e:
+            print('* %s error: %s' % (e.__class__.__name__, str(e)))
+            if hasattr(args, 'debug') and args.debug:
+                raise e
+            sys.exit(-1)
 
     # Run output tree through the node visitor
     from arpeggio import visit_parse_tree
     from lib.visitor import MSXBasicVisitor
 
     try:
-        children, symbol_table = visit_parse_tree(tree, MSXBasicVisitor(parser=parser,
+        symbol_table, code = visit_parse_tree(tree, MSXBasicVisitor(parser=parser,
             begin_line=args.begin, debug=False))
     except Exception as e:
         print('* %s error: %s' % (e.__class__.__name__, str(e)))
@@ -117,10 +126,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
             raise e
         sys.exit(-1)
     else:
-        pprint(symbol_table)
-        print('============================================')
         term = shutil.get_terminal_size((80, 25))
-        pprint(children, width=term[0])
+        pprint({'symbol_table': symbol_table, 'code': code}, width=term[0])
         sys.exit(0)
 
     if args.tokenize:
