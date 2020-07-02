@@ -30,12 +30,20 @@ class Sequence_(list):
 
 
 class ClauseComponents(Sequence_):
+    'bits and pieces of a statement'
     def __init__(self, components=()):
-        for component in make_tuple(components):
-            if isinstance(component, (StatementComponents, ClauseComponents)):
-                raise TypeError()
-            else:
-                self.append(component)
+        if isinstance(components, ClauseComponents):
+            self.extend(components)
+        elif isinstance(components, (StatementComponents, CodeComponents)):
+            raise TypeMismatch(ClauseComponents.__class__, components)
+        else:
+            for item in make_tuple(components):
+                if isinstance(item , ClauseComponents):
+                    self.extend(item)
+                if isinstance(item, (StatementComponents, ClauseComponents)):
+                    raise TypeMismatch(ClauseComponents.__class__, item)
+                else:
+                    self.append(item)
 
 
     def add(self, *items):
@@ -52,34 +60,44 @@ class ClauseComponents(Sequence_):
 
 
     def translate(self):
-        output = []
+        output = ClauseComponents()
         for item in self:
             if isinstance(item, (str, int, float, bool)):
                 output.append(item)
             elif type(item) in clauses.TYPES.values():
                 output.extend(item.translate())
-            elif type(item) in types.TYPE_MAPPING.values():
-                output.extend(item.translate())
+            elif type(item) in types.TYPES.values():
+                output.append(item.translate())
             elif isinstance(item, ClauseComponents):
                 output.extend(item.translate())
             elif isinstance(item, (StatementComponents, CodeComponents)):
-                raise TypeError()
+                raise TypeMismatch(ClauseComponents.__class__, item)
         return output
 
 
 class StatementComponents(Sequence_):
+    'a single statement'
     def __init__(self, components=()):
-        for component in make_tuple(components):
-            if isinstance(component, StatementComponents):
-                raise TypeError()
-            else:
-                self.append(component)
+        if isinstance(components, ClauseComponents):
+            self.extend(components)
+        elif isinstance(components, StatementComponents):
+            self.extend(components)
+        elif isinstance(components, CodeComponents):
+            raise TypeMismatch(ClauseComponents.__class__, components)
+        else:
+            for item in make_tuple(components):
+                if isinstance(item, StatementComponents):
+                    raise TypeMismatch(ClauseComponents.__class__, item)
+                else:
+                    self.append(item)
 
 
     def add(self, *items):
         for item in items:
-            if type(item) == ClauseComponents:
+            if isinstance(item, (ClauseComponents, StatementComponents)):
                 self.extend(item)
+            elif type(item) == CodeComponents:
+                raise TypeMismatch(StatementComponents.__class__, item)
             elif type(item) == tokens.token_type:
                 self.append(*item.token)
             else:
@@ -88,20 +106,35 @@ class StatementComponents(Sequence_):
 
 
     def translate(self):
-        output = []
+        output = ClauseComponents()
+        for item in self:
+            if isinstance(item, (str, int, float, bool)):
+                output.append(item)
+            elif type(item) in clauses.TYPES.values():
+                output.extend(item.translate())
+            elif type(item) in types.TYPE.values():
+                output.extend(item.translate())
+            elif isinstance(item, ClauseComponents):
+                output.extend(item.translate())
+            elif isinstance(item, (StatementComponents, CodeComponents)):
+                raise TypeMismatch(StatementComponents.__class__, item)
+        return output
+
+
+    def translate(self):
+        output = StatementComponents()
         for item in self:
             if isinstance(item, (str, int, float, bool)):
                 output.append(item)
             elif isinstance(item, ClauseComponents):
-                self.extend(item)
-            elif isinstance(item, StatementComponents):
-                raise TypeError()
+                self.extend(item.translate())
+            elif isinstance(item, CodeComponents):
+                raise TypeMismatch(StatementComponents.__class__, item)
+            elif type(item) in types.TYPES.values():
+                output.append(item.translate())
             elif type(item) in clauses.TYPES.values():
                 output.extend(item.translate())
-            elif type(item) in types.TYPES.values():
-                output.extend(item.translate())
             elif type(item) in statements.TYPES.values():
-                # adding GOSUB to IF-THEN for instance
                 output.extend(item.translate())
             else:
                 output.append(item.translate())
@@ -109,15 +142,17 @@ class StatementComponents(Sequence_):
 
 
 class CodeComponents(Sequence_):
+    'multi-statement components'
     def __init__(self, components=()):
-        for component in make_tuple(components):
-            if isinstance(component, CodeComponents):
-                self.extend(component)
-            if isinstance(component, StatementComponents):
-                self.append(component)
-            elif isinstance(component, ClauseComponents):
-                raise TypeError()
-            else:
+        if isinstance(components, StatementComponents):
+            self.append(components)
+        elif isinstance(components, CodeComponents):
+            self.extend(components)
+        elif isinstance(components, ClauseComponents):
+            raise TypeMismatch(CodeComponents.__class__, components)
+        else:
+            components = make_tuple(components)
+            for component in components:
                 self.append(component)
 
 
@@ -130,7 +165,7 @@ class CodeComponents(Sequence_):
             elif type(item) == CodeComponents:
                 self.extend(item)
             elif type(item) in clauses.TYPES.values():
-                raise TypeError()
+                raise TypeMismatch(CodeComponents.__class__, item)
             elif isinstance(item, Surrogate):
                 self.append(item)
             else:
@@ -144,7 +179,7 @@ class CodeComponents(Sequence_):
 
         for statement in self:
             result = statement.translate()
-            if result: output.add(result)
+            if result: output.append(result)
         return output
 
 

@@ -1,22 +1,31 @@
 from .. import language_tokens as tokens
 
-
-def translate(self):
-    return self.token
+from ..hitbasic import Surrogate
 
 
-def __str__(self):
-    return ' '.join(self.token)
+class Token:
+
+    def __init__(self, rule, position, error, token, **kwargs):
+        Surrogate.__init__(self, rule, position, error, **kwargs)
+        self.token = tuple(t.title() for t in token)
 
 
-def __repr__(self):
-    return 'Token(%s)' % str(self)
+    def translate(self):
+        return tuple(t.upper() for t in self.token)
 
 
-def __eq__(self, other):
-    if isinstance(other, str):
-        return self.token == tokens.Token(other)
-    if isinstance(other, tokens.Token):
-        return self.token == other.token
-    return False
+    def __str__(self):
+        return ' '.join(tuple(t.title() for t in self.token))
+
+
+    def __repr__(self):
+        return 'Token(%s)' % str(self)
+
+
+    def __eq__(self, other):
+        if isinstance(other, str):
+            return self.token == (str.title(),)
+        if isinstance(other, tokens.Token):
+            return repr(self) == repr(other)
+        return False
 

@@ -1,0 +1,5 @@
+[For | i | = | 1 | To | 2 | 0 | 
+ | ? |  | " | c | u | r | r | e | n | t |   | n | u | m | b | e | r | : |   | " | ; | i | 
+ | If | i | Mod | 1 | Then | Next | i | 
+ | ? |  | " | n | e | x | t |   | n | u | m | b | e | r |   | i | s |   | e | v | e | n | : |   | " | ; | i | + | 1 | 
+ | Next | ]

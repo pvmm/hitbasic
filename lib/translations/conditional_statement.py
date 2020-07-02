@@ -1,16 +1,18 @@
 from . import StatementComponents
 
 
-def translate(self):
-    statement = StatementComponents.from_arg_list('IF', ' ', self.expression, ' ', 'THEN')
+class Statement:
 
-    if self.then_branch:
-        statement.add(' ', self.then_branch)
+    def translate(self):
+        statement = StatementComponents.from_arg_list('IF', ' ', self.expression, ' ', 'THEN')
 
-    if hasattr(self, 'else_branch') and self.else_branch:
-        statement.add(' ', 'ELSE', ' ', self.else_branch, '\n')
-    else:
-        statement.append('\n') # force newline
+        if self.then_branch:
+            statement.add(' ', self.then_branch)
 
-    return statement.translate()
+        if hasattr(self, 'else_branch') and self.else_branch:
+            statement.add(' ', 'ELSE', ' ', self.else_branch, '\n')
+        else:
+            statement.append('\n') # force newline
+
+        return statement.translate()
 

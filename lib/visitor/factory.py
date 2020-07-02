@@ -47,20 +47,20 @@ class SurrogateFactory:
             self.module[key] = import_module(module_path)
 
         # Allow creation of literals outside factory.
-        self.types['String'] = type('String', (Surrogate,), self.module['string_literal'].__dict__)
+        self.types['String'] = type('String', (Surrogate,), dict(self.module['string_literal'].__dict__['Type'].__dict__))
         types.register( 'String', self.types['String'])
-        self.types['Integer'] = type('Integer', (Surrogate,), self.module['numeric_literal'].__dict__)
+        self.types['Integer'] = type('Integer', (Surrogate,), dict(self.module['numeric_literal'].__dict__['Type'].__dict__))
         types.register('Integer', self.types['Integer'])
-        self.types['Double'] = type('Double', (Surrogate,), self.module['numeric_literal'].__dict__)
+        self.types['Double'] = type('Double', (Surrogate,), dict(self.module['numeric_literal'].__dict__['Type'].__dict__))
         types.register('Double', self.types['Double'])
-        self.types['Single'] = type('Single', (Surrogate,), self.module['numeric_literal'].__dict__)
+        self.types['Single'] = type('Single', (Surrogate,), dict(self.module['numeric_literal'].__dict__['Type'].__dict__))
         types.register('Single', self.types['Single'])
-        self.types['Boolean'] = type('Boolean', (Surrogate,), self.module['numeric_literal'].__dict__)
+        self.types['Boolean'] = type('Boolean', (Surrogate,), dict(self.module['numeric_literal'].__dict__['Type'].__dict__))
         types.register('Boolean', self.types['Boolean'])
 
         for module_name, module in dict(filter(lambda i: i[0].endswith('_clause'), self.module.items())).items():
             clause = module_name.replace('_clause', '')
-            self.clause_type[clause] = type('Clause(%s)' % clause, (Surrogate,), module.__dict__)
+            self.clause_type[clause] = type('Clause(%s)' % clause, (Surrogate,), dict(module.__dict__['Clause'].__dict__))
             clauses.register(clause, self.clause_type[clause])
 
         self.initialisation_type = type('Initialisation', (Surrogate,), {})
@@ -69,16 +69,16 @@ class SurrogateFactory:
             statement = module_name.replace('_statement', '')
             tokens = statement.split('_')
             statement = statement.title()
-            self.statement_type[statement] = type('Statement(%s)' % statement, (Surrogate,), module.__dict__)
+            self.statement_type[statement] = type('Statement(%s)' % statement, (Surrogate,), dict(module.__dict__['Statement'].__dict__))
             # Allow creation of statements outside factory.
             statements.register(statement, self.statement_type[statement])
 
         for key in statements.SIMPLE_STATEMENTS:
             tokens = make_tuple(key)
             statement = ' '.join(tokens)
-            module_body = dict(self.module['simple_statements'].__dict__) # create a copy
-            module_body.update({'tokens': tuple(token.upper() for token in tokens)})
-            self.statement_type[statement] = type('Statement(%s)' % statement, (Surrogate,), module_body)
+            class_body = dict(self.module['simple_statements'].__dict__['Statement'].__dict__) # create a copy
+            class_body.update({'tokens': tuple(token.upper() for token in tokens)})
+            self.statement_type[statement] = type('Statement(%s)' % statement, (Surrogate,), class_body)
             # Allow creation of statements outside factory.
             statements.register(statement, self.statement_type[statement])
 
@@ -98,6 +98,7 @@ class SurrogateFactory:
     def create_reference(self, value, params=None, **kwargs):
         "node that links to symbol table variable, builtin or function (in 'reference')"
         assert value != None
+        assert type(value) != str
         self.create_factory_types()
         node = kwargs.pop('node', self.current_node)
         position = kwargs.pop('pos', node.position if node else None)

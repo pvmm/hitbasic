@@ -84,6 +84,7 @@ class SymbolTable(dict):
 
 
     def check_hitbasic_var(self, identifier, params=None, no_exception=True, context='_global'):
+        assert type(identifier) == str
         try:
             var = self[context]['_hitbasic_vars'][identifier]
             if params != None: var.check_boundaries(params)
@@ -95,6 +96,7 @@ class SymbolTable(dict):
 
 
     def check_basic_var(self, identifier, params=None, type=None, context='_global'):
+        assert __builtins__['type'](identifier) == str
         type = types.get_type_from_id(identifier) or type
         with suppress(KeyError):
             var = self[context]['_basic_vars'][type.__name__].get(identifier.upper())
@@ -104,6 +106,7 @@ class SymbolTable(dict):
 
 
     def check_id(self, identifier, params=(), type=None, context='_global'):
+        assert __builtins__['type'](identifier) == str
         if (result := self.check_builtin(identifier, context=context)):
             return result
         if (result := self.check_hitbasic_var(identifier, params=params, context=context)):
@@ -116,6 +119,7 @@ class SymbolTable(dict):
 
 
     def base36(self, num, base=36, numerals="0123456789abcdefghijklmnopqrstuvwxyz"):
+        assert type(num) == int
         return ((num == 0) and numerals[0]) or (self.base36(num // base, base,
             numerals).lstrip(numerals[0]) + numerals[num % base])
 

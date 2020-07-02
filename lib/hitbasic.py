@@ -26,8 +26,12 @@ def statement():        return [ function_stmt,
                                  #multi_attr_stmt,
                                  attr_stmt ]
 def comments():         return [ comments1, comments2 ]
-def comments1():        return [ ( _(r"\s*(Rem|')[^\n]*"), And( EOF )), ( ':', _(r"\s*(Rem|')[^\n]*"), And( EOF ) ) ]
-def comments2():        return [ ( _(r"\s*(Rem|')[^\n]*"), And( new_lines ) ), ( ':', _(r"(Rem|')[^\n]*"), And( new_lines ) ) ]
+def comments1():        return [ ( _(r"\s*'[^\n]*"), And( EOF ) ),
+                                 ( _(r"\s*(Rem|')[^\n]*"), And( EOF ) ),
+                                 ( ':', _(r"\s*(Rem|')[^\n]*"), And( EOF ) ) ]
+def comments2():        return [ ( _(r"\s*'[^\n]*"), new_line ),
+                                 ( _(r"\s*(Rem|')[^\n]*"), new_line ),
+                                 ( ':', _(r"(Rem|')[^\n]*"), new_line ) ]
 
 
 # Dim rules
@@ -50,7 +54,7 @@ def dim_eq_tk():        return '='
 
 # If-then-else rules
 def if_then_else_stmt():  return [ 
-                        ( 'If', expr, 'Then', Optional( statement_sep ), Optional( then_clauses ), Optional( statement_sep ), 'Else', statement_sep, Optional( else_clauses, statement_sep ), end_if_stmt ),
+                        ( 'If', expr, 'Then', Optional( statement_sep ), Optional( then_clauses ), Optional( statement_sep ), 'Else', Optional( statement_sep ), Optional( else_clauses ), Optional( statement_sep ), end_if_stmt ),
                         ( 'If', expr, 'Then', Optional( statement_sep ), Optional( else_clauses, statement_sep ), end_if_stmt ),
                         ( 'If', expr, 'Then', inln_then_clauses, 'Else', inln_else_clauses ),
                         ( 'If', expr, 'Then', inln_else_clauses ),
@@ -61,7 +65,7 @@ def inln_then_clauses():  return Optional( inln_stmts ), And( 'Else' )
 def inln_else_clauses():  return Optional( inln_stmts ), And([ EOF, new_line ])
 def inln_stmts():         return statement, ZeroOrMore( ':', inln_stmts )
 def then_clauses():       return [ ( labels, statement ), statement ], ZeroOrMore( statement_sep, then_clauses ), And([ statement_sep, 'Else' ])
-def else_clauses():       return [ ( labels, statement ), statement ], ZeroOrMore( statement_sep, else_clauses ), And( statement_sep, end_if_stmt )
+def else_clauses():       return [ ( labels, statement ), statement ], ZeroOrMore( statement_sep, else_clauses ), And([( statement_sep, end_if_stmt ), end_if_stmt ])
 def end_if_stmt():        return 'End', 'If'
 
 
@@ -94,12 +98,11 @@ def do_stmt():          return [ ( 'Exit', 'Do' ), statement ]
 
 
 # For loop rules
-def for_stmt():         return 'For', for_var, '=', for_range_decl
+def for_stmt():         return 'For', var, '=', for_range_decl
 def for_range_decl():   return [ ( num_expr, 'To', num_expr, 'Step', num_expr ), ( num_expr, 'To', num_expr ) ]
 def next_stmt():        return 'Next', Optional( next_vars )
 def next_vars():        return next_var, ZeroOrMore( ',', next_var )
-def next_var():         return for_var
-def for_var():          return var
+def next_var():         return var
 
 
 # Function rules
@@ -173,7 +176,7 @@ def g_tracing_start():  return num_expr
 def g_tracing_end():    return num_expr
 def g_aspect():         return num_expr
 def g_shape():          return [ 'BF', 'B' ]
-def g_optor():          return [ 'And', 'Or' 'Preset', 'Pset', 'Xor', 'Tand', 'Tor', 'Tpreset', 'Tpset', 'Txor' ]
+def g_optor():          return [ 'And', 'Or', 'Preset', 'Pset', 'Xor', 'Tand', 'Tor', 'Tpreset', 'Tpset', 'Txor' ]
 def g_page():           return num_expr
 def g_mode():           return num_expr
 def g_sprite_size():    return num_expr
@@ -311,7 +314,7 @@ class Surrogate(ParseTreeNode):
     def __init__(self, rule, position, error, **kwargs):
         super().__init__(rule, position, error)
         for key, value in kwargs.items():
-            self.__dict__[key] = value
+            setattr(self, key, value)
 
 
     def translate(self):

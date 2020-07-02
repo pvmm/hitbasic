@@ -1,6 +1,4 @@
- [
- | 
- | @ | label30 | 
+[@ | label30 | 
  | 
  | Cls | 
  | Dim | b | As | Integer | , | a | As | Integer | 

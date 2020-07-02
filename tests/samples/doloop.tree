@@ -1,5 +1,4 @@
-[
- | @ | label10 | @ | label11 | 
+[@ | label10 | @ | label11 | 
  | Cls | 
  | @ | label12 | 
  | 
@@ -12,21 +11,21 @@
  | 
  | Do | 
  | Cls | 
- | Print | " |   | x | b | c |   |   | d | e | f |   | 1 | 2 | 3 | 	 | 4 | 5 | 6 |   |   | " | 
- | Print | 1 | ^ | 2 | 
- | Print | 4 | - | 3 | 
- | Print | b | 
+ | Print |  | " |   | x | b | c |   |   | d | e | f |   | 1 | 2 | 3 | 	 | 4 | 5 | 6 |   |   | " | 
+ | Print |  | 1 | ^ | 2 | 
+ | Print |  | 4 | - | 3 | 
+ | Print |  | b | 
  | 
  | Loop | While | a | > | 0 | 
  | 
  | Do | While | a | > | 0 | 
  | Cls | 
- | Print | " | t | e | s | t | i | n | g | " | 
+ | Print |  | " | t | e | s | t | i | n | g | " | 
  | 
  | Do | 
  | Cls | 
- | Print | " | t | e | s | t | i | n | g |   | a | g | a | i | n | " | 
+ | Print |  | " | t | e | s | t | i | n | g |   | a | g | a | i | n | " | 
  | Loop | Until | b | ! | = | 0 | 
  | Loop | 
  | 
- | Print | " | d | o | n | e | ! | " | ]
+ | Print |  | " | d | o | n | e | ! | " | ]

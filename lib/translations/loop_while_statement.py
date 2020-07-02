@@ -1,17 +1,19 @@
 from . import StatementComponents, CodeComponents
 
 
-def translate(self):
-    """
-    @DoLoopStart
-	...
-    IF <condition> THEN @DoLoopStart
-    @DoLoopEnd
-    """
-    code = CodeComponents(self.do_loop_start)
+class Statement:
 
-    for statement in self.code_block:
-        code.append(statement)
+    def translate(self):
+        """
+        @DoLoopStart
+    	...
+        IF <condition> THEN @DoLoopStart
+        @DoLoopEnd
+        """
+        code = CodeComponents(self.do_loop_start)
 
-    return code.append(StatementComponents.from_arg_list('IF', ' ', self.expression, ' ', 'THEN', ' ', self.branch)).translate()
+        for statement in self.code_block:
+            code.append(statement)
+
+        return StatementComponents.from_arg_list('IF', ' ', self.expression, ' ', 'THEN', ' ', self.branch).translate()
 

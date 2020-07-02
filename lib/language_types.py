@@ -18,7 +18,6 @@ ALLOWED_TYPE_NAMES = [ 'Nil', 'String', 'Integer', 'Double', 'Single', 'Address'
 TYPE_CHARS = [ '$', '%', '#', '!' ]
 NAME_MAPPING = { '$' : 'String', '%' : 'Integer', '#' : 'Double', '!' : 'Single' }
 CHAR_MAPPING = { 'String' : '$', 'Integer' : '%', 'Double' : '#', 'Single' : '!' }
-TYPE_MAPPING = { 'Nil': Nil, 'String' : None, 'Integer' : None, 'Double' : None, 'Single' : None }
 NUMBER_CLASS = { 'Boolean': 0, 'Integer': 1, 'Single': 2, 'Double': 3 }
 
 
@@ -48,7 +47,6 @@ def register(type_name, type_):
     if type_name in ['String', 'Integer', 'Double', 'Single']:
         globals()[type_name] = type_
         globals()['TYPES'][type_name] = type_
-        globals()['TYPE_MAPPING'][type_name] = type_
     if type_name == 'Double':
         globals()['DEFAULT_TYPE'] = type_
         globals()['current_default_type'] = type_
@@ -133,7 +131,7 @@ def get_basic_type_char(type_):
 
 
 def get_type_from_type_id(type_id):
-    if (result := TYPE_MAPPING[type_id]) is None:
+    if (result := TYPES[type_id]) is None:
         raise ValueError('type not initialised')
     return result
 

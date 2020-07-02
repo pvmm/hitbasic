@@ -1,0 +1,12 @@
+[Cls | 
+ | Dim | i | As | Integer | , | b | As | Integer | = | 1 | 2 | 3 | 
+ | Dim | a | As | String | 
+ | 
+ | Let | b | = | 1 | 2 | 3 | 
+ | Let | a | = | chr | ( | 6 | 5 | ) | 
+ | 
+ | For | i | = | b | + | 2 | * | 3 | To | 2 | 0 | Step | 1 | + | 1 | 
+ | Print |  | " |   | x | b | c |   |   | d | e | f |   | 1 | 2 | 3 | 	 | 4 | 5 | 6 |   | " | 
+ | Print |  | 1 | ^ | 2 | 
+ | Print |  | 4 | - | 3 | 
+ | Next | i | ]

@@ -1,9 +1,0 @@
- [
- | Dim | a | As | Integer | = | 1 | 0 | 
- | 
- | Do | While | a | > | 0 | 
- | Print |  | 4 | 1 | 
- | Print |  | 3 | 2 | 
- | Loop | 
- | 
- | Print |  | " | d | o | n | e | ! | " | ]

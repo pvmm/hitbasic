@@ -113,9 +113,7 @@ class LoopVisitor:
 
     def visit_for_stmt(self, node, children):
         var, (begin, end, step) = children
-        if not (ref := self.symbol_table.check_id(var.value)):
-            pos = self.parser.pos_to_linecol(node.position)
-            raise NameNotDeclared(var.value, self.parser.context(node.position), pos)
+        assert var.value != None
         self.save_loop(var)
         return self.create_statement('For_Loop', var=var, begin=begin, end=end, step=step)
 
@@ -142,18 +140,15 @@ class LoopVisitor:
 
 
     def visit_next_var(self, node, children):
-        try:
-            identifier, params = children
-            identifier = '%s()' % identifier
-        except ValueError:
-            [identifier], params = children, ()
+        [(identifier, params)] = children
+        if params: identifier = '%s()' % identifier
         try:
             ref = self.symbol_table.check_hitbasic_var(identifier)
         except NameNotDeclared as e:
             context = self.parser.context(node[0].position)
             pos = self.parser.pos_to_linecol(node[0].position)
             raise e.set_location(context, pos)
-        return self.create_reference(identifier, params, reference=ref)
+        return self.create_reference(ref, params, reference=ref)
     
 
     def visit_for_range_decl(self, node, children):
@@ -170,5 +165,5 @@ class LoopVisitor:
         ref = self.symbol_table.check_hitbasic_var(identifier)
         if hasattr(self, 'no_dim_flag') and self.no_dim_flag:
             return self.create_variable(identifier, params, reference=ref)
-        return self.create_reference(identifier, params, reference=ref)
+        return self.create_reference(ref, params, reference=ref)
 

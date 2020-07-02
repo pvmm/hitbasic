@@ -5,46 +5,48 @@ from ..exceptions import *
 from ..helper import *
 
 
-def __init__(self, rule, position, error, begin, end, *args, **kwargs):
-    allow_reverse = kwargs.pop('allow_reverse', False)
-    allow_negative = kwargs.pop('allow_negative', False)
-    allow_empty = kwargs.pop('allow_empty', False)
+class Clause:
 
-    with suppress(AttributeError):
-        begin = begin.literal_value()
-    with suppress(AttributeError):
-        end = end.literal_value()
+    def __init__(self, rule, position, error, begin, end, *args, **kwargs):
+        allow_reverse = kwargs.pop('allow_reverse', False)
+        allow_negative = kwargs.pop('allow_negative', False)
+        allow_empty = kwargs.pop('allow_empty', False)
 
-    if begin != '*' and end != '*':
-        if not isinstance(begin, int):
-            raise ValueError()
-        if not isinstance(end, int):
-            raise ValueError()
-    if end != '*':
-        if not allow_reverse and begin > end:
-            raise ValueError('reverse range not allowed in this context')
-        if not allow_negative and (begin < 0 or end < 0):
-            raise TypeError('negative value in range not allowed in this context')
+        with suppress(AttributeError):
+            begin = begin.literal_value()
+        with suppress(AttributeError):
+            end = end.literal_value()
 
-    Surrogate.__init__(self, rule, position, error, begin=begin, end=end, allow_empty=allow_empty, *args, **kwargs)
+        if begin != '*' and end != '*':
+            if not isinstance(begin, int):
+                raise ValueError()
+            if not isinstance(end, int):
+                raise ValueError()
+        if end != '*':
+            if not allow_reverse and begin > end:
+                raise ValueError('reverse range not allowed in this context')
+            if not allow_negative and (begin < 0 or end < 0):
+                raise TypeError('negative value in range not allowed in this context')
 
-
-def translate(self):
-    if self.allow_empty and self.end == '*':
-        return ClauseComponents()
-    if self.end == '*':
-        return ClauseComponents(10)
-    if self.allow_empty and self.begin == '*':
-        return ClauseComponents()
-    if self.begin == '*':
-        return ClauseComponents(0)
-    return ClauseComponents(self.end - self.begin)
+        Surrogate.__init__(self, rule, position, error, begin=begin, end=end, allow_empty=allow_empty, *args, **kwargs)
 
 
-def __str__(self):
-    return 'RangeClause(%s, %s)' % (self.begin, self.end)
+    def translate(self):
+        if self.allow_empty and self.end == '*':
+            return ClauseComponents()
+        if self.end == '*':
+            return ClauseComponents(10)
+        if self.allow_empty and self.begin == '*':
+            return ClauseComponents()
+        if self.begin == '*':
+            return ClauseComponents(0)
+        return ClauseComponents(self.end - self.begin)
 
 
-def __eq__(self, other):
-    return str(self) == str(other)
+    def __str__(self):
+        return 'RangeClause(%s, %s)' % (self.begin, self.end)
+
+
+    def __eq__(self, other):
+        return str(self) == str(other)
 

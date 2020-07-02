@@ -4,7 +4,7 @@ from .translations import token as token_module
 
 
 ALLOWED_TOKENS = [ '=', ',', ';', 'And', 'As', 'B', 'BF', 'L', 'Or', 'R', 'Step', 'Tand', 'To', 'Tor', 'Tpreset', 'Tpset', 'Txor', 'Xor' ]
-token_type = type('Token', (Surrogate,), token_module.__dict__)
+token_type = type('Token', (Surrogate,), dict(token_module.__dict__['Token'].__dict__))
 nil_type = type('Nil', (Surrogate,), {})
 
 
@@ -24,6 +24,11 @@ def create_token(*tokens, **kwargs):
 
 
 class Token:
+
     def __init__(self, *tokens):
-        self.token = tuple([token.upper() for token in tokens])
+        self.token = tuple([token.title() for token in tokens])
+
+
+    def __repr__(self):
+        return 'Token(%s)' % ' '.join(self.token)
 
