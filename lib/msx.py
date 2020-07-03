@@ -1,5 +1,16 @@
 from .helper import *
 
+from . import language_types as types
+
+
+def UNARY_OP_TYPE(*type):
+    return {
+        ('Not', types.Integer): types.Integer,
+        ('-', types.Single): types.Single,
+        ('-', types.Double): types.Double,
+        ('-', types.Integer): types.Integer,
+    }[type]
+
 
 class MSX1_Architecture(object):
 

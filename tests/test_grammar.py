@@ -70,5 +70,5 @@ class TestGrammar(unittest.TestCase):
                     source_code = source_file.read()
                     result = '[%s]' % self.parse(source_code)
                 with open(path.splitext(filename)[0] + '.tokens', 'w') as token_file:
-                    print(result, file=token_file, end='') # generate .nodes file if it doesn't exist
+                    print(result, file=token_file, end='') # generate .tokens file if it doesn't exist
 

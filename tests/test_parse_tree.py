@@ -39,7 +39,7 @@ class TestParseTree(unittest.TestCase):
         tree = self.parse('')
         symbol_table, code = self.visit(tree)
         expected = [('@BeginProgram',), ('@EndProgram',), ('END',)]
-        assert code == expected, 'got "%s" as result' % result[0]
+        assert code == expected, 'got "%s" as result' % code
 
 
     def test_visitor1(self):
@@ -47,7 +47,7 @@ class TestParseTree(unittest.TestCase):
         tree = self.parse(text)
         symbol_table, code = self.visit(tree)
         expected = [('@BeginProgram',), ('PRINT', ' ', 1), ('PRINT', ' ', 2), ('@EndProgram',), ('END',)]
-        assert code == expected, 'got "%s" as result' % result[0]
+        assert code == expected, 'got "%s" as result' % code
 
 
     def test_parse_tree_in_files(self):
@@ -55,20 +55,21 @@ class TestParseTree(unittest.TestCase):
         test_files = glob(path.join('tests', 'samples', '1??_*.asc'))
         test_files.sort()
         for source_file in test_files:
+            s = io.StringIO()
             try:
                 tree = self.parse_file(source_file) # looking for matching errors
-                symbol_table, code = self.visit(tree)
             except Exception as e:
                 raise Exception(source_file)
+            symbol_table, code = self.visit(tree)
+            pp = pprint.PrettyPrinter(stream=s, width=120)
+            pp.pprint(code)
+            code = s.getvalue()
             try:
                 with open(path.splitext(source_file)[0] + '.objdump', 'r') as obj_file:
-                    s = io.StringIO()
-                    pp = pprint.PrettyPrinter(stream=s, width=120)
-                    pp.pprint({'symbol_table': symbol_table, 'code': code})
                     obj_code = obj_file.read()
-                    assert s.getvalue() == obj_code # looking for comparison errors
+                    max = min(len(obj_code), len(code))
+                    assert obj_code[:max] == code[:max], 'expected: """\n%s\n""" in file "%s", got """\n%s\n""" instead' % (obj_code, source_file, code) # looking for comparison errors
             except FileNotFoundError as e:
                 with open(path.splitext(source_file)[0] + '.objdump', 'w') as obj_file:
-                    pp = pprint.PrettyPrinter(stream=obj_file, width=120)
-                    pp.pprint({'symbol_table': symbol_table, 'code': code}) # generate .nodes file if it doesn't exist
+                    print(code, file=obj_file)
 

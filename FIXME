@@ -1,4 +1,5 @@
-* fix this output ("\\n" detected):
-	* ./hb -d -c ./tests/samples/if-then-else1.asc
 * fix SelectCase
-* implement Sub?
+* implement Sub properly
+* "IMOD2" is not interpreted as I Mod 2 yet
+* create parenthesis around operations if necessary
+* create LIST-like output

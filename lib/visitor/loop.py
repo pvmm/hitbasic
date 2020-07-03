@@ -143,7 +143,7 @@ class LoopVisitor:
         [(identifier, params)] = children
         if params: identifier = '%s()' % identifier
         try:
-            ref = self.symbol_table.check_hitbasic_var(identifier)
+            ref = self.symbol_table.get_hitbasic_var(identifier)
         except NameNotDeclared as e:
             context = self.parser.context(node[0].position)
             pos = self.parser.pos_to_linecol(node[0].position)
@@ -163,7 +163,12 @@ class LoopVisitor:
         [(identifier, params)] = children
         if params: identifier = '%s()' % identifier
         ref = self.symbol_table.check_hitbasic_var(identifier)
-        if hasattr(self, 'no_dim_flag') and self.no_dim_flag:
+        if not ref and self.no_dim_flag:
             return self.create_variable(identifier, params, reference=ref)
-        return self.create_reference(ref, params, reference=ref)
+        if not ref:
+            context = self.parser.context(node[0].position)
+            pos = self.parser.pos_to_linecol(node[0].position)
+            raise NameNotDeclared(identifier, context, pos)
+        else:
+            return self.create_reference(ref, params, reference=ref)
 

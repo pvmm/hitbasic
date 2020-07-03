@@ -1,5 +1,5 @@
 # support statement elements that work
-ALLOWED_CLAUSES = ['dim', 'expression', 'fileno', 'initialisation', 'label', 'operation', 'using']
+ALLOWED_CLAUSES = ['dim', 'expression', 'fileno', 'initialisation', 'label', 'operation', 'unary_op', 'using']
 TYPES = {}
 
 

@@ -2,6 +2,7 @@ from contextlib import suppress
 from random import randint
 
 from . import language_types as types
+from . import version
 
 from .helper import *
 
@@ -10,6 +11,7 @@ class SymbolTable(dict):
 
     def __init__(self):
         # string, integer, double, single
+        self['_version'] = version.CURRENT_VERSION.rsplit('-')[0]
         self['_global'] = {
                 # different variable types don't collide.
                 '_basic_vars': { types.String: {}, types.Integer: {}, types.Double: {}, types.Single: {} },
@@ -95,7 +97,20 @@ class SymbolTable(dict):
             raise NameNotDeclared(printable_id)
 
 
+    def get_hitbasic_var(self, identifier, params=None, context='_global'):
+        'like check_hitbasic_var, but meaner'
+        assert type(identifier) == str
+        try:
+            var = self[context]['_hitbasic_vars'][identifier]
+            if params != None: var.check_boundaries(params)
+            return var
+        except KeyError:
+            printable_id = types.strip_attrs_from_id(identifier)
+            raise NameNotDeclared(printable_id)
+
+
     def check_basic_var(self, identifier, params=None, type=None, context='_global'):
+        'check if basic var exists'
         assert __builtins__['type'](identifier) == str
         type = types.get_type_from_id(identifier) or type
         with suppress(KeyError):
@@ -106,6 +121,7 @@ class SymbolTable(dict):
 
 
     def check_id(self, identifier, params=(), type=None, context='_global'):
+        'find anything that matches'
         assert __builtins__['type'](identifier) == str
         if (result := self.check_builtin(identifier, context=context)):
             return result
