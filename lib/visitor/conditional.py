@@ -14,8 +14,6 @@ class ConditionalVisitor:
     def visit_if_then_else_stmt(self, node, children):
         expr, then_clauses, *else_clauses = children
         if else_clauses:
-            expr, then_clauses, else_clauses = children
-
             # if label
             then_id = self.symbol_table.register_label(prefix='IfThen')
             then_label = self.create_statement('Label', identifier=then_id)
@@ -46,28 +44,22 @@ class ConditionalVisitor:
             return self.create_statement('Multiple', code_block=(conditional, then_subroutine, else_subroutine))
         else:
             # if label
-            then_id = self.symbol_table.register_label(prefix='IfThen')
+            then_id = self.symbol_table.register_label(prefix='EndIf')
             then_label = self.create_statement('Label', identifier=then_id)
             self.symbol_table.store_label(then_label)
 
             # then_clauses subroutine
             then_clauses = flatten(then_clauses)
-            then_clauses.insert(0, then_label)
+            then_clauses.append(then_label)
             then_subroutine = self.create_subroutine(then_clauses)
             then_branch = self.create_statement('Branch', target=self.create_clause('Label', identifier=then_id),
                     branch_type=statements.GOTO)
 
-            # endif escape route
-            endif_name = self.symbol_table.register_label(prefix='EndIf')
-            endif_label = self.create_statement('Label', identifier=endif_name)
-            self.symbol_table.store_label(endif_label)
-            endif_branch = self.create_statement('Branch', target=self.create_clause('Label', identifier=endif_name),
-                    branch_type=statements.GOTO)
-
             # wrapping it up!
-            conditional = self.create_statement('Conditional', expression=expr, then_branch=then_branch,
-                    else_branch=endif_branch)
-            return self.create_statement('Multiple', code_block=(conditional, then_subroutine, endif_label))
+            expr = self.visit_not_op(expr, ['Not', expr]) # invert condition so that the conditional and then-clauses
+                                                          # are adjacent
+            conditional = self.create_statement('Conditional', expression=expr, then_branch=then_branch)
+            return self.create_statement('Multiple', code_block=(conditional, then_subroutine))
 
 
     def visit_inln_then_clauses(self, node, children):

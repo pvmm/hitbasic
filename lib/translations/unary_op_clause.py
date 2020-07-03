@@ -9,7 +9,8 @@ from ..hitbasic import Surrogate
 class Clause:
 
     def __init__(self, rule, position, error, op, operand, need_parens=False, **kwargs):
-        type_ = msx.UNARY_OP_TYPE(op, operand.type)
+        msx.unary_op_type(op, operand.type)
+        type_ = types.Integer if msx.is_logic_op(op) else operand.type
         Surrogate.__init__(self, rule, position, error, op=op, operand=operand, need_parens=need_parens, type=type_, **kwargs)
 
 

@@ -1,14 +1,15 @@
 from . import ClauseComponents
-from ..hitbasic import Surrogate
 from .. import language_types as types
+from .. import msx
 
-#from ..msx import solve
+from ..hitbasic import Surrogate
 
 
 class Clause:
 
     def __init__(self, rule, position, error, op, op1, op2, need_lparens=False, need_rparens=False, **kwargs):
-        type_ = types.compare_types(op1.type, op2.type)
+        tmp = types.compare_types(op1.type, op2.type)
+        type_ = types.Integer if msx.is_logic_op(op) else tmp
         Surrogate.__init__(self, rule, position, error, op=op, op1=op1, op2=op2, need_lparens=need_lparens, need_rparens=need_rparens, type=type_, **kwargs)
 
 

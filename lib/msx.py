@@ -3,7 +3,7 @@ from .helper import *
 from . import language_types as types
 
 
-def UNARY_OP_TYPE(*type):
+def unary_op_type(*type):
     return {
         ('Not', types.Integer): types.Integer,
         ('Not', types.Single): types.Integer,
@@ -12,6 +12,10 @@ def UNARY_OP_TYPE(*type):
         ('-', types.Double): types.Double,
         ('-', types.Integer): types.Integer,
     }[type]
+
+
+def is_logic_op(op):
+    return op.title() in ['Not', 'And', 'Or', 'Xor', 'Eqv', 'Imp', '=', '>=', '<=', '>', '<', '<>']
 
 
 # MSX-BASIC priority table
