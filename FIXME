@@ -1,5 +1,6 @@
+Things to do before 1.0.0:
 * fix SelectCase
-* implement Sub properly
+* create MSX-BASIC .asc like output
+Next things:
 * "IMOD2" is not interpreted as I Mod 2 yet
-* create parenthesis around operations if necessary
-* create LIST-like output
+* implement Sub properly

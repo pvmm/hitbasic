@@ -5,7 +5,9 @@ from math import trunc
 from .decorator import *
 from ..helper import *
 
+from .. import msx
 from .. import language_types as types
+from .. import language_clauses as clauses
 
 
 class ExpressionVisitor:
@@ -25,7 +27,15 @@ class ExpressionVisitor:
     def visit_comp_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
-            result = self.create_operation(op, op1, op2, node=node[1])
+            need_lparens, need_rparens = False, False
+            if isinstance(op1, (clauses.operation, clauses.unary_op)):
+                #print('op1: %s' % op1.translate())
+                need_lparens = msx.OP_PRIORITY[op1.op] < msx.OP_PRIORITY[op]
+            if isinstance(op2, (clauses.operation, clauses.unary_op)):
+                #print('op2: %s' % op2.translate())
+                need_rparens = msx.OP_PRIORITY[op2.op] < msx.OP_PRIORITY[op]
+            result = self.create_operation(op, op1, op2, need_lparens=need_lparens, need_rparens=need_rparens,
+                        node=node[1])
         else:
             result = children.pop()
         return result
@@ -37,7 +47,15 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 + op2 if op == '+' else op1 - op2
             else:
-                result = self.create_operation(op, op1, op2, node=node[1])
+                need_lparens, need_rparens = False, False
+                if isinstance(op1, (clauses.operation, clauses.unary_op)):
+                    #print('op1: %s' % op1.translate())
+                    need_lparens = msx.OP_PRIORITY[op1.op] < msx.OP_PRIORITY[op]
+                if isinstance(op2, (clauses.operation, clauses.unary_op)):
+                    #print('op2: %s' % op2.translate())
+                    need_rparens = msx.OP_PRIORITY[op2.op] < msx.OP_PRIORITY[op]
+                result = self.create_operation(op, op1, op2, need_lparens=need_lparens, need_rparens=need_rparens,
+                            node=node[1])
         else:
             result = children.pop()
         return result
@@ -45,11 +63,19 @@ class ExpressionVisitor:
 
     def visit_mod_op(self, node, children):
         if len(children) == 2:
-            op1, op2 = children
+            op1, op2, op = *children, 'MOD'
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 % op2
             else:
-                result = self.create_operation('MOD', op1, op2, node=node[1])
+                need_lparens, need_rparens = False, False
+                if isinstance(op1, (clauses.operation, clauses.unary_op)):
+                    #print('op1: %s' % op1.translate())
+                    need_lparens = msx.OP_PRIORITY[op1.op] < msx.OP_PRIORITY[op]
+                if isinstance(op2, (clauses.operation, clauses.unary_op)):
+                    #print('op2: %s' % op2.translate())
+                    need_rparens = msx.OP_PRIORITY[op2.op] < msx.OP_PRIORITY[op]
+                result = self.create_operation(op, op1, op2, need_lparens=need_lparens, need_rparens=need_rparens,
+                            node=node[1])
         else:
             result = children.pop()
 
@@ -62,7 +88,14 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 // op2
             else:
-                result = self.create_operation('\\', op1, op2, node=node[1])
+                need_lparens, need_rparens = False, False
+                if isinstance(op1, (clauses.operation, clauses.unary_op)):
+                    #print('op1: %s' % op1.translate())
+                    need_lparens = msx.OP_PRIORITY[op1.op] < msx.OP_PRIORITY[op]
+                if isinstance(op2, (clauses.operation, clauses.unary_op)):
+                    #print('op2: %s' % op2.translate())
+                    need_rparens = msx.OP_PRIORITY[op2.op] < msx.OP_PRIORITY[op]
+                result = self.create_operation('\\', op1, op2, need_parens=need_parens, node=node[1])
         else:
             result = children.pop()
 
@@ -75,7 +108,15 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 * op2 if op == '*' else op1 / op2
             else:
-                result = self.create_operation(op, op1, op2, node=node[1])
+                need_lparens, need_rparens = False, False
+                if isinstance(op1, (clauses.operation, clauses.unary_op)):
+                    #print('op1: %s' % op1.translate())
+                    need_lparens = msx.OP_PRIORITY[op1.op] < msx.OP_PRIORITY[op]
+                if isinstance(op2, (clauses.operation, clauses.unary_op)):
+                    #print('op2: %s' % op2.translate())
+                    need_rparens = msx.OP_PRIORITY[op2.op] < msx.OP_PRIORITY[op]
+                result = self.create_operation(op, op1, op2, need_lparens=need_lparens, need_rparens=need_rparens,
+                            node=node[1])
         else:
             result = children.pop()
 
@@ -90,7 +131,11 @@ class ExpressionVisitor:
                     operand.value = -operand.value
                     result = operand
                 else:
-                    result = self.create_unary_op(signal, operand)
+                    need_parens = False
+                    if isinstance(operand, (clauses.operation, clauses.unary_op)):
+                        #print('operand: %s' % operand.translate())
+                        need_parens = msx.OP_PRIORITY[operand.op] < msx.OP_PRIORITY['S']
+                    result = self.create_unary_op(signal, operand, need_parens=need_parens)
             else:
                 result = operand # +number has obviously no effect
         else:
@@ -100,7 +145,7 @@ class ExpressionVisitor:
 
     def visit_exp_op(self, node, children):
         if len(children) > 1:
-            leftmost = children.pop(0)
+            op, leftmost = '^', children.pop(0)
             while len(children) > 0:
                 op2 = children.pop(0)
                 node_begin = leftmost.position
@@ -108,7 +153,13 @@ class ExpressionVisitor:
                 if self.pp_flag and leftmost.is_constexp and op2.is_constexp:
                     leftmost = leftmost ** op2
                 else:
-                    leftmost = self.create_operation('^', leftmost, op2, node=node[1])
+                    need_lparens, need_rparens = False, False
+                    if isinstance(leftmost, (clauses.operation, clauses.unary_op)):
+                        need_lparens = msx.OP_PRIORITY[leftmost.op] < msx.OP_PRIORITY[op]
+                    if isinstance(op2, (clauses.operation, clauses.unary_op)):
+                        need_rparens = msx.OP_PRIORITY[op2.op] < msx.OP_PRIORITY[op]
+                    leftmost = self.create_operation(op, leftmost, op2, need_lparens=need_lparens, need_rparens=need_rparens,
+                                node=node[1])
             result = leftmost
         else:
             result = children.pop()
@@ -162,7 +213,15 @@ class ExpressionVisitor:
     def visit_num_comp_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
-            result = self.create_operation(op, op1, op2)
+            need_lparens, need_rparens = False, False
+            if isinstance(op1, (clauses.operation, clauses.unary_op)):
+                #print('op1: %s' % op1.translate())
+                need_lparens = msx.OP_PRIORITY[op1.op] < msx.OP_PRIORITY[op]
+            if isinstance(op2, (clauses.operation, clauses.unary_op)):
+                #print('op2: %s' % op2.translate())
+                need_rparens = msx.OP_PRIORITY[op2.op] < msx.OP_PRIORITY[op]
+            result = self.create_operation(op, op1, op2, need_lparens=need_lparens, need_rparens=need_rparens,
+                        node=node[1])
         else:
             result = children.pop()
         return result
@@ -174,7 +233,15 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 + op2 if op == '+' else op1 - op2
             else:
-                result = self.create_operation(op, op1, op2, node=node[1])
+                need_lparens, need_rparens = False, False
+                if isinstance(op1, (clauses.operation, clauses.unary_op)):
+                    #print('op1: %s' % op1.translate())
+                    need_lparens = msx.OP_PRIORITY[op1.op] < msx.OP_PRIORITY[op]
+                if isinstance(op2, (clauses.operation, clauses.unary_op)):
+                    #print('op2: %s' % op2.translate())
+                    need_rparens = msx.OP_PRIORITY[op2.op] < msx.OP_PRIORITY[op]
+                result = self.create_operation(op, op1, op2, need_lparens=need_lparens, need_rparens=need_rparens,
+                            node=node[1])
         else:
             result = children.pop()
         return result
@@ -182,13 +249,22 @@ class ExpressionVisitor:
 
     def visit_num_mod_op(self, node, children):
         if len(children) == 2:
-            op1, op2 = children
+            op1, op2, op = *children, 'MOD'
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 % op2
             else:
-                result = self.create_operation('MOD', op1, op2, node=nodep[1])
+                need_lparens, need_rparens = False, False
+                if isinstance(op1, (clauses.operation, clauses.unary_op)):
+                    #print('op1: %s' % op1.translate())
+                    need_lparens = msx.OP_PRIORITY[op1.op] < msx.OP_PRIORITY[op]
+                if isinstance(op2, (clauses.operation, clauses.unary_op)):
+                    #print('op2: %s' % op2.translate())
+                    need_rparens = msx.OP_PRIORITY[op2.op] < msx.OP_PRIORITY[op]
+                result = self.create_operation(op, op1, op2, need_lparens=need_lparens, need_rparens=need_rparens,
+                            node=node[1])
         else:
             result = children.pop()
+
         return result
 
 
@@ -198,9 +274,17 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 // op2
             else:
-                result = self.create_operation('\\', op1, op2, node=node[1])
+                need_lparens, need_rparens = False, False
+                if isinstance(op1, (clauses.operation, clauses.unary_op)):
+                    #print('op1: %s' % op1.translate())
+                    need_lparens = msx.OP_PRIORITY[op1.op] < msx.OP_PRIORITY[op]
+                if isinstance(op2, (clauses.operation, clauses.unary_op)):
+                    #print('op2: %s' % op2.translate())
+                    need_rparens = msx.OP_PRIORITY[op2.op] < msx.OP_PRIORITY[op]
+                result = self.create_operation('\\', op1, op2, need_parens=need_parens, node=node[1])
         else:
             result = children.pop()
+
         return result
 
 
@@ -210,9 +294,18 @@ class ExpressionVisitor:
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 * op2 if op == '*' else op1 / op2
             else:
-                result = self.create_operation(op, op1, op2, node=node[1])
+                need_lparens, need_rparens = False, False
+                if isinstance(op1, (clauses.operation, clauses.unary_op)):
+                    #print('op1: %s' % op1.translate())
+                    need_lparens = msx.OP_PRIORITY[op1.op] < msx.OP_PRIORITY[op]
+                if isinstance(op2, (clauses.operation, clauses.unary_op)):
+                    #print('op2: %s' % op2.translate())
+                    need_rparens = msx.OP_PRIORITY[op2.op] < msx.OP_PRIORITY[op]
+                result = self.create_operation(op, op1, op2, need_lparens=need_lparens, need_rparens=need_rparens,
+                            node=node[1])
         else:
             result = children.pop()
+
         return result
 
 
@@ -224,7 +317,11 @@ class ExpressionVisitor:
                     operand.value = -operand.value
                     result = operand
                 else:
-                    result = self.create_unary_op(signal, operand)
+                    need_parens = False
+                    if isinstance(operand, (clauses.operation, clauses.unary_op)):
+                        #print('operand: %s' % operand.translate())
+                        need_parens = msx.OP_PRIORITY[operand.op] < msx.OP_PRIORITY['S']
+                    result = self.create_unary_op(signal, operand, need_parens=need_parens)
             else:
                 result = operand # +number has obviously no effect
         else:
@@ -234,7 +331,7 @@ class ExpressionVisitor:
 
     def visit_num_exp_op(self, node, children):
         if len(children) > 1:
-            leftmost = children.pop(0)
+            op, leftmost = '^', children.pop(0)
             while len(children) > 0:
                 op2 = children.pop(0)
                 node_begin = leftmost.position
@@ -242,7 +339,13 @@ class ExpressionVisitor:
                 if self.pp_flag and leftmost.is_constexp and op2.is_constexp:
                     leftmost = leftmost ** op2
                 else:
-                    leftmost = self.create_operation('^', leftmost, op2, node=node[1])
+                    need_lparens, need_rparens = False, False
+                    if isinstance(leftmost, (clauses.operation, clauses.unary_op)):
+                        need_lparens = msx.OP_PRIORITY[leftmost.op] < msx.OP_PRIORITY[op]
+                    if isinstance(op2, (clauses.operation, clauses.unary_op)):
+                        need_rparens = msx.OP_PRIORITY[op2.op] < msx.OP_PRIORITY[op]
+                    leftmost = self.create_operation(op, leftmost, op2, need_lparens=need_lparens, need_rparens=need_rparens,
+                                node=node[1])
             result = leftmost
         else:
             result = children.pop()

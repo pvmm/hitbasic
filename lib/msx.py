@@ -6,10 +6,31 @@ from . import language_types as types
 def UNARY_OP_TYPE(*type):
     return {
         ('Not', types.Integer): types.Integer,
+        ('Not', types.Single): types.Integer,
+        ('Not', types.Double): types.Integer,
         ('-', types.Single): types.Single,
         ('-', types.Double): types.Double,
         ('-', types.Integer): types.Integer,
     }[type]
+
+
+# MSX-BASIC priority table
+OP_PRIORITY = {
+        '^': 13,
+        'S': 12, # [S]ignal
+        '*': 11, '//': 11,
+        '\\': 10,
+        'Mod': 9,
+        '+': 8, '-': 8,
+        '=': 7, '<>': 7, '<=': 7, '<': 7, '>=': 7, '>': 7, 'Is': 7, 'IsNot': 7,
+        'Not': 6,
+        'And': 5,
+        'Or': 4,
+        'Xor': 3,
+        'Eqv': 2,
+        'Imp': 1,
+        ',': 0, ';': 0, 'A': 0 # [A]ttribution
+}
 
 
 class MSX1_Architecture(object):
