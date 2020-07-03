@@ -206,6 +206,24 @@ class MSXBasicVisitor(StatementVisitor,
         return ''.join(identifier), ()
 
 
+    def visit_rvalue(self, node, children):
+        if len(children) > 1:
+            [(identifier, [*params]), *rexpr] = children  
+            op = rexpr[0].title()
+            op1 = self.visit_var(node[0], [(identifier, params)])
+            op2 = rexpr[1]
+            if op == 'Imp': return self.visit_expr(node, [op1, op, op2])
+            elif op == 'Mod': return self.visit_mod_op(node, [op1, op, op2])
+            elif op == 'And': return self.visit_and_op(node, [op1, op, op2])
+            elif op == 'Eqv': return self.visit_eqv_op(node, [op1, op, op2])
+            elif op == 'Xor': return self.visit_xor_op(node, [op1, op, op2])
+            elif op == 'Or': return self.visit_or_op(node, [op1, op, op2])
+            raise SyntaxError('unknown operator %s' % op)
+        else:
+            [result] = children
+            return result
+
+
     def visit_var(self, node, children):
         [(identifier, [*params])] = children  
         if params: identifier += '()'

@@ -24,7 +24,7 @@ class StructureVisitor:
 
     def visit_select_case_else(self, node, children):
         _, block = children
-        return create_case_clause(create_keyword('Else', node=node[1]), block,
+        return create_case_clause(self.create_token('Else', node=node[1]), block,
                 node=node)
 
 
@@ -38,17 +38,17 @@ class StructureVisitor:
 
     def visit_case_comparison(self, node, children):
         comparator = node[1][0][0]
-        comparator_kw = create_keyword(comparator.flat_str(), node=comparator)
+        comparator_kw = self.create_token(comparator.flat_str(), node=comparator)
         is_kw = create_keyword('Is', node=node)
         op2 = children[1]
         return create_operation(comparator_kw, is_kw, op2, node=node)
 
 
     def visit_case_interval(self, node, children):
-        return create_operation('To', children[0], children[1], node=node)
+        return self.create_operation('To', children[0], children[1], node=node)
 
 
     def visit_case_value(self, node, children):
-        return create_operation('=', create_keyword('Is', node=node),
+        return self.create_operation('=', self.create_token('Is', node=node),
                 children[0], node=children[0])
 
