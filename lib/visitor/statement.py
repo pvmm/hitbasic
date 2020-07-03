@@ -21,7 +21,6 @@ class StatementVisitor:
 
     def write_vfc_subroutine(self, var, ref):
         'variable/function-call-attribution subroutine'
-        self.create_factory_types()
         code_block = []
         # going in
         for st_var, param in zip(ref.value.params, ref.params):
@@ -32,7 +31,7 @@ class StatementVisitor:
         target_label = self.create_label(target)
         code_block.append(self.create_statement('Branch', target=target_label, branch_type=statements.GOSUB))
         # getting out
-        return_var = self.symbol_table.check_hitbasic_var(ref.value.short())
+        return_var = self.symbol_table.get_hitbasic_var(ref.value.short())
         assert return_var is not None
         code_block.append(self.create_attribution(var, self.create_reference(return_var)))
         return self.create_statement('Multiple', code_block=code_block)

@@ -136,7 +136,7 @@ class ExpressionVisitor:
                 if isinstance(operand, (clauses.operation, clauses.unary_op)):
                     #print('operand: %s' % operand.translate())
                     need_parens = msx.OP_PRIORITY[operand.op] < msx.OP_PRIORITY['S']
-                result = self.create_unary_op(signal, operand, need_parens=need_parens)
+                result = self.create_unary_op(op, operand, need_parens=need_parens)
         else:
             result = children.pop()
         return result

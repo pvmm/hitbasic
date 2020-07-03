@@ -103,9 +103,9 @@ class SurrogateFactory:
 
     def create_reference(self, value, params=None, **kwargs):
         "node that links to symbol table variable, builtin or function (in 'reference')"
+        self.create_factory_types()
         assert value != None
         assert type(value) != str
-        self.create_factory_types()
         node = kwargs.pop('node', self.current_node)
         position = kwargs.pop('pos', node.position if node else None)
         return self.clause_type['reference'](self.current_rule or NO_RULE, position, False, value, params, **kwargs)
@@ -167,8 +167,21 @@ class SurrogateFactory:
         self.create_factory_types()
         assert op != None
         assert op1 != None
+        assert op2 != None
         try:
             return self.create_clause('operation', op=op, op1=op1, op2=op2, need_parens=need_parens, **kwargs)
+        except TypeMismatch as e:
+            node = kwargs.pop('node', self.current_node)
+            raise e.set_location(self.parser.context(position=node.position),
+                    self.parser.pos_to_linecol(node.position))
+
+
+    def create_case_op(self, op, op2, need_rparens=False, **kwargs):
+        self.create_factory_types()
+        assert op != None
+        assert op2 != None
+        try:
+            return self.create_clause('case_op', op=op, op2=op2, need_rparens=need_rparens, **kwargs)
         except TypeMismatch as e:
             node = kwargs.pop('node', self.current_node)
             raise e.set_location(self.parser.context(position=node.position),

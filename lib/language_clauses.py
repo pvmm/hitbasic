@@ -1,6 +1,11 @@
 # support statement elements that work
-ALLOWED_CLAUSES = ['dim', 'expression', 'fileno', 'initialisation', 'label', 'operation', 'unary_op', 'using']
+ALLOWED_CLAUSES = ['dim', 'expression', 'fileno', 'initialisation', 'label', 'operation', 'unary_op', 'using',
+                   'case', 'case_op']
 TYPES = {}
+
+# case type
+CASE_IS = 0
+CASE_ELSE = 1
 
 
 def register(identifier, type_):

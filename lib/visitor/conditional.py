@@ -12,7 +12,8 @@ from .. import language_subroutines as subroutines
 class ConditionalVisitor:
 
     def visit_if_then_else_stmt(self, node, children):
-        try:
+        expr, then_clauses, *else_clauses = children
+        if else_clauses:
             expr, then_clauses, else_clauses = children
 
             # if label
@@ -43,9 +44,7 @@ class ConditionalVisitor:
             conditional = self.create_statement('Conditional', expression=expr, then_branch=then_branch,
                     else_branch=else_branch)
             return self.create_statement('Multiple', code_block=(conditional, then_subroutine, else_subroutine))
-        except ValueError:
-            expr, then_clauses = children
-
+        else:
             # if label
             then_id = self.symbol_table.register_label(prefix='IfThen')
             then_label = self.create_statement('Label', identifier=then_id)

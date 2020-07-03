@@ -142,7 +142,7 @@ class SymbolTable(dict):
 
     def register_variable(self, hbid=None, basic_id=None, ranges=(), init_value=None, type=None, node=None, context='_global'):
         if hbid == None:
-            value = random.randint(10, 960)
+            value = randint(10, 960)
             if value > 35 and value < 360: value += 360
             hbid = self.base36(value)
             if type == None:
