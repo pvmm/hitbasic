@@ -1,0 +1,4 @@
+[Dim | lang | As | String | 
+ | If | lang | = | " | P | T | " | Then | Print |  | " | a | n | o | " | : | Print |  | " | ! | " | : | Print |  | " | \ | n | " | Else | Print |  | " | y | e | a | r | " | : | Print |  | " | ! | " | 
+ | End | 
+ | ]

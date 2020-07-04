@@ -1,0 +1,33 @@
+[
+ | 
+ | @ | label10 | @ | label11 | 
+ | Cls | 
+ | @ | label12 | 
+ | 
+ | Dim | nl | $ | = | " | \ | n | " | 
+ | Dim | a | = | chr | ( | 6 | 5 | ) | 
+ | Dim | b | = | 1 | 2 | 3 | 
+ | 
+ | Let | b | = | 4 | 5 | 6 | 
+ | a | = | " | z | " | 
+ | 
+ | Do | 
+ | Cls | 
+ | Print |  | " | a | b | c |   | d | e | f |   | 1 | 2 | 3 | 	 | 4 | 5 | 6 | " | 
+ | Print |  | 1 | ^ | 2 | 
+ | Print |  | 4 | - | 3 | 
+ | Print |  | b | 
+ | Loop | While | a | > | " | a | " | 
+ | 
+ | Do | While | a | > | " | b | " | 
+ | Cls | 
+ | Print |  | " | t | e | s | t | i | n | g | " | 
+ | 
+ | Do | 
+ | Cls | 
+ | Print |  | " | t | e | s | t | i | n | g |   | a | g | a | i | n | " | 
+ | Loop | Until | b | <> | 0 | 
+ | Loop | 
+ | 
+ | Print |  | " | d | o | n | e | ! | " | 
+ | ]

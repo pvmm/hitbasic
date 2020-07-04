@@ -1,0 +1,10 @@
+[
+ | 
+ | Dim | a | ( | ) | As | Integer | = | { | 1 | 0 | } | 
+ | 
+ | Do | 
+ | Print |  | 4 | 1 | 
+ | Print |  | 4 | 2 | 
+ | 
+ | Loop | Until | a | ( | 0 | ) | <> | 0 | 
+ | ]

@@ -1,0 +1,9 @@
+[Function | wordYear | ( | lang | As | String | ) | As | String | 
+ | Print |  | 1 | * | 2 | 
+ | If | lang | = | " | P | T | " | Then | 
+ | wordYear | = | " | a | n | o | " | 
+ | Exit | Function | 
+ | End | If | 
+ | wordYear | = | " | y | e | a | r | " | 
+ | End | Function | 
+ | ]

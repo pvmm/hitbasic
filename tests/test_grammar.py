@@ -55,7 +55,7 @@ class TestGrammar(unittest.TestCase):
 
     def test_grammar_in_files(self):
         'test all .asc files in tests/samples against their respective .tokens file'
-        test_files = glob(path.join('tests', 'samples', '^[0-9][0-9]*.asc'))
+        test_files = glob(path.join('tests', 'samples', '[0-9][0-9]*.asc'))
         test_files.sort()
         for filename in test_files:
             try:
@@ -71,4 +71,3 @@ class TestGrammar(unittest.TestCase):
                     result = '[%s]' % self.parse(source_code)
                 with open(path.splitext(filename)[0] + '.tokens', 'w') as token_file:
                     print(result, file=token_file, end='') # generate .tokens file if it doesn't exist
-

@@ -1,0 +1,3 @@
+[Dim | x | As | Integer | = | 1 | 
+ | Print |  | Not | Not | Not | x | 
+ | ]

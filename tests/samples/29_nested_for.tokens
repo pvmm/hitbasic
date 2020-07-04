@@ -2,5 +2,5 @@
  | For | i | = | 1 | To | 2 | 0 | 
  | For | j | = | 1 | To | 2 | 0 | 
  | ? |  | i | , | j | 
- | Next | : | Next | 
+ | Next | i | : | Next | j | 
  | ]
