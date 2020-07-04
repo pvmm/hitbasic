@@ -18,7 +18,7 @@ if __name__ == '__main__':
     group1.add_argument('-s', '--stdin', action='store_true', required=False, help='transpile to MSX-BASIC program from standard input')
     group2 = argp.add_argument_group('override default configuration')
     group2.add_argument('-o', '--output', metavar='outfile', default='out.asc', type=str, help='write into outfile (default: out.asc)')
-    group2.add_argument('-p', '--pretty-print', action='store_true', required=False, help='generate code in pretty-print version')
+    group2.add_argument('-p', '--pretty-print', action='store_false', required=False, help='generate code in pretty-print version (default)')
     group2.add_argument('-d', '--debug', action='store_true', required=False, help='raise exception all the way up if it happens (for debugging)')
     group2.add_argument('-g', '--graphviz', action='store_true', required=False, help='generate Graphviz files program_parse_tree.dot and program_parser_model.dot')
     group2.add_argument('-v', '--short-vars', action='store_false', required=False, help='force BASIC short length variables mode')

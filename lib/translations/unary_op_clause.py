@@ -16,5 +16,5 @@ class Clause:
 
     def translate(self):
         operand = ('(', self.operand, ')') if self.need_parens else (self.operand,)
-        return ClauseComponents.from_arg_list(self.op, ' ', *operand).translate()
+        return ClauseComponents.from_arg_list(self.op.upper(), ' ', *operand).translate()
 

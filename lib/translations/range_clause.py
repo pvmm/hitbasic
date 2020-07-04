@@ -12,17 +12,12 @@ class Clause:
         allow_negative = kwargs.pop('allow_negative', False)
         allow_empty = kwargs.pop('allow_empty', False)
 
-        with suppress(AttributeError):
-            begin = begin.literal_value()
-        with suppress(AttributeError):
-            end = end.literal_value()
+        if hasattr(begin, 'value'):
+            begin = begin.value
+        if hasattr(end, 'value'):
+            end = end.value
 
         if begin != '*' and end != '*':
-            if not isinstance(begin, int):
-                raise ValueError()
-            if not isinstance(end, int):
-                raise ValueError()
-        if end != '*':
             if not allow_reverse and begin > end:
                 raise ValueError('reverse range not allowed in this context')
             if not allow_negative and (begin < 0 or end < 0):

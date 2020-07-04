@@ -222,8 +222,11 @@ class DeclarationVisitor:
 
     @store_node
     def visit_dim_var_expr(self, node, children):
-        *begin, end = children
-        return self.create_range(begin or 0, end)
+        if len(children) == 2:
+            begin, end = children
+        else:
+            begin, end = 0, *children
+        return self.create_range(begin, end)
 
 
     def visit_dim_init(self, node, children):

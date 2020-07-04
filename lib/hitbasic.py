@@ -27,8 +27,7 @@ def statement():        return [ function_stmt,
                                  attr_stmt ]
 def trailing_spaces():  return _(r'\s*')
 def comments():         return [ comments1, comments2 ]
-def comments1():        return [ 
-                                 _(r"\s*'[^\n]*"),
+def comments1():        return [ _(r"\s*'[^\n]*"),
                                  ( _(r"^(Rem|')[^\n]*"), new_line ),
                                  ( ':', _(r"\s*(Rem|')[^\n]*") ) ]
 def comments2():        return [ ( _(r"^\s*'[^\n]*"), new_line ),
@@ -104,7 +103,7 @@ def do_stmt():          return [ ( 'Exit', 'Do' ), statement ]
 # For loop rules
 def for_stmt():         return 'For', var, '=', for_range_decl
 def for_range_decl():   return [ ( num_expr, 'To', num_expr, 'Step', num_expr ), ( num_expr, 'To', num_expr ) ]
-def next_stmt():        return 'Next', Optional( next_vars )
+def next_stmt():        return 'Next', next_vars
 def next_vars():        return next_var, ZeroOrMore( ',', next_var )
 def next_var():         return var
 
@@ -277,7 +276,7 @@ def scalar():           return alphanum_name, Optional( type_des )
 def exprs():            return expr, ZeroOrMore( ',', expr )
 
 
-def comptor():          return [ '=', '<>', '<=', '<', '>=', '>', 'Is', 'IsNot' ]
+def comptor():          return [ '=', '<>', '<=', '<', '>=', '>']
 def non_quote_char():   return _(r'[^"]')
 def any_char():         return _(r'[^\n]')
 def numeral():          return [ fractional, integer ]

@@ -56,19 +56,26 @@ class TestParseTree(unittest.TestCase):
         test_files.sort()
         for source_file in test_files:
             s = io.StringIO()
-            try:
-                tree = self.parse_file(source_file) # looking for matching errors
-            except Exception as e:
-                raise Exception(source_file)
+            tree = self.parse_file(source_file) # looking for matching errors
+            symbol_table, code = self.visit(tree)
+
+
+    @unittest.skip("not implemented yet")
+    def test_parse_tree_comparing_objdump(self):
+        'try to parse all .asc files starting with 1?? in tests/samples'
+        test_files = glob(path.join('tests', 'samples', '1??_*.asc'))
+        test_files.sort()
+        for source_file in test_files:
+            s = io.StringIO()
+            tree = self.parse_file(source_file) # looking for matching errors
             symbol_table, code = self.visit(tree)
             pp = pprint.PrettyPrinter(stream=s, width=120)
             pp.pprint(code)
-            code = s.getvalue()
+            code = s.getvalue().rstrip()
             try:
                 with open(path.splitext(source_file)[0] + '.objdump', 'r') as obj_file:
-                    obj_code = obj_file.read()
-                    max = min(len(obj_code), len(code))
-                    assert obj_code[:max] == code[:max], 'expected: """\n%s\n""" in file "%s", got """\n%s\n""" instead' % (obj_code, source_file, code) # looking for comparison errors
+                    obj_code = obj_file.read().rstrip()
+                    assert obj_code == code, 'expected: """\n%s\n""" in file "%s", got """\n%s\n""" instead' % (obj_code, source_file, code) # looking for comparison errors
             except FileNotFoundError as e:
                 with open(path.splitext(source_file)[0] + '.objdump', 'w') as obj_file:
                     print(code, file=obj_file)

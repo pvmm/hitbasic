@@ -7,10 +7,9 @@ from priority import PRIORITY
 from . import LineMarker
 
 class Generator:
-    LINE_MAX = 255
+    LINE_MAX = 254
 
-    def __init__(self, symbol_table, file, line_start=10, line_inc=10, line_len=255):
-        print("symbol_table = ", symbol_table)
+    def __init__(self, symbol_table, file, line_start=10, line_inc=10, line_len=254):
         self.symbol_table = symbol_table
         self.file = file
         self.line_start = line_start

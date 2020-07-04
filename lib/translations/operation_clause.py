@@ -25,5 +25,5 @@ class Clause:
     def translate(self):
         op1 = ('(', self.op1, ')') if self.need_lparens else (self.op1,)
         op2 = ('(', self.op2, ')') if self.need_rparens else (self.op2,)
-        return ClauseComponents.from_arg_list(*op1, ' ', self.op, ' ', *op2).translate()
+        return ClauseComponents.from_arg_list(*op1, ' ', self.op.upper(), ' ', *op2).translate()
 

@@ -34,11 +34,9 @@ class StructureVisitor:
                 raise SelectCaseError(case, linecol)
             old_expr = None
             for expr in case.params:
-                print('expr =', expr.translate())
                 expr = self.expand_case_op(ref, expr)
                 if old_expr:
                     expr = self.create_operation('Or', old_expr, expr, node=expr)
-                    print('new_expr =', expr.translate())
                 old_expr = expr
             if old_expr: # Case Is
                 #expr = self.create_operation('Or', old_expr, expr, node=expr)

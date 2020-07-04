@@ -10,8 +10,8 @@ Install Python 3.8.x and pip, the package installer for Python, then execute the
 $ pip install -r requirements.txt
 ```
 
-Executing the parser
---------------------
+Usage
+-----
 
 Executing **HitBasic** without parameters returns the following help message:
 
@@ -45,7 +45,7 @@ For bug report, suggestions, praises or complains, please go to: <https://github
 $ █ 
 ```
 
-The parser reads standard input with the `-s` parameter or it can read `.ASC` (ASCII source code) files with the `-c` parameter and generate intermediate code and debug information (no transpilation yet), but you can at least use it to verify if the input is a valid **HitBasic** program.
+The parser reads standard input with the `-s` parameter or it can read `.ASC` (ASCII source code) files with the `-c` parameter and generate quasi-final code and debug information (no complete transpilation yet), but you can at least use it to verify if the input is a valid **HitBasic** program.
 
 
 ```

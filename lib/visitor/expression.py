@@ -20,15 +20,6 @@ class ExpressionVisitor:
         return children
 
 
-    def visit_expr_dasdas(self, node, children):
-        if len(children) == 3:
-            op1, op, op2 = children
-            if op.title() == 'Imp': return self.visit_imp_op(node, children)
-            if op.title() == 'Eqv': return self.visit_eqv_op(node, children)
-            raise SyntaxError()
-        return children
-
-
     def visit_expr(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children

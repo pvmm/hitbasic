@@ -13,7 +13,7 @@ class Clause:
 
 
     def translate(self):
-        return ClauseComponents()
+        raise NoImplemented()
 
 
     def __repr__(self):
