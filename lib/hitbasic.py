@@ -226,7 +226,7 @@ def eqv_op():           return xor_op, ZeroOrMore( _(r'Eqv'), xor_op )
 def xor_op():           return or_op, ZeroOrMore( _(r'Xor'), or_op )
 def or_op():            return and_op, ZeroOrMore( _(r'or'), and_op )
 def and_op():           return not_op, ZeroOrMore( _(r'And'), not_op )
-def not_op():           return Optional( _(r'Not') ), comp_op
+def not_op():           return ZeroOrMore( _(r'Not') ), comp_op
 def comp_op():          return add_op, ZeroOrMore( comptor, add_op )
 def comp_op2():         return comptor, add_op
 def add_op():           return mod_op, ZeroOrMore( add_sub_sym, mod_op )
@@ -235,11 +235,7 @@ def idiv_op():          return mul_op, ZeroOrMore( _(r'\\'), mul_op )
 def mul_op():           return neg_op, ZeroOrMore( mul_div_sym, neg_op )
 def neg_op():           return signal, exp_op
 def exp_op():           return optor, ZeroOrMore( _('\^'), optor )
-def optor():            return [ ( '(', expr, ')' ), ( numeral, ), ( string, ), rvalue ]
-
-# Mimics MSX-BASIC parsing rules by parsing "aimpb" as "A IMP B"
-def reserved():         return [ 'And', 'As', 'Imp', 'Eqv', 'Mod', 'Xor', 'Or' ] # 'To' and others?
-def rvalue():           return [ And( alphanum_name ), Sequence( scalar, reserved, [ integer, var ], skipws=False ), var ]
+def optor():            return [ ( '(', expr, ')' ), numeral, string, var ]
 
 
 # num_expr rules
@@ -269,8 +265,12 @@ def str_optor():        return [ ( '(', str_expr, ')' ), ( string, ), ( str_var,
 
 
 # General
-def num_var():          return [ ( alphanum_name, num_type_des, '(', Optional( exprs ), ')' ), ( alphanum_name, num_type_des ) ]
-def str_var():          return [ ( alphanum_name, str_type_des, '(', Optional( exprs ), ')' ), ( alphanum_name, str_type_des ) ]
+def num_var():          return [ array, scalar ]
+def num_array():        return alphanum_name, num_type_des, '(', Optional( exprs ), ')'
+def num_scalar():       return alphanum_name, num_type_des
+def str_var():          return [ array, scalar ]
+def str_array():        return alphanum_name, str_type_des, '(', Optional( exprs ), ')'
+def str_scalar():       return alphanum_name, str_type_des
 def var():              return [ array, scalar ]
 def array():            return alphanum_name, Optional( type_des ), '(', Optional( exprs ), ')'
 def scalar():           return alphanum_name, Optional( type_des )
@@ -298,8 +298,10 @@ def string():           return '"', Sequence( ZeroOrMore( non_quote_char ), skip
 def opt_stmt_sep():     return Optional( statement_sep )
 def statement_sep():    return [ ( new_lines, ':', new_lines ), OneOrMore( new_line ) ]
 def signal():           return Optional( add_sub_sym )
-def alphanum_name():    return Not( reserved ), _(r'[A-Z]'), ZeroOrMore( Not( reserved ), _(r'[A-Z0-9]') )
-#def alphanum_name():    return _(r'[A-Z][A-Z0-9]*')
+def reserved():         return [ 'And', 'As', 'Imp', 'Eqv', 'Mod', 'Xor', 'Or' ] # 'To' and others?
+# Mimics MSX-BASIC parsing rules by parsing "aimpb" as "A IMP B"
+#def alphanum_name():    return Not( reserved ), _(r'[A-Z]'), ZeroOrMore( Not( reserved ), _(r'[A-Z0-9]') )
+def alphanum_name():    return _(r'[A-Z][A-Z0-9]*')
 def num_type_des():     return _(r'[#!%]?')
 def str_type_des():     return _(r'[$]?')
 def type_des():         return _(r'[$#!%]')

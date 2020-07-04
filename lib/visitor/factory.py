@@ -167,7 +167,9 @@ class SurrogateFactory:
         self.create_factory_types()
         assert op != None
         assert op1 != None
+        assert not isinstance(type(op1), str)
         assert op2 != None
+        assert not isinstance(type(op2), str)
         try:
             return self.create_clause('operation', op=op, op1=op1, op2=op2, need_parens=need_parens, **kwargs)
         except TypeMismatch as e:
