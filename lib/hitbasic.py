@@ -79,7 +79,7 @@ def end_case_block():   return And( new_line, [ ( 'End', 'Select' ), 'Case' ] )
 #def end_case_block():   return And( [ ( 'End', 'Select' ), 'Case' ] )
 #def end_case_block():   return And( Optional( new_line ), [ ( 'End', 'Select' ), 'Case' ] )
 def case_exprs():       return [ case_comparison, case_interval, case_value ], ZeroOrMore( ',', case_exprs )
-def case_comparison():  return [ 'Is', '' ], comp_op2
+def case_comparison():  return [ 'Is', '' ], case_comp_op
 def case_interval():    return case_intvl_value, 'To', case_intvl_value
 def case_intvl_value(): return Not( 'To' ), expr # Any expr but the keyword 'To'
 def case_value():       return Not( 'Else' ), expr # Any expr but the keyword 'Else'
@@ -227,12 +227,12 @@ def or_op():            return and_op, ZeroOrMore( _(r'or'), and_op )
 def and_op():           return not_op, ZeroOrMore( _(r'And'), not_op )
 def not_op():           return ZeroOrMore( _(r'Not') ), comp_op
 def comp_op():          return add_op, ZeroOrMore( comptor, add_op )
-def comp_op2():         return comptor, add_op
+def case_comp_op():     return comptor, add_op
 def add_op():           return mod_op, ZeroOrMore( add_sub_sym, mod_op )
 def mod_op():           return idiv_op, ZeroOrMore( _(r'Mod'), idiv_op )
 def idiv_op():          return mul_op, ZeroOrMore( _(r'\\'), mul_op )
 def mul_op():           return neg_op, ZeroOrMore( mul_div_sym, neg_op )
-def neg_op():           return signal, exp_op
+def neg_op():           return ZeroOrMore( signal ), exp_op
 def exp_op():           return optor, ZeroOrMore( _('\^'), optor )
 def optor():            return [ ( '(', expr, ')' ), numeral, string, var ]
 
@@ -244,14 +244,14 @@ def num_eqv_op():       return num_xor_op, ZeroOrMore( 'Eqv', num_xor_op )
 def num_xor_op():       return num_or_op, ZeroOrMore( 'Xor', num_or_op )
 def num_or_op():        return num_and_op, ZeroOrMore( 'or', num_and_op )
 def num_and_op():       return num_not_op, ZeroOrMore( 'And', num_not_op )
-def num_not_op():       return Optional( 'Not' ), num_comp_op
+def num_not_op():       return ZeroOrMore( 'Not' ), num_comp_op
 def num_comp_op():      return num_add_op, ZeroOrMore( comptor, num_add_op )
-def num_comp_op2():     return num_comptor, num_add_op
+def num_case_comp_op(): return num_comptor, num_add_op
 def num_add_op():       return num_mod_op, ZeroOrMore( add_sub_sym, num_mod_op )
 def num_mod_op():       return num_idiv_op, ZeroOrMore( 'Mod', num_idiv_op )
 def num_idiv_op():      return num_mul_op, ZeroOrMore( '\\', num_mul_op )
 def num_mul_op():       return num_neg_op, ZeroOrMore( mul_div_sym, num_neg_op )
-def num_neg_op():       return signal, num_exp_op
+def num_neg_op():       return ZeroOrMore( signal ), num_exp_op
 def num_exp_op():       return num_optor, ZeroOrMore( '^', num_optor )
 def num_optor():        return [ ( '(', num_expr, ')' ), ( numeral, ), ( num_var, ) ]
 
