@@ -131,6 +131,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
             pprint({'symbol_table': symbol_table, 'code': code}, width=term[0])
 
     if args.tokenize:
+        raise NotImplemented
         from lib.printers.tokenized import Generator as TokenizedGenerator
         TokenizedGenerator(symbol_table, args.output).print(code)
     else:
