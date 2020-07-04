@@ -45,7 +45,7 @@ For bug report, suggestions, praises or complains, please go to: <https://github
 $ █ 
 ```
 
-The parser reads standard input with the `-s` parameter or it can read `.ASC` (ASCII source code) files with the `-c` parameter and generate quasi-final code and debug information (no complete transpilation yet), but you can at least use it to verify if the input is a valid **HitBasic** program.
+The transpiler reads standard input with the `-s` parameter or it can read `.ASC` (ASCII source code) files with the `-c` parameter and generate code in "pretty-print" format and debug information with the `-d` parameter.
 
 
 ```

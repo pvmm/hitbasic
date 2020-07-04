@@ -127,13 +127,12 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
         sys.exit(-1)
     else:
         term = shutil.get_terminal_size((80, 25))
-        pprint({'symbol_table': symbol_table, 'code': code}, width=term[0])
-        sys.exit(0)
+        if hasattr(args, 'debug') and args.debug:
+            pprint({'symbol_table': symbol_table, 'code': code}, width=term[0])
 
     if args.tokenize:
         from lib.printers.tokenized import Generator as TokenizedGenerator
-        TokenizedGenerator(symbol_table, args.output).print(children)
+        TokenizedGenerator(symbol_table, args.output).print(code)
     else:
         from lib.printers.text import Generator as TextGenerator
-        TextGenerator(symbol_table, args.output).print(children)
-
+        TextGenerator(symbol_table, args.output).print(code)

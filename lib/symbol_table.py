@@ -41,6 +41,17 @@ class SymbolTable(dict):
         return self[context]['_labels'].get(identifier)
 
 
+    def get_label(self, identifier, context='_global'):
+        return self[context]['_labels'][identifier]
+
+
+    def update_label(self, identifier, line_number, context='_global'):
+        if self[context]['_labels'].get(identifier):
+            self[context]['_labels'][identifier] = line_number
+        else:
+            raise NameNotDeclared(identifier)
+
+
     def register_label(self, prefix=None, context='_global'):
         'register label name and return it'
         if self[context]['_prefix_counters'].get(prefix) is None:
