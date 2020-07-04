@@ -451,6 +451,14 @@ class ExpressionVisitor:
 
 
     @store_node
+    def visit_fractional(self, node, children):
+        s = ''
+        for n in node:
+            s += n.flat_str()
+        return self.create_literal(float(s), types.Double)
+
+
+    @store_node
     def visit_integer(self, node, children):
         s = ''
         for n in node:
