@@ -25,8 +25,17 @@ class SymbolTable(dict):
 
     def predefined_identifiers(self):
         builtins = {
-                'Atn()': types.BuiltIn('ATN()', params=types.get_type_from_type_id('Double'), type=types.Double),
-                'Chr()': types.BuiltIn('CHR$()', params=types.get_type_from_type_id('Integer'), type=types.String),
+                'Atn()': types.BuiltIn('ATN()', params=types.Double, type=types.Double),
+                'Chr()': types.BuiltIn('CHR()', params=types.Integer, type=types.String),
+                'Asc()': types.BuiltIn('ASC()', params=types.String, type=types.Integer),
+                'Bin()': types.BuiltIn('BIN()', params=types.Integer, type=types.Integer),
+                'Cdbl()': types.BuiltIn('CDBL()', params=types.Integer, type=types.Double),
+                'Cint()': types.BuiltIn('CINT()', params=types.Single, type=types.Integer),
+                'CSng()': types.BuiltIn('CSNG()', params=types.Single, type=types.Single),
+                'HEX()': types.BuiltIn('HEX()', params=types.Integer, type=types.String),
+                'OCT()': types.BuiltIn('OCT()', params=types.Integer, type=types.String),
+                'STR()': types.BuiltIn('STR()', params=types.Integer, type=types.String),
+                'VAL()': types.BuiltIn('VAL()', params=types.String, type=types.Integer),
         }
         # Also register String-returning functions with -$ suffix for MSX-BASIC compatibility.
         for identifier, value in list(builtins.items()):
