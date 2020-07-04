@@ -1,8 +1,0 @@
-[Dim | lang | As | String | 
- | 
- | If | lang | = | " | P | T | " | Then | 
- | Print |  | " | a | n | o | " | 
- | End | If | 
- | 
- | Print |  | " | d | o | n | e | " | 
- | ]

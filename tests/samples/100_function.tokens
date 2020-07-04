@@ -1,8 +1,0 @@
-[Function | wordYear | ( | a1 | As | String | , | a2 | As | Integer | ) | As | String | 
- | Print |  | " | 1 | " | , | " | 2 | " | 
- | Print |  | " | 2 | " | 
- | Print |  | " | 3 | " | 
- | Print |  | " | 4 | " | 
- | Exit | Function | 
- | End | Function | 
- | ]

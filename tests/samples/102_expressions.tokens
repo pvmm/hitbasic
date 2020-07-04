@@ -1,8 +1,0 @@
-[
- | Dim | a | As | Integer | , | ax | As | Integer | , | b | As | Integer | 
- | Print |  | 1 | ^ | 2 | ^ | 3 | 
- | Print |  | 1 | ^ | ( | 2 | + | 3 | ) | 
- | Print |  | ( | 1 | + | 2 | ) | ^ | 3 | 
- | Print |  | Not | Not | Not | 1 | 
- | Print |  | - | - | 1 | 
- | ]
