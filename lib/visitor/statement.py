@@ -23,9 +23,9 @@ class StatementVisitor:
         'variable/function-call-attribution subroutine'
         code_block = []
         # going in
-        for st_var, param in zip(ref.value.params, ref.params):
-            varg = self.create_reference(st_var)
-            code_block.append(self.create_attribution(varg, param))
+        for p_var, param in zip(ref.value.params, ref.params):
+            tmp_var = self.create_reference(p_var, node=param)
+            code_block.append(self.create_attribution(tmp_var, param))
         target = self.symbol_table.check_label(ref.value.identifier)
         assert target is not None
         target_label = self.create_label(target)
@@ -72,7 +72,7 @@ class StatementVisitor:
             params = parse_arg_list(children, nil_element=self.create_nil(), max=3)
         except MissingOperand as e:
             param = node[-1]
-            raise e.set_location(self.filename, self.parser.context(position=param.position),
+            raise e.set_location(self.parser.file_name, self.parser.context(position=param.position),
                     self.parser.pos_to_linecol(param.position))
         return self.create_statement('Color', params=params)
 
@@ -192,7 +192,7 @@ class StatementVisitor:
             params = parse_arg_list(children, nil_element=self.create_nil(), max=screen_attrs_len)
         except MissingOperand as e:
             param = node[-1]
-            raise e.set_location(self.filename, self.parser.context(position=param.position),
+            raise e.set_location(self.parser.file_name, self.parser.context(position=param.position),
                     self.parser.pos_to_linecol(param.position))
         for param, attr in zip(params, msx.arch[self.arch].screen_attrs()):
             if type(param) != types.Nil and not isinstance(param, types.numeric_classes()):

@@ -147,8 +147,8 @@ class LoopVisitor:
         except NameNotDeclared as e:
             context = self.parser.context(node[0].position)
             pos = self.parser.pos_to_linecol(node[0].position)
-            raise e.set_location(self.filename, context, pos)
-        return self.create_reference(ref, params, reference=ref)
+            raise e.set_location(self.parser.file_name, context, pos)
+        return self.create_reference(ref, params)
 
 
     def visit_for_range_decl(self, node, children):
@@ -170,4 +170,4 @@ class LoopVisitor:
             pos = self.parser.pos_to_linecol(node[0].position)
             raise NameNotDeclared(identifier, context, pos)
         else:
-            return self.create_reference(ref, params, reference=ref)
+            return self.create_reference(ref, params)

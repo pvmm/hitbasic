@@ -102,7 +102,7 @@ class SurrogateFactory:
 
 
     def create_reference(self, value, params=None, **kwargs):
-        "node that links to symbol table variable, builtin or function (in 'reference')"
+        "node that links to symbol table variable, builtin or function (in 'value')"
         self.create_factory_types()
         assert value != None
         assert type(value) != str
@@ -158,7 +158,7 @@ class SurrogateFactory:
             return self.create_clause('unary_op', op=op, operand=operand, need_parens=need_parens, **kwargs)
         except TypeMismatch as e:
             node = kwargs.pop('node', self.current_node)
-            raise e.set_location(self.filename, self.parser.context(position=node.position),
+            raise e.set_location(self.parser.file_name, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
 
 
@@ -174,7 +174,7 @@ class SurrogateFactory:
             return self.create_clause('operation', op=op, op1=op1, op2=op2, need_parens=need_parens, **kwargs)
         except TypeMismatch as e:
             node = kwargs.pop('node', self.current_node)
-            raise e.set_location(self.filename, self.parser.context(position=node.position),
+            raise e.set_location(self.parser.file_name, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
 
 
@@ -186,7 +186,7 @@ class SurrogateFactory:
             return self.create_clause('case_op', op=op, op2=op2, need_rparens=need_rparens, **kwargs)
         except TypeMismatch as e:
             node = kwargs.pop('node', self.current_node)
-            raise e.set_location(self.filename, self.parser.context(position=node.position),
+            raise e.set_location(self.parser.file_name, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
 
 

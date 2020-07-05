@@ -38,7 +38,6 @@ class MSXBasicVisitor(StatementVisitor,
     def __init__(self, parser, **kwargs):
         parser = kwargs.pop('parser', parser)
         begin_line = kwargs.pop('begin_line', 10)
-        filename = kwargs.pop('filename', None)
 
         PTNodeVisitor.__init__(self, **kwargs)
         SurrogateFactory.__init__(self)
@@ -46,7 +45,6 @@ class MSXBasicVisitor(StatementVisitor,
         DeclarationVisitor.__init__(self)
         LoopVisitor.__init__(self)
 
-        self.filename = filename
         self.parser = parser
         self.begin_line = begin_line
         self.debug = kwargs.pop('debug', False)
@@ -104,7 +102,7 @@ class MSXBasicVisitor(StatementVisitor,
             label = self.create_label(identifier)
             self.symbol_table.store_label(label)
         except NameError:
-            raise NameNotDeclared(identifier, self.filename, self.parser.context(position=node.position),
+            raise NameNotDeclared(identifier, self.parser.file_name, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
         return label
 
@@ -230,7 +228,7 @@ class MSXBasicVisitor(StatementVisitor,
         [(identifier, [*params])] = children
         if params: identifier += '()'
         if not (var := self.symbol_table.check_id(identifier, params)):
-            raise NameNotDeclared(identifier, self.filename, self.parser.context(position=node.position),
+            raise NameNotDeclared(identifier, self.parser.file_name, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
         return self.create_reference(var, params)
 
@@ -249,7 +247,7 @@ class MSXBasicVisitor(StatementVisitor,
         [(identifier, [*params])] = children
         if params: identifier += '()'
         if not (var := self.symbol_table.check_id(identifier, params)):
-            raise NameNotDeclared(identifier, self.filename, self.parser.context(position=node.position),
+            raise NameNotDeclared(identifier, self.parser.file_name, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
         return self.create_reference(var, params)
 
@@ -268,7 +266,7 @@ class MSXBasicVisitor(StatementVisitor,
         [(identifier, [*params])] = children
         if params: identifier += '()'
         if not (var := self.symbol_table.check_id(identifier, params)):
-            raise NameNotDeclared(identifier, self.filename, self.parser.context(position=node.position),
+            raise NameNotDeclared(identifier, self.parser.file_name, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
         return self.create_reference(var, params)
 

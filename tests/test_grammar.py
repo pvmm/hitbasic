@@ -17,7 +17,7 @@ class TestGrammar(unittest.TestCase):
         self.parser = hitbasic.create_parser(debug=False)
 
 
-    def parse(self, text, filename=None):
+    def parse(self, text, file_name=None):
         return self.parser.parse(text, file_name=filename)
 
 
@@ -25,16 +25,9 @@ class TestGrammar(unittest.TestCase):
         return self.parser.parse_file(filename)
 
 
-    def check_grammar(self, text, expected, filename=None):
-        result = '[%s]' % (self.parse(text, filename=filename) if filename else self.parse(text))
-        try:
-            assert result == expected, 'in file "%s"' % filename
-        except AssertionError:
-            result = '[%s]' % self.parse(text)
-        if filename:
-            assert result == expected, 'In "%s" expected "%s"\nBut got "%s"' % (filename, result, expected)
-        else:
-            assert result == expected, 'Expected "%s"\nBut got "%s"' % (result, expected)
+    def check_grammar(self, text, expected, file_name=None):
+        result = '[%s]' % (self.parse_file(file_name) if file_name else self.parse(text))
+        assert result == expected, 'in file "%s"' % file_name
 
 
     def test_empty(self):
@@ -71,4 +64,3 @@ class TestGrammar(unittest.TestCase):
                     result = '[%s]' % self.parse(source_code)
                 with open(path.splitext(filename)[0] + '.tokens', 'w') as token_file:
                     print(result, file=token_file, end='') # generate .tokens file if it doesn't exist
-

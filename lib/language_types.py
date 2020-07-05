@@ -14,7 +14,7 @@ from .hitbasic import Surrogate
 Nil = type('Nil', (Surrogate,), { 'translate': lambda self: [] })
 Any = type('Any', (Surrogate,), {}) # just for parameter matching in function calling
 OptInteger = type('OptInteger', (Surrogate,), {})
-Boolean = None
+Boolean = type('Boolean', (Surrogate,), {})
 
 # MSX-BASIC types
 String = None
@@ -23,7 +23,7 @@ Double = None
 Single = None
 DEFAULT_TYPE = Double
 
-TYPES = { 'Nil': Nil, 'String' : None, 'Integer' : None, 'Double' : None, 'Single' : None, 'Boolean' : None,
+TYPES = { 'Nil': Nil, 'String' : None, 'Integer' : None, 'Double' : None, 'Single' : None, 'Boolean' : Boolean,
           'Any': None }
 ALLOWED_TYPE_NAMES = [ 'Nil', 'String', 'Integer', 'Double', 'Single', 'Address' ]
 TYPE_CHARS = [ '$', '%', '#', '!' ]

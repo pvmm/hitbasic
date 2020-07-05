@@ -6,7 +6,7 @@ from .. import language_statements as statements
 
 
 class Clause:
-    
+
     def __init__(self, rule, position, error, value, params, **kwargs):
         Surrogate.__init__(self, rule, position, error, value=value, params=make_tuple(params), **kwargs)
 
@@ -47,4 +47,3 @@ class Clause:
 
         result = clause.translate()
         return result
-

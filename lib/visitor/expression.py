@@ -20,6 +20,7 @@ class ExpressionVisitor:
         return children
 
 
+    @store_node
     def visit_expr(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -38,6 +39,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_eqv_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -56,6 +58,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_xor_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -74,6 +77,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_or_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -92,6 +96,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_and_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -110,6 +115,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_not_op(self, node, children):
         if len(children) > 1:
             *op, operand = children
@@ -122,12 +128,13 @@ class ExpressionVisitor:
                 need_parens = False
                 if isinstance(operand, (clauses.operation, clauses.unary_op)):
                     need_parens = msx.OP_PRIORITY[operand.op] < msx.OP_PRIORITY['S']
-                result = self.create_unary_op(op[0], operand, need_parens=need_parens)
+                result = self.create_unary_op(op[0], operand, need_parens=need_parens, node=node)
         else:
             result = children.pop()
         return result
 
 
+    @store_node
     def visit_comp_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -143,6 +150,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_add_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -161,6 +169,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_mod_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -180,6 +189,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_idiv_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -194,10 +204,10 @@ class ExpressionVisitor:
                 result = self.create_operation(op, op1, op2, need_parens=need_parens, node=node[1])
         else:
             result = children.pop()
-
         return result
 
 
+    @store_node
     def visit_mul_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -213,10 +223,10 @@ class ExpressionVisitor:
                             node=node[1])
         else:
             result = children.pop()
-
         return result
 
 
+    @store_node
     def visit_neg_op(self, node, children):
         if len(children) == 2:
             signal, operand = children
@@ -236,6 +246,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_exp_op(self, node, children):
         if len(children) > 1:
             op = '^'
@@ -266,6 +277,7 @@ class ExpressionVisitor:
         return optor
 
 
+    @store_node
     def visit_str_expr(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -284,6 +296,7 @@ class ExpressionVisitor:
     #    return result
 
 
+    @store_node
     def visit_str_add_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -305,6 +318,7 @@ class ExpressionVisitor:
         return children.pop()
 
 
+    @store_node
     def visit_num_comp_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -320,6 +334,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_num_add_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -338,6 +353,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_num_mod_op(self, node, children):
         if len(children) == 2:
             op1, op2, op = *children, 'MOD'
@@ -357,6 +373,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_num_idiv_op(self, node, children):
         if len(children) == 2:
             op1, op2 = children
@@ -375,6 +392,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_num_mul_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
@@ -394,6 +412,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_num_neg_op(self, node, children):
         if len(children) > 1:
             signal, operand = children
@@ -413,6 +432,7 @@ class ExpressionVisitor:
         return result
 
 
+    @store_node
     def visit_num_exp_op(self, node, children):
         if len(children) > 1:
             op, leftmost = '^', children.pop(0)
@@ -460,4 +480,3 @@ class ExpressionVisitor:
 
     def visit_Digit(self, node, children):
         return node
-
