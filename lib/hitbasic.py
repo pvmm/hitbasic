@@ -5,7 +5,7 @@ from arpeggio import ParseTreeNode
 
 # Top tier
 def program():          return trailing_spaces, [ Optional( statements ), EOF ], trailing_spaces, EOF
-def statements():       return opt_stmt_sep, [ ( labels, opt_stmt_sep, statement ), statement ], ZeroOrMore( statement_sep, statements )
+def statements():       return opt_stmt_sep, [ ( label_stmt, opt_stmt_sep, statement ), statement ], ZeroOrMore( statement_sep, statements )
 def statement():        return [ function_stmt,
                                  sub_stmt,
                                  dim_stmt,
@@ -59,14 +59,14 @@ def if_then_else_stmt():  return [
                         ( 'If', expr, 'Then', Optional( statement_sep ), Optional( else_clauses, statement_sep ), end_if_stmt ),
                         ( 'If', expr, 'Then', inln_then_clauses, 'Else', inln_else_clauses ),
                         ( 'If', expr, 'Then', inln_else_clauses ),
-                        ( 'If', expr, 'Goto', label, 'Else', label ),
-                        ( 'If', expr, 'Goto', label )
+                        ( 'If', expr, 'Goto', label_clause, 'Else', label_clause ),
+                        ( 'If', expr, 'Goto', label_clause )
                         ]
 def inln_then_clauses():  return Optional( inln_stmts ), And( 'Else' )
 def inln_else_clauses():  return Optional( inln_stmts ), And([ EOF, new_line ])
 def inln_stmts():         return statement, ZeroOrMore( ':', inln_stmts )
-def then_clauses():       return [ ( labels, statement ), statement ], ZeroOrMore( statement_sep, then_clauses ), And([ statement_sep, 'Else' ])
-def else_clauses():       return [ ( labels, statement ), statement ], ZeroOrMore( statement_sep, else_clauses ), And([( statement_sep, end_if_stmt ), end_if_stmt ])
+def then_clauses():       return [ ( label_stmt, statement ), statement ], ZeroOrMore( statement_sep, then_clauses ), And([ statement_sep, 'Else' ])
+def else_clauses():       return [ ( label_stmt, statement ), statement ], ZeroOrMore( statement_sep, else_clauses ), And([( statement_sep, end_if_stmt ), end_if_stmt ])
 def end_if_stmt():        return 'End', 'If'
 
 
@@ -74,7 +74,7 @@ def end_if_stmt():        return 'End', 'If'
 def select_stmt():      return 'Select', expr, statement_sep, ZeroOrMore( select_case, new_line ), Optional( select_case_else, new_line ), 'End', 'Select'
 def select_case():      return 'Case', case_exprs, statement_sep, Optional( case_block ), end_case_block #, new_line
 def select_case_else(): return 'Case', 'Else', statement_sep, Optional( case_block ), end_case_block #, new_line
-def case_block():       return Not([ ( 'End', 'Select' ), 'Case' ]), [ ( labels, statement ), statement ], ZeroOrMore( statement_sep, case_block )
+def case_block():       return Not([ ( 'End', 'Select' ), 'Case' ]), [ ( label_stmt, statement ), statement ], ZeroOrMore( statement_sep, case_block )
 def end_case_block():   return And( new_line, [ ( 'End', 'Select' ), 'Case' ] )
 #def end_case_block():   return And( [ ( 'End', 'Select' ), 'Case' ] )
 #def end_case_block():   return And( Optional( new_line ), [ ( 'End', 'Select' ), 'Case' ] )
@@ -96,7 +96,7 @@ def var_range():        return _(r'[A-Z]'), '-', _(r'[A-Z]')
 def do_loop_stmt():     return [ ( 'Do', do_loop_cond, statement_sep, Optional( do_stmt_block, statement_sep ), 'Loop' ), # Loop in the beginning
                                  ( 'Do', opt_stmt_sep, Optional( do_stmt_block, opt_stmt_sep ), 'Loop', do_loop_cond ) ]  # Loop in the end
 def do_loop_cond():     return [ 'While', 'Until' ], expr
-def do_stmt_block():    return [ ( labels, do_stmt ), do_stmt ], ZeroOrMore( statement_sep, do_stmt_block ), And( statement_sep, 'Loop' )
+def do_stmt_block():    return [ ( label_stmt, do_stmt ), do_stmt ], ZeroOrMore( statement_sep, do_stmt_block ), And( statement_sep, 'Loop' )
 def do_stmt():          return [ ( 'Exit', 'Do' ), statement ]
 
 
@@ -116,7 +116,7 @@ def func_vars():        return func_var_decl, ZeroOrMore( ',', func_var_decl )
 def func_return_type(): return 'As', var_type
 def func_var_decl():    return [ ( alphanum_name, 'As', var_type ),
                                  ( alphanum_name, Optional( type_des ) ) ]
-def func_body():        return [ ( labels, func_body_stmt ), func_body_stmt ], ZeroOrMore( statement_sep, func_body ), And( statement_sep, func_end_stmt )
+def func_body():        return [ ( label_stmt, func_body_stmt ), func_body_stmt ], ZeroOrMore( statement_sep, func_body ), And( statement_sep, func_end_stmt )
 def func_exit_stmt():   return 'Exit', 'Function'
 def func_body_stmt():   return [ func_exit_stmt, statement ]
 def func_end_stmt():    return 'End', 'Function'
@@ -127,7 +127,7 @@ def sub_stmt():         return 'Sub', alphanum_name, '(', Optional( sub_vars ), 
 def sub_vars():         return sub_var_decl, ZeroOrMore( ',', sub_var_decl )
 def sub_var_decl():     return [ ( alphanum_name, 'As', var_type ), ( alphanum_name, Optional( type_des ) ) ]
 def sub_body_stmt():    return [ ( 'Exit', 'Sub' ), statement ]
-def sub_body():         return [ ( labels, sub_body_stmt ), sub_body_stmt ], ZeroOrMore( statement_sep, sub_body ), And( statement_sep, sub_end )
+def sub_body():         return [ ( label_stmt, sub_body_stmt ), sub_body_stmt ], ZeroOrMore( statement_sep, sub_body ), And( statement_sep, sub_end )
 def sub_end():          return 'End', 'Sub'
 
 
@@ -152,15 +152,22 @@ def print_sep():        return [ ',', ';' ]
 # branch instructions
 def branch_stmts():     return [ on_sprite_stmt, on_interval_stmt, on_branch_stmt, branch_stmt, return_stmt ]
 def on_sprite_stmt():   return 'On', 'Sprite', 'Gosub', numeral
-def on_interval_stmt(): return 'On', ( interval_tk, eq_tk, num_expr ), 'Gosub', comma_sep_nums
-def on_branch_stmt():   return 'On', num_expr, branch_tk, comma_sep_nums
-def branch_stmt():      return branch_tk, numeral
-def return_stmt():      return 'Return', Optional( numeral )
-def comma_sep_nums():   return ZeroOrMore(',', numerals )
-def comma_sep_nums():   return Optional( numeral ), ZeroOrMore( comma, Optional( numeral ) )
+def on_interval_stmt(): return 'On', ( interval_tk, eq_tk, num_expr ), 'Gosub', comma_sep_adrs
+def on_branch_stmt():   return 'On', num_expr, branch_tk, comma_sep_adrs
+def branch_stmt():      return branch_tk, [ label_clause, numeral ]
+def return_stmt():      return 'Return', Optional([ label_clause, numeral ])
+def comma_sep_adrs():   return ZeroOrMore(',', numerals )
+def comma_sep_adrs():   return Optional([ label_clause, numeral ]), ZeroOrMore( comma, Optional([ label_clause, numeral ]) )
 def branch_tk():        return [ goto_tk, gosub_tk ]
 def goto_tk():          return [ 'Goto' ]
 def gosub_tk():         return [ 'Gosub' ]
+
+
+# label stmt
+def label_stmt():       return label_addr, Optional( label_stmt )
+def label_addr():       return '@', _(r'[_A-Z][_A-Z0-9]*(?::)?')
+def label_clause():     return _(r'[_A-Z][_A-Z0-9]*')
+#def label():            return '@', _(r'[_A-Z][_A-Z0-9]*')
 
 
 # branch related statements
@@ -337,12 +344,10 @@ def signal():           return Optional( add_or_sub_tk )
 def reserved():         return [ 'And', 'As', 'Imp', 'Eqv', 'Mod', 'Xor', 'Or' ] # 'To' and others?
 # Mimics MSX-BASIC parsing rules by parsing "aimpb" as "A IMP B"
 #def alphanum_name():    return Not( reserved ), _(r'[A-Z]'), ZeroOrMore( Not( reserved ), _(r'[A-Z0-9]') )
-def alphanum_name():    return _(r'[A-Z][A-Z0-9]*')
+def alphanum_name():    return _(r'[A-Z][_A-Z0-9]*')
 def num_type_des():     return _(r'[#!%]?')
 def str_type_des():     return _(r'[$]?')
 def type_des():         return _(r'[$#!%]')
-def labels():           return label, Optional( labels )
-def label():            return '@', _(r'[A-Z][A-Z0-9]*')
 def comma():            return _(',')
 def new_lines():        return ZeroOrMore('\n')
 def new_line():         return '\n'

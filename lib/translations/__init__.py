@@ -176,12 +176,16 @@ class CodeComponents(Sequence_):
     def translate(self):
         'Output multiple translated read-only statements'
         output = CodeComponents()
-
+        old_result = None
         for statement in self:
-            result = statement.translate()
+            try:
+                result = statement.translate()
+            except TypeError:
+                raise RuleNotImplementedYet(statement, context=old_result)
             if result and type(result) == CodeComponents:
                 output.extend(result)
             elif result: output.append(result)
+            old_result = result
         return output
 
 
@@ -190,4 +194,3 @@ class CodeComponents(Sequence_):
         for statement in self:
             output.append(tuple(statement))
         return output
-

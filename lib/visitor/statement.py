@@ -47,6 +47,11 @@ class StatementVisitor:
                 return self.write_vfc_subroutine(var=var, ref=expr) # caller node
 
 
+    def visit_branch_stmt(self, node, children):
+        stmt, label = children
+        return self.create_statement(stmt, params='@%s' % label)
+
+
     def visit_draw_stmt(self, node, children):
         dml_str = make_tuple(children)
         return self.create_statement('Draw', params=dml_str)
