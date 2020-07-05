@@ -18,11 +18,11 @@ class TestGrammar(unittest.TestCase):
 
 
     def parse(self, text, file_name=None):
-        return self.parser.parse(text, file_name=filename)
+        return self.parser.parse(text, file_name=file_name)
 
 
-    def parse_file(self, filename):
-        return self.parser.parse_file(filename)
+    def parse_file(self, file_name):
+        return self.parser.parse_file(file_name)
 
 
     def check_grammar(self, text, expected, file_name=None):

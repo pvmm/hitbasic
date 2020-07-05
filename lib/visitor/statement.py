@@ -159,6 +159,7 @@ class StatementVisitor:
 
 
     def visit_pset_stmt(self, node, children):
+        # PSET STEP(<X>,<Y>),<Color>,<Operator>
         try:
             src, args = children
         except ValueError:
@@ -173,6 +174,7 @@ class StatementVisitor:
 
 
     def visit_preset_stmt(self, node, children):
+        # PRESET STEP(<X>,<Y>),<Color>,<operator>
         try:
             src, args = children
         except ValueError:
@@ -182,6 +184,18 @@ class StatementVisitor:
 
     def visit_preset_stmt_args(self, node, children):
         # PRESET STEP(<X>,<Y>),<Color>,<operator>
+        assert children[0] == ','
+        return parse_arg_list(children[1:], nil_element=self.create_nil(), max=2)
+
+
+    def visit_put_sprite_stmt(self, node, children):
+        # PUT SPRITE <sprite number>,[STEP](<x>,<y>),[<color>][,<pattern number>]
+        sp_num, comma, dst, args = children
+        return self.create_statement('Put Sprite', params=(sp_num, dst, *args))
+
+
+    def visit_put_sprite_stmt_args(self, node, children):
+        # PUT SPRITE <sprite number>,[STEP](<x>,<y>),[<color>][,<pattern number>]
         assert children[0] == ','
         return parse_arg_list(children[1:], nil_element=self.create_nil(), max=2)
 

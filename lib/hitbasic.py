@@ -54,7 +54,7 @@ def dim_eq_tk():        return '='
 
 
 # If-then-else rules
-def if_then_else_stmt():  return [ 
+def if_then_else_stmt():  return [
                         ( 'If', expr, 'Then', Optional( statement_sep ), Optional( then_clauses ), Optional( statement_sep ), 'Else', Optional( statement_sep ), Optional( else_clauses ), Optional( statement_sep ), end_if_stmt ),
                         ( 'If', expr, 'Then', Optional( statement_sep ), Optional( else_clauses, statement_sep ), end_if_stmt ),
                         ( 'If', expr, 'Then', inln_then_clauses, 'Else', inln_else_clauses ),
@@ -151,18 +151,16 @@ def print_sep():        return [ ',', ';' ]
 
 # branch instructions
 def branch_stmts():     return [ on_sprite_stmt, on_interval_stmt, on_branch_stmt, branch_stmt, return_stmt ]
-def on_sprite_stmt():   return on_tk, sprite_tk, gosub_tk, numeral
-def on_interval_stmt(): return on_tk, ( interval_tk, eq_tk, num_expr ), gosub_tk, comma_sep_nums
-def on_branch_stmt():   return on_tk, num_expr, branch_tk, comma_sep_nums
+def on_sprite_stmt():   return 'On', 'Sprite', 'Gosub', numeral
+def on_interval_stmt(): return 'On', ( interval_tk, eq_tk, num_expr ), 'Gosub', comma_sep_nums
+def on_branch_stmt():   return 'On', num_expr, branch_tk, comma_sep_nums
 def branch_stmt():      return branch_tk, numeral
-def return_stmt():      return return_tk, Optional( numeral )
+def return_stmt():      return 'Return', Optional( numeral )
 def comma_sep_nums():   return ZeroOrMore(',', numerals )
 def comma_sep_nums():   return Optional( numeral ), ZeroOrMore( comma, Optional( numeral ) )
 def branch_tk():        return [ goto_tk, gosub_tk ]
 def goto_tk():          return [ 'Goto' ]
 def gosub_tk():         return [ 'Gosub' ]
-def return_tk():        return [ 'Return' ]
-def on_tk():            return [ 'On' ]
 
 
 # branch related statements
@@ -192,10 +190,9 @@ def preset_stmt():      return 'Preset', g_ostep_point, preset_stmt_args
 def preset_stmt_args(): return Optional( comma, g_color, Optional( comma, g_optor ) )
 def pset_stmt():        return 'Pset', g_ostep_point, pset_stmt_args
 def pset_stmt_args():   return Optional( comma, g_color, Optional( comma, g_optor ) )
-def put_sprite_stmt():  return put_tk, sprite_tk, num_expr, comma, g_ostep_point, put_sprite_stmt_args
+def put_sprite_stmt():  return 'Put', 'Sprite', num_expr, comma, g_ostep_point, put_sprite_stmt_args
 def put_sprite_stmt_args(): return Optional( comma, g_color, Optional( comma, g_pttn_num ) )
 def screen_stmt():      return 'Screen', Optional( g_mode ), Optional( comma ), Optional( g_sprite_size ), Optional( comma ), Optional( g_key_click ), Optional( comma ), Optional( g_baud_rate ), Optional( comma ), Optional( g_printer_type ), Optional( comma ), Optional( g_interlace_mode )
-def put_tk():           return [ 'Put' ]
 
 def g_radius():         return num_expr
 def g_color():          return num_expr
