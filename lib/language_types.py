@@ -11,7 +11,7 @@ from .hitbasic import Surrogate
 
 
 # fake types
-Nil = type('Nil', (Surrogate,), { 'translate': lambda self: [] })
+Nil = type('Nil', (Surrogate,), { 'translate': lambda self: '' })
 Any = type('Any', (Surrogate,), {}) # just for parameter matching in function calling
 OptInteger = type('OptInteger', (Surrogate,), {})
 Boolean = type('Boolean', (Surrogate,), {})
