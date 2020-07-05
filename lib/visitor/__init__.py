@@ -25,7 +25,7 @@ from .. import language_statements as statements
 from .. import language_subroutines as subroutines
 
 
-class MSXBasicVisitor(StatementVisitor, 
+class MSXBasicVisitor(StatementVisitor,
                       DeclarationVisitor,
                       ExpressionVisitor,
                       LoopVisitor,
@@ -38,6 +38,7 @@ class MSXBasicVisitor(StatementVisitor,
     def __init__(self, parser, **kwargs):
         parser = kwargs.pop('parser', parser)
         begin_line = kwargs.pop('begin_line', 10)
+        filename = kwargs.pop('filename', None)
 
         PTNodeVisitor.__init__(self, **kwargs)
         SurrogateFactory.__init__(self)
@@ -45,6 +46,7 @@ class MSXBasicVisitor(StatementVisitor,
         DeclarationVisitor.__init__(self)
         LoopVisitor.__init__(self)
 
+        self.filename = filename
         self.parser = parser
         self.begin_line = begin_line
         self.debug = kwargs.pop('debug', False)
@@ -102,7 +104,7 @@ class MSXBasicVisitor(StatementVisitor,
             label = self.create_label(identifier)
             self.symbol_table.store_label(label)
         except NameError:
-            raise NameNotDeclared(identifier, self.parser.context(position=node.position),
+            raise NameNotDeclared(identifier, self.filename, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
         return label
 
@@ -208,7 +210,7 @@ class MSXBasicVisitor(StatementVisitor,
 
     def visit_rvalue(self, node, children):
         if len(children) > 1:
-            [(identifier, [*params]), *rexpr] = children  
+            [(identifier, [*params]), *rexpr] = children
             op = rexpr[0].title()
             op1 = self.visit_var(node[0], [(identifier, params)])
             op2 = rexpr[1]
@@ -225,10 +227,10 @@ class MSXBasicVisitor(StatementVisitor,
 
 
     def visit_var(self, node, children):
-        [(identifier, [*params])] = children  
+        [(identifier, [*params])] = children
         if params: identifier += '()'
         if not (var := self.symbol_table.check_id(identifier, params)):
-            raise NameNotDeclared(identifier, self.parser.context(position=node.position),
+            raise NameNotDeclared(identifier, self.filename, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
         return self.create_reference(var, params)
 
@@ -244,16 +246,16 @@ class MSXBasicVisitor(StatementVisitor,
 
 
     def visit_str_var(self, node, children):
-        [(identifier, [*params])] = children  
+        [(identifier, [*params])] = children
         if params: identifier += '()'
         if not (var := self.symbol_table.check_id(identifier, params)):
-            raise NameNotDeclared(identifier, self.parser.context(position=node.position),
+            raise NameNotDeclared(identifier, self.filename, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
         return self.create_reference(var, params)
 
 
     def visit_num_array(self, node, children):
-        *identifier, [*params] = children
+        *identifier, [*params] = childrenf
         return ''.join(identifier), params
 
 
@@ -263,10 +265,10 @@ class MSXBasicVisitor(StatementVisitor,
 
 
     def visit_num_var(self, node, children):
-        [(identifier, [*params])] = children  
+        [(identifier, [*params])] = children
         if params: identifier += '()'
         if not (var := self.symbol_table.check_id(identifier, params)):
-            raise NameNotDeclared(identifier, self.parser.context(position=node.position),
+            raise NameNotDeclared(identifier, self.filename, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
         return self.create_reference(var, params)
 
@@ -277,4 +279,3 @@ class MSXBasicVisitor(StatementVisitor,
 
     def visit_new_line(self, node, children):
         return None
-

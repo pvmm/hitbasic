@@ -280,7 +280,7 @@ def comptor():          return [ '=', '<>', '<=', '<', '>=', '>']
 def non_quote_char():   return _(r'[^"]')
 def any_char():         return _(r'[^\n]')
 def numeral():          return [ fractional, integer ]
-def fractional():       return Optional( add_sub_sym ), Optional( digit ), '.', Optional( digit )
+def fractional():       return Optional( add_sub_sym ), Optional( digit ), '.', ZeroOrMore( digit )
 def integer():          return [ ( signal, OneOrMore( digit ) ),
                                  ( signal, hex_prefix, OneOrMore( hex_digit ) ),
                                  ( signal, oct_prefix, OneOrMore( oct_digit ) ),

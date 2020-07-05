@@ -2,6 +2,14 @@ from .helper import *
 
 from . import language_types as types
 
+# BASIC version
+MSX_BASIC_1_0 = 0
+MSX_BASIC = MSX_BASIC_1_0
+DISK_BASIC_1 = 1
+DISK_BASIC_2 = 2
+DISK_BASIC = DISK_BASIC_1
+DEFAULT_BASIC_VER = MSX_BASIC
+
 
 def unary_op_type(*type):
     return {
