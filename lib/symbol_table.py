@@ -308,7 +308,7 @@ class SymbolTable(dict):
     def generate_basic_var_id(self, name):
         'generate short two letter variable identifier from HitBasic variable name'
         name = types.strip_attrs_from_id(name)
-        name = name[0].upper() + name[1:] # transform into Pascal case
+        name = (name[0].upper() + name[1:]).replace('_', '') # transform into Pascal case without underscores
         if len(name) > 2:
             new_name = ''.join(filter(lambda x: x.isupper(), name))[0:2]
             if len(new_name) > 0:
