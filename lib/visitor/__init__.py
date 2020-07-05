@@ -97,7 +97,7 @@ class MSXBasicVisitor(StatementVisitor,
 
 
     def visit_label_addr(self, node, children):
-        [identifier] = children
+        [identifier, *_] = children
         try:
             label = self.create_label(identifier)
             self.symbol_table.store_label(label)

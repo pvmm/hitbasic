@@ -165,7 +165,7 @@ def gosub_tk():         return [ 'Gosub' ]
 
 # label stmt
 def label_stmt():       return label_addr, Optional( label_stmt )
-def label_addr():       return '@', _(r'[_A-Z][_A-Z0-9]*(?::)?')
+def label_addr():       return '@', _(r'[_A-Z][_A-Z0-9]*'), Optional(':') # some BASIC dialects require the ending ':'
 def label_clause():     return _(r'[_A-Z][_A-Z0-9]*')
 #def label():            return '@', _(r'[_A-Z][_A-Z0-9]*')
 
