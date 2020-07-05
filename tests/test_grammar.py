@@ -17,24 +17,17 @@ class TestGrammar(unittest.TestCase):
         self.parser = hitbasic.create_parser(debug=False)
 
 
-    def parse(self, text, filename=None):
-        return self.parser.parse(text, file_name=filename)
+    def parse(self, text, file_name=None):
+        return self.parser.parse(text, file_name=file_name)
 
 
-    def parse_file(self, filename):
-        return self.parser.parse_file(filename)
+    def parse_file(self, file_name):
+        return self.parser.parse_file(file_name)
 
 
-    def check_grammar(self, text, expected, filename=None):
-        result = '[%s]' % (self.parse(text, filename=filename) if filename else self.parse(text))
-        try:
-            assert result == expected, 'in file "%s"' % filename
-        except AssertionError:
-            result = '[%s]' % self.parse(text)
-        if filename:
-            assert result == expected, 'In "%s" expected "%s"\nBut got "%s"' % (filename, result, expected)
-        else:
-            assert result == expected, 'Expected "%s"\nBut got "%s"' % (result, expected)
+    def check_grammar(self, text, expected, file_name=None):
+        result = '[%s]' % (self.parse_file(file_name) if file_name else self.parse(text))
+        assert result == expected, 'in file "%s"' % file_name
 
 
     def test_empty(self):

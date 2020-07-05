@@ -31,8 +31,7 @@ class TestParseTree(unittest.TestCase):
 
 
     def visit(self, tree, filename=None):
-        return visit_parse_tree(tree, MSXBasicVisitor(parser=self.parser, begin_line=10, filename=filename,
-                                                      debug=False))
+        return visit_parse_tree(tree, MSXBasicVisitor(parser=self.parser, begin_line=10, debug=False))
 
 
     def test_visitor0(self):

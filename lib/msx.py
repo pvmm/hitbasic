@@ -11,6 +11,12 @@ DISK_BASIC = DISK_BASIC_1
 DEFAULT_BASIC_VER = MSX_BASIC
 
 
+def get_op_type(op):
+    if is_logic_op(op): return types.Boolean
+    if is_arithmetic_op(op): return types.Double
+    if is_string_op(op): return types.String
+
+
 def unary_op_type(*type):
     return {
         ('Not', types.Integer): types.Integer,
@@ -26,6 +32,10 @@ def is_logic_op(op):
     return op.title() in ['Not', 'And', 'Or', 'Xor', 'Eqv', 'Imp', '=', '>=', '<=', '>', '<', '<>']
 
 
+def is_arithmetic_op(op):
+    return op.title() in ['^', '-', '*', '\\', 'Mod', '+', '']
+
+
 # MSX-BASIC priority table
 OP_PRIORITY = {
         '^': 13,
@@ -34,14 +44,14 @@ OP_PRIORITY = {
         '\\': 10,
         'Mod': 9,
         '+': 8, '-': 8,
-        '=': 7, '<>': 7, '<=': 7, '<': 7, '>=': 7, '>': 7, 'Is': 7, 'IsNot': 7,
+        '=': 7, '<>': 7, '<=': 7, '<': 7, '>=': 7, '>': 7, #'Is': 7, 'IsNot': 7,
         'Not': 6,
         'And': 5,
         'Or': 4,
         'Xor': 3,
         'Eqv': 2,
         'Imp': 1,
-        ',': 0, ';': 0, 'A': 0 # [A]ttribution
+        #',': 0, ';': 0, 'A': 0 # [A]ttribution
 }
 
 
@@ -87,4 +97,3 @@ arch = {
         'msx2': MSX2_Architecture,
         'msx1': MSX1_Architecture,
 }
-

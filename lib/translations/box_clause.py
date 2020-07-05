@@ -16,11 +16,11 @@ class Clause:
     def translate(self):
         if self.src_point:
             x, y, step = self.src_point
-            src = ['STEP(' if step else '(', ' ', x, ',', ' ', y, ')']
+            src = ['STEP(' if step else '(', x, ',', ' ', y, ')']
         else:
             src = []
         x, y, step = self.dst_point
-        dst = ['STEP(' if step else '(', ' ', x, ',', ' ', y, ')']
+        dst = ['STEP(' if step else '(', x, ',', ' ', y, ')']
         return ClauseComponents.from_arg_list(*src, '-', *dst).translate()
 
 
@@ -37,4 +37,3 @@ class Clause:
 
     def __eq__(self, other):
         return repr(self) == repr(other)
-

@@ -4,8 +4,8 @@ from . import NO_RULE
 # what currently works
 ALLOWED_STATEMENTS = [ 'Branch', 'Cls', 'Circle', 'Color', 'Conditional', 'Default', 'Dim', 'Do_Until', 'Do_While',
                        'Draw', 'End', ('Exit', 'Do'), 'For_Loop', 'Input', 'Label', 'Let', 'Line', 'Loop_Until',
-                       'Loop_While', 'Multiple', 'Next', 'Paint', 'Play', 'Preset', 'Print', 'Pset', 'Return',
-                       'Screen', 'Select', '?'  ]
+                       'Loop_While', 'Multiple', 'Next', 'Paint', 'Play', 'Preset', 'Print', 'Pset', 'Put Sprite',
+                       'Return', 'Screen', 'Select', '?'  ]
 # non-parameterised statements
 SIMPLE_STATEMENTS = [ 'Beep', 'Cls', 'End', 'Return', ('Exit', 'Do') ]
 

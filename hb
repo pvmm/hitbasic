@@ -105,6 +105,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
                 raise e
             sys.exit(-1)
     else:
+        # TODO: and when there are multiple files?
         try:
             tree = parser.parse_file(args.c[0].name)
         except Exception as e:

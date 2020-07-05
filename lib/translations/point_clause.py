@@ -12,7 +12,7 @@ class Clause:
 
 
     def translate(self):
-        return ClauseComponents.from_arg_list('STEP(' if self.step else '(', ' ', self.x, ',', ' ', self.y, ')').translate()
+        return ClauseComponents.from_arg_list('STEP(' if self.step else '(', self.x, ',', ' ', self.y, ')').translate()
 
 
     def __repr__(self):
@@ -21,4 +21,3 @@ class Clause:
 
     def __eq__(self, other):
         return str(self) == str(other)
-
