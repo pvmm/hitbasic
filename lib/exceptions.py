@@ -35,6 +35,14 @@ class VisitorException(Exception):
             return self.message
 
 
+class RuleNotImplementedYet(Exception):
+    def __init__(self, stmt, context=None):
+        if context:
+            self.args = ('rule to process "%s" not implemented yet (in %s)' % (stmt, context),)
+        else:
+            self.args = ('rule to process "%s" not implemented yet' % stmt,)
+
+
 class SyntaxError_(VisitorException):
 
     def __init__(self, message, filename=None, context=None, pos=None):
