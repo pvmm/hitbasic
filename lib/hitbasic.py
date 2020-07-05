@@ -15,7 +15,7 @@ def statement():        return [ function_stmt,
                                  next_stmt,
                                  for_stmt,
                                  print_stmt,
-                                 return_stmt,
+                                 branch_stmts,
                                  exit_stmt,
                                  let_stmt,
                                  ( 'Def', range_type_decl ),
@@ -149,8 +149,28 @@ def print_expr():       return Not( 'Using' ), expr # Any expr but the keyword '
 def print_sep():        return [ ',', ';' ]
 
 
-# Return rules
-def return_stmt():      return 'Return', expr
+# branch instructions
+def branch_stmts():     return [ on_sprite_stmt, on_interval_stmt, on_branch_stmt, branch_stmt, return_stmt ]
+def on_sprite_stmt():   return on_tk, sprite_tk, gosub_tk, numeral
+def on_interval_stmt(): return on_tk, ( interval_tk, eq_tk, num_expr ), gosub_tk, comma_sep_nums
+def on_branch_stmt():   return on_tk, num_expr, branch_tk, comma_sep_nums
+def branch_stmt():      return branch_tk, numeral
+def return_stmt():      return return_tk, Optional( numeral )
+def comma_sep_nums():   return ZeroOrMore(',', numerals )
+def comma_sep_nums():   return Optional( numeral ), ZeroOrMore( comma, Optional( numeral ) )
+def branch_tk():        return [ goto_tk, gosub_tk ]
+def goto_tk():          return [ 'Goto' ]
+def gosub_tk():         return [ 'Gosub' ]
+def return_tk():        return [ 'Return' ]
+def on_tk():            return [ 'On' ]
+
+
+# branch related statements
+def switcher_stmt():    return switchers_tk, switch_tk
+def swichers_tk():      return [ interval_tk, sprite_tk ]
+def switch_tk():        return [ 'On', 'Off', 'Stop' ]
+def interval_tk():      return [ 'Interval' ]
+def sprite_tk():        return [ 'Sprite' ]
 
 
 # Exit rules
@@ -203,7 +223,17 @@ def g_array():          return alphanum_name, Optional( type_des )
 def play_stmt():        return 'Play', Optional( '#', num_expr, ',' ), Optional( str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr ) ) ) ) ) ) ) ) ) ) ) ) )
 
 
-# Statement with no parameters
+# Resume instruction
+def resume_stmt():      return 'Resume', [ next_tk, numeral ]
+def next_tk():          return 'Next'
+
+
+# Instruction that accepts comma-separated lists.
+def comma_lst_stmt():   return comma_lst_st_tk
+def comma_lst_st_tk():  return [ 'Erase' ]
+
+
+# Instruction with no parameters
 def paramless_stmt():   return [ 'Nop', 'Cls', 'End' ]
 
 
@@ -228,10 +258,10 @@ def and_op():           return not_op, ZeroOrMore( _(r'And'), not_op )
 def not_op():           return ZeroOrMore( _(r'Not') ), comp_op
 def comp_op():          return add_op, ZeroOrMore( comptor, add_op )
 def comp_op2():         return comptor, add_op
-def add_op():           return mod_op, ZeroOrMore( add_sub_sym, mod_op )
+def add_op():           return mod_op, ZeroOrMore( add_or_sub_tk, mod_op )
 def mod_op():           return idiv_op, ZeroOrMore( _(r'Mod'), idiv_op )
 def idiv_op():          return mul_op, ZeroOrMore( _(r'\\'), mul_op )
-def mul_op():           return neg_op, ZeroOrMore( mul_div_sym, neg_op )
+def mul_op():           return neg_op, ZeroOrMore( mul_or_div_tk, neg_op )
 def neg_op():           return signal, exp_op
 def exp_op():           return optor, ZeroOrMore( _('\^'), optor )
 def optor():            return [ ( '(', expr, ')' ), numeral, string, var ]
@@ -247,10 +277,10 @@ def num_and_op():       return num_not_op, ZeroOrMore( 'And', num_not_op )
 def num_not_op():       return Optional( 'Not' ), num_comp_op
 def num_comp_op():      return num_add_op, ZeroOrMore( comptor, num_add_op )
 def num_comp_op2():     return num_comptor, num_add_op
-def num_add_op():       return num_mod_op, ZeroOrMore( add_sub_sym, num_mod_op )
+def num_add_op():       return num_mod_op, ZeroOrMore( add_or_sub_tk, num_mod_op )
 def num_mod_op():       return num_idiv_op, ZeroOrMore( 'Mod', num_idiv_op )
 def num_idiv_op():      return num_mul_op, ZeroOrMore( '\\', num_mul_op )
-def num_mul_op():       return num_neg_op, ZeroOrMore( mul_div_sym, num_neg_op )
+def num_mul_op():       return num_neg_op, ZeroOrMore( mul_or_div_tk, num_neg_op )
 def num_neg_op():       return signal, num_exp_op
 def num_exp_op():       return num_optor, ZeroOrMore( '^', num_optor )
 def num_optor():        return [ ( '(', num_expr, ')' ), ( numeral, ), ( num_var, ) ]
@@ -259,7 +289,7 @@ def num_optor():        return [ ( '(', num_expr, ')' ), ( numeral, ), ( num_var
 # str_expr rules
 def str_expr():         return str_comp_op
 def str_comp_op():      return str_add_op, ZeroOrMore( comptor, str_add_op )
-def str_add_op():       return str_optor, ZeroOrMore( add_sym, str_optor )
+def str_add_op():       return str_optor, ZeroOrMore( add_tk, str_optor )
 def str_optor():        return [ ( '(', str_expr, ')' ), ( string, ), ( str_var, ) ]
 
 
@@ -280,7 +310,7 @@ def comptor():          return [ '=', '<>', '<=', '<', '>=', '>']
 def non_quote_char():   return _(r'[^"]')
 def any_char():         return _(r'[^\n]')
 def numeral():          return [ fractional, integer ]
-def fractional():       return Optional( add_sub_sym ), Optional( digit ), '.', ZeroOrMore( digit )
+def fractional():       return Optional( add_or_sub_tk ), Optional( digit ), '.', ZeroOrMore( digit )
 def integer():          return [ ( signal, OneOrMore( digit ) ),
                                  ( signal, hex_prefix, OneOrMore( hex_digit ) ),
                                  ( signal, oct_prefix, OneOrMore( oct_digit ) ),
@@ -296,7 +326,7 @@ def filepath():         return string
 def string():           return '"', Sequence( ZeroOrMore( non_quote_char ), skipws=False ), '"'
 def opt_stmt_sep():     return Optional( statement_sep )
 def statement_sep():    return [ ( new_lines, ':', new_lines ), OneOrMore( new_line ) ]
-def signal():           return Optional( add_sub_sym )
+def signal():           return Optional( add_or_sub_tk )
 def reserved():         return [ 'And', 'As', 'Imp', 'Eqv', 'Mod', 'Xor', 'Or' ] # 'To' and others?
 # Mimics MSX-BASIC parsing rules by parsing "aimpb" as "A IMP B"
 #def alphanum_name():    return Not( reserved ), _(r'[A-Z]'), ZeroOrMore( Not( reserved ), _(r'[A-Z0-9]') )
@@ -312,9 +342,10 @@ def new_line():         return '\n'
 
 
 # Useful token groups
-def mul_div_sym():      return [ '*', '/' ]
-def add_sub_sym():      return [ '+', '-' ]
-def add_sym():          return [ '+' ]
+def eq_tk():            return [ '=' ]
+def mul_or_div_tk():    return [ '*', '/' ]
+def add_or_sub_tk():    return [ '+', '-' ]
+def add_tk():           return [ '+' ]
 
 
 class Surrogate(ParseTreeNode):
