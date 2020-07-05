@@ -167,13 +167,13 @@ class DeclarationVisitor:
                 init_values = None
                 dim_init = None
                 dimensions = ()
-                init_type = None
+                init_type = types.Any
                 init_ranges = None
             if tokens.Token('As') in init:
                 as_kw_pos = init.index(tokens.Token('As'))
                 type_ = init[as_kw_pos + 1]
             else:
-                type_ = None
+                type_ = types.Any
             try:
                 init_values and type_ and types.check_initialisation(type_, init_values)
             except TypeMismatch as e:

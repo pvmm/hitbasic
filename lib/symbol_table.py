@@ -1,6 +1,7 @@
 from contextlib import suppress
 from random import randint
 
+from . import msx
 from . import language_types as types
 from . import version
 
@@ -25,21 +26,80 @@ class SymbolTable(dict):
 
     def predefined_identifiers(self):
         builtins = {
+                # HitBasic name: MSXBASIC name, [params=<function parameters>], [type=<return type>], [attrs=...]
+                'Abs()': types.BuiltIn('ABS()', params=types.Double, type=types.Double),
                 'Atn()': types.BuiltIn('ATN()', params=types.Double, type=types.Double),
-                'Chr()': types.BuiltIn('CHR()', params=types.Integer, type=types.String),
-                'Asc()': types.BuiltIn('ASC()', params=types.String, type=types.Integer),
-                'Bin()': types.BuiltIn('BIN()', params=types.Integer, type=types.Integer),
+                'Asc()': types.BuiltIn('ASC$()', params=types.String, type=types.Integer),
+                # Not the Base instruction.
+                'Base()': types.BuiltIn('BASE()', params=types.Integer, type=types.Integer),
+                'Bin()': types.BuiltIn('BIN$()', params=types.Integer, type=types.Integer),
                 'Cdbl()': types.BuiltIn('CDBL()', params=types.Integer, type=types.Double),
+                'Chr()': types.BuiltIn('CHR()', params=types.Integer, type=types.String),
                 'Cint()': types.BuiltIn('CINT()', params=types.Single, type=types.Integer),
-                'CSng()': types.BuiltIn('CSNG()', params=types.Single, type=types.Single),
-                'HEX()': types.BuiltIn('HEX()', params=types.Integer, type=types.String),
-                'OCT()': types.BuiltIn('OCT()', params=types.Integer, type=types.String),
-                'STR()': types.BuiltIn('STR()', params=types.Integer, type=types.String),
-                'VAL()': types.BuiltIn('VAL()', params=types.String, type=types.Integer),
+                'Cos()': types.BuiltIn('COS()', params=types.Double, type=types.Double),
+                'Csng()': types.BuiltIn('CSNG()', params=types.Single, type=types.Single),
+                'Csrlin': types.BuiltIn('CSRLIN', type=types.Integer, attrs=types.READ_ONLY),
+                'Cvd()': types.BuiltIn('CVD()', params=types.String, type=types.Double),
+                'Cvi()': types.BuiltIn('CVD()', params=types.String, type=types.Integer, ver=msx.DISK_BASIC),
+                'Cvs()': types.BuiltIn('CVS()', params=types.String, type=types.Single, ver=msx.DISK_BASIC),
+                'Dskf()': types.BuiltIn('DSKF()', params=types.Integer, type=types.Integer, ver=msx.DISK_BASIC),
+                'Eof()': types.BuiltIn('EOF()', params=types.Integer, type=types.Integer),
+                'Erl': types.BuiltIn('ERL', type=types.Integer, attrs=types.READ_ONLY),
+                'Err': types.BuiltIn('ERR', type=types.Integer, attrs=types.READ_ONLY),
+                'Fix()': types.BuiltIn('FIX()', params=types.Double, type=types.Integer),
+                'Fre()': types.BuiltIn('FRE()', params=types.Any, type=types.Integer),
+                'Hex()': types.BuiltIn('HEX$()', params=types.Integer, type=types.String),
+                'Instr()': types.BuiltIn('INSTR()', params=(types.OptInteger, types.String, types.String), type=types.Integer),
+                'Inkey': types.BuiltIn('INKEY$', type=types.String, attrs=types.READ_ONLY),
+                'Inp()': types.BuiltIn('INP()', params=types.Integer, type=types.Integer),
+                'Int()': types.BuiltIn('INT()', params=types.Integer, type=types.Integer),
+                'Left()': types.BuiltIn('LEFT()', params=(types.String, types.Integer), type=types.String),
+                'Len()': types.BuiltIn('LEN()', params=(types.String), type=types.String),
+                'Loc()': types.BuiltIn('LOC()', params=types.Integer, type=types.Integer, ver=msx.DISK_BASIC),
+                'Lof()': types.BuiltIn('LOF()', params=types.Integer, type=types.Integer, ver=msx.DISK_BASIC),
+                # Not to be confused with the MID$ instruction.
+                'Mkd()': types.BuiltIn('MKD$()', params=types.Double, type=types.String, ver=msx.DISK_BASIC),
+                'Mki()': types.BuiltIn('MKI$()', params=types.Integer, type=types.String, ver=msx.DISK_BASIC),
+                'Mks()': types.BuiltIn('MKS$()', params=types.Single, type=types.String, ver=msx.DISK_BASIC),
+                'Mid()': types.BuiltIn('MID$()', params=(types.String, types.String, types.OptInteger), type=types.String),
+                'Oct()': types.BuiltIn('OCT$()', params=types.Integer, type=types.String),
+                'Peek()': types.BuiltIn('PEEK()', params=types.Integer, type=types.Integer),
+                'Pos()': types.BuiltIn('POS()', params=types.Integer, type=types.Integer),
+                'Right()': types.BuiltIn('RIGHT$()', params=(types.String, types.Integer), type=types.String),
+                'Rnd()': types.BuiltIn('RND()', params=types.Integer, type=types.Double),
+                'Sgn()': types.BuiltIn('SGN()', params=types.Integer, type=types.Integer),
+                'Sin()': types.BuiltIn('SIN()', params=types.Double, type=types.Double),
+                'Spaces()': types.BuiltIn('SPACE$()', params=(types.Integer, types.Any), type=types.String),
+                'Spc()': types.BuiltIn('SPC()', params=types.Integer, type=types.String),
+                'Sprite()': types.BuiltIn('SPRITE$()', params=types.Integer, type=types.String),
+                'Sqr()': types.BuiltIn('SQR()', params=types.Double, type=types.Double),
+                'Stick()': types.BuiltIn('STICK()', params=types.Integer, type=types.Integer),
+                'Str()': types.BuiltIn('STR()', params=types.Integer, type=types.String),
+                'Strig()': types.BuiltIn('STRIG()', params=types.Integer, type=types.Integer),
+                'String()': types.BuiltIn('STRING$()', params=(types.Integer, types.Any), type=types.String),
+                'Tab()': types.BuiltIn('TAB()', params=types.Integer, type=types.String),
+                'Tan()': types.BuiltIn('TAN()', params=types.Double, type=types.Double),
+                'Time': types.BuiltIn('TIME', type=types.Integer),
+                'Usr()': types.BuiltIn('USR()', params=types.Integer, type=types.Integer),
+                'Usr0()': types.BuiltIn('USR0()', params=types.Integer, type=types.Integer),
+                'Usr1()': types.BuiltIn('USR1()', params=types.Integer, type=types.Integer),
+                'Usr2()': types.BuiltIn('USR2()', params=types.Integer, type=types.Integer),
+                'Usr3()': types.BuiltIn('USR3()', params=types.Integer, type=types.Integer),
+                'Usr4()': types.BuiltIn('USR4()', params=types.Integer, type=types.Integer),
+                'Usr5()': types.BuiltIn('USR5()', params=types.Integer, type=types.Integer),
+                'Usr6()': types.BuiltIn('USR6()', params=types.Integer, type=types.Integer),
+                'Usr7()': types.BuiltIn('USR7()', params=types.Integer, type=types.Integer),
+                'Usr8()': types.BuiltIn('USR8()', params=types.Integer, type=types.Integer),
+                'Usr9()': types.BuiltIn('USR9()', params=types.Integer, type=types.Integer),
+                'Val()': types.BuiltIn('VAL()', params=types.String, type=types.Integer),
+                # Not to be confused with the Vdp instruction.
+                'Vdp()': types.BuiltIn('VDP()', params=types.Integer, type=types.Integer),
+                'Vpeek()': types.BuiltIn('VPEEK()', params=types.Integer, type=types.Integer),
+                'Maxfiles': types.BuiltIn('MAXFILES', type=types.Integer, attrs=types.WRITE_ONLY),
         }
         # Also register String-returning functions with -$ suffix for MSX-BASIC compatibility.
         for identifier, value in list(builtins.items()):
-            if builtins[identifier].type == types.String:
+            if builtins[identifier].identifier.contains('$'): # Because SPC() and TAB() ruins everything
                 tag = types.strip_attrs_from_id(identifier)
                 is_function = identifier.endswith('()')
                 builtins[tag + '$' + ('()' if is_function else '')] = value
