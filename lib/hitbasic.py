@@ -20,7 +20,7 @@ def statement():        return [ function_stmt,
                                  let_stmt,
                                  ( 'Def', range_type_decl ),
                                  input_stmt,
-                                 graphical_stmt,
+                                 graphics_stmts,
                                  play_stmt,
                                  paramless_stmt,
                                  #multi_attr_stmt,
@@ -176,8 +176,9 @@ def sprite_tk():        return [ 'Sprite' ]
 # Exit rules
 def exit_stmt():        return 'Exit', [ 'Function', 'Sub' ]
 
-# Graphical statements
-def graphical_stmt():   return [ draw_stmt, circle_stmt, color_stmt, copy_stmt, line_stmt, paint_stmt, preset_stmt, pset_stmt, screen_stmt ]
+# Graphics statements
+def graphics_stmts():   return [ draw_stmt, circle_stmt, color_stmt, copy_stmt, line_stmt, paint_stmt, preset_stmt,
+                                 pset_stmt, put_sprite_stmt, screen_stmt ]
 def draw_stmt():        return 'Draw', str_expr
 def circle_stmt():      return 'Circle', g_ostep_point, circle_stmt_args
 def circle_stmt_args(): return Optional( comma, g_color, Optional( comma, g_color ) )
@@ -190,8 +191,11 @@ def paint_stmt_args():  return Optional( comma, g_color, Optional( comma, g_colo
 def preset_stmt():      return 'Preset', g_ostep_point, preset_stmt_args
 def preset_stmt_args(): return Optional( comma, g_color, Optional( comma, g_optor ) )
 def pset_stmt():        return 'Pset', g_ostep_point, pset_stmt_args
-def pset_stmt_args():   return Optional( comma, g_color, Optional( comma, g_optor ) ) 
+def pset_stmt_args():   return Optional( comma, g_color, Optional( comma, g_optor ) )
+def put_sprite_stmt():  return put_tk, sprite_tk, num_expr, comma, g_ostep_point, put_sprite_stmt_args
+def put_sprite_stmt_args(): return Optional( comma, g_color, Optional( comma, g_pttn_num ) )
 def screen_stmt():      return 'Screen', Optional( g_mode ), Optional( comma ), Optional( g_sprite_size ), Optional( comma ), Optional( g_key_click ), Optional( comma ), Optional( g_baud_rate ), Optional( comma ), Optional( g_printer_type ), Optional( comma ), Optional( g_interlace_mode )
+def put_tk():           return [ 'Put' ]
 
 def g_radius():         return num_expr
 def g_color():          return num_expr
@@ -208,6 +212,7 @@ def g_baud_rate():      return num_expr
 def g_printer_type():   return num_expr
 def g_interlace_mode(): return num_expr
 def g_direction():      return num_expr
+def g_pttn_num():       return num_expr
 def g_dst_ostep_point():return _('-'), Optional( _( 'Step' ) ), g_point
 def g_ostep_point():    return Optional( _( 'Step' ) ), g_point
 def g_point():          return '(', num_expr, comma, num_expr, ')'
