@@ -337,4 +337,3 @@ def create_parser(**kwargs):
         debug_mode = False
 
     return ParserPython(program, comments, reduce_tree=False, ignore_case=True, ws='\t ', skipws=True, debug=debug_mode)
-

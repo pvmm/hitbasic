@@ -34,4 +34,3 @@ def create(token, *args, **kwargs):
 class Statement:
     def __init__(self, *tokens):
         self.tokens = tuple([token.upper() for token in tokens])
-
