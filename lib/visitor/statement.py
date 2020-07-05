@@ -61,7 +61,7 @@ class StatementVisitor:
 
 
     def visit_circle_stmt_args(self, node, children):
-        # CIRCLE STEP(<X>,<Y>),<Radius>,<Color>,<TracingStart>,<TracingEnd>,<Aspect> 
+        # CIRCLE STEP(<X>,<Y>),<Radius>,<Color>,<TracingStart>,<TracingEnd>,<Aspect>
         assert children[0] == ','
         result = parse_arg_list(children[1:], nil_element=self.create_nil(), max=5)
         return result
@@ -72,7 +72,7 @@ class StatementVisitor:
             params = parse_arg_list(children, nil_element=self.create_nil(), max=3)
         except MissingOperand as e:
             param = node[-1]
-            raise e.set_location(self.parser.context(position=param.position),
+            raise e.set_location(self.filename, self.parser.context(position=param.position),
                     self.parser.pos_to_linecol(param.position))
         return self.create_statement('Color', params=params)
 
@@ -192,7 +192,7 @@ class StatementVisitor:
             params = parse_arg_list(children, nil_element=self.create_nil(), max=screen_attrs_len)
         except MissingOperand as e:
             param = node[-1]
-            raise e.set_location(self.parser.context(position=param.position),
+            raise e.set_location(self.filename, self.parser.context(position=param.position),
                     self.parser.pos_to_linecol(param.position))
         for param, attr in zip(params, msx.arch[self.arch].screen_attrs()):
             if type(param) != types.Nil and not isinstance(param, types.numeric_classes()):
@@ -234,4 +234,3 @@ class StatementVisitor:
     def visit_var_defn(self, node, children):
         var, expr = children
         return self.create_attribution(var, expr)
-

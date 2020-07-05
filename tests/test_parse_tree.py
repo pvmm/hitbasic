@@ -30,8 +30,9 @@ class TestParseTree(unittest.TestCase):
         return self.parser.parse_file(filename)
 
 
-    def visit(self, tree):
-        return visit_parse_tree(tree, MSXBasicVisitor(parser=self.parser, begin_line=10, debug=False))
+    def visit(self, tree, filename=None):
+        return visit_parse_tree(tree, MSXBasicVisitor(parser=self.parser, begin_line=10, filename=filename,
+                                                      debug=False))
 
 
     def test_visitor0(self):
@@ -68,7 +69,7 @@ class TestParseTree(unittest.TestCase):
         for source_file in test_files:
             s = io.StringIO()
             tree = self.parse_file(source_file) # looking for matching errors
-            symbol_table, code = self.visit(tree)
+            symbol_table, code = self.visit(tree, filename=source_file)
             pp = pprint.PrettyPrinter(stream=s, width=120)
             pp.pprint(code)
             code = s.getvalue().rstrip()
@@ -79,4 +80,3 @@ class TestParseTree(unittest.TestCase):
             except FileNotFoundError as e:
                 with open(path.splitext(source_file)[0] + '.objdump', 'w') as obj_file:
                     print(code, file=obj_file)
-
