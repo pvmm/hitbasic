@@ -194,7 +194,7 @@ class DeclarationVisitor:
             except TypeMismatch as e:
                 context = self.parser.context(position=node.position)
                 pos = self.parser.pos_to_linecol(node.position)
-                raise e.set_location(context, pos)
+                raise e.set_location(self.filename, context, pos)
             var = self.symbol_table.create_hitbasic_var(identifier, ranges, type_)
             if dim_init:
                 init_code = self.write_dim_init(var, dim_init)
@@ -251,4 +251,3 @@ class DeclarationVisitor:
     @store_node
     def visit_dim_eq_tk(self, node, children):
         return self.create_token(node.flat_str(), node=node)
-

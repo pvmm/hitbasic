@@ -1,3 +1,7 @@
+import re
+import operator
+import functools
+
 from . import NO_RULE
 from . import msx
 
@@ -6,13 +10,17 @@ from .exceptions import *
 from .hitbasic import Surrogate
 
 
+# fake types
 Nil = type('Nil', (Surrogate,), { 'translate': lambda self: [] })
 Any = type('Any', (Surrogate,), {}) # just for parameter matching in function calling
+OptInteger = type('OptInteger', (Surrogate,), {})
+Boolean = None
+
+# MSX-BASIC types
 String = None
 Integer = None
 Double = None
 Single = None
-Boolean = None
 DEFAULT_TYPE = Double
 
 TYPES = { 'Nil': Nil, 'String' : None, 'Integer' : None, 'Double' : None, 'Single' : None, 'Boolean' : None,
@@ -185,9 +193,12 @@ class Function(Callee):
 
 
     def check_params(self, params):
-        for (type, value) in zip(self.params, params):
-            if not compatible_types(type, value.type):
-                raise TypeMismatch(type, value.type)
+        pmap = { Integer: '(i|n)', OptInteger: '(i|n)?', Single: '(s|n)', Double: '(d|n)', String: 's', Any: '.', }
+        fmap = { Integer: 'i', Single: 's', Double: 'd', String: 's'}
+        pattern = functools.reduce(operator.add, [pmap[p.type] for p in self.params])
+        funcall = functools.reduce(operator.add, [fmap[p.type] for p in params])
+        if not re.match(pattern, funcall):
+            raise TypeMismatch(type, value.type)
 
 
 class BuiltIn(Callee):
@@ -224,4 +235,3 @@ class BASICVar(Callee):
         for (range, position) in zip(self.ranges, params):
             if position.value < range.begin or position.value > range.end:
                 raise OutOfBounds(range)
-

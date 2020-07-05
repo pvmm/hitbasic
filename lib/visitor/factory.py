@@ -158,7 +158,7 @@ class SurrogateFactory:
             return self.create_clause('unary_op', op=op, operand=operand, need_parens=need_parens, **kwargs)
         except TypeMismatch as e:
             node = kwargs.pop('node', self.current_node)
-            raise e.set_location(self.parser.context(position=node.position),
+            raise e.set_location(self.filename, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
 
 
@@ -174,7 +174,7 @@ class SurrogateFactory:
             return self.create_clause('operation', op=op, op1=op1, op2=op2, need_parens=need_parens, **kwargs)
         except TypeMismatch as e:
             node = kwargs.pop('node', self.current_node)
-            raise e.set_location(self.parser.context(position=node.position),
+            raise e.set_location(self.filename, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
 
 
@@ -186,7 +186,7 @@ class SurrogateFactory:
             return self.create_clause('case_op', op=op, op2=op2, need_rparens=need_rparens, **kwargs)
         except TypeMismatch as e:
             node = kwargs.pop('node', self.current_node)
-            raise e.set_location(self.parser.context(position=node.position),
+            raise e.set_location(self.filename, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
 
 
@@ -269,4 +269,3 @@ class SurrogateFactory:
         node = kwargs.pop('node', self.current_node)
         position = kwargs.pop('pos', node.position if node else None)
         return self.subroutine_type(self.current_rule or NO_RULE, position, False, code_block, **kwargs)
-

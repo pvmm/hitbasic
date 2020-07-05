@@ -99,7 +99,7 @@ class SymbolTable(dict):
         }
         # Also register String-returning functions with -$ suffix for MSX-BASIC compatibility.
         for identifier, value in list(builtins.items()):
-            if builtins[identifier].identifier.contains('$'): # Because SPC() and TAB() ruins everything
+            if '$' in builtins[identifier].identifier: # Because SPC() and TAB() ruins everything
                 tag = types.strip_attrs_from_id(identifier)
                 is_function = identifier.endswith('()')
                 builtins[tag + '$' + ('()' if is_function else '')] = value
@@ -332,4 +332,3 @@ class SymbolTable(dict):
 
 class NamespaceExhausted(Exception):
     "no valid names left to create variables"
-
