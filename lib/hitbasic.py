@@ -242,6 +242,11 @@ def comma_lst_st_tk():  return [ 'Erase' ]
 def paramless_stmt():   return [ 'Nop', 'Cls', 'End' ]
 
 
+# Single param instruction
+def simple_stmt():      return simple_stmt_tk, num_expr
+def simple_stmt_tk():   return [ 'Error', 'Width' ]
+
+
 # Multi-attribution
 def multi_attr_stmt():  return var_defns
 def var_defns():        return lvalues, '=', exprs
