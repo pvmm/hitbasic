@@ -3,11 +3,10 @@ import functools
 
 def store_node(func):
     @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        args[0].current_node = args[1]
-        args[0].current_rule = args[1].rule
-        return func(*args, **kwargs)
-        args[0].current_node = None
-        args[0].current_rule = None
+    def wrapper(self, *args, **kwargs):
+        self.current_node = args[0]
+        self.current_rule = args[0].rule
+        return func(self, *args, **kwargs)
+        self.current_node = None
+        self.current_rule = None
     return wrapper
-

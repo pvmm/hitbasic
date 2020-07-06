@@ -66,7 +66,7 @@ class MSX1_Architecture(object):
 
     @property
     def INTERLACE_MODE():
-        raise SyntaxError('interlace mode not available on the MSX1')
+        raise SyntaxError_('interlace mode not available on the MSX1')
 
 
     @classmethod

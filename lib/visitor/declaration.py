@@ -66,7 +66,7 @@ class DeclarationVisitor:
     def parse_range(self, lst, expect_parenthesis=True):
         'BASIC ranges might allow empty values and we must account for that.'
         if expect_parenthesis and not (lst[0] == '(' and lst[-1] == ')'):
-            raise SyntaxError_('matching parenthesis missing')
+            raise self.create_exception(SyntaxError_, 'matching parenthesis missing')
         result = []
         expected_item = True
         for item in iter(lst[1:-1] if expect_parenthesis else lst):
@@ -124,7 +124,7 @@ class DeclarationVisitor:
                     ref = self.create_reference(var, params=(col), node=first_node(init_values))
                     code_block.append(self.visit_attr_stmt(ref, [ref, v[col]]))
                 except TypeError:
-                    raise DimInitAccessError(var.reference[:-2], col)
+                    raise self.create_exception(DimInitAccessError, var.reference[:-2], col)
                 except IndexError:
                     break # allow partial initialisations
         elif len(d) == 2:
@@ -134,7 +134,7 @@ class DeclarationVisitor:
                         ref = self.create_reference(var, params=(row, col), node=first_node(init_values))
                         code_block.append(self.visit_attr_stmt(ref, [ref, v[row][col]]))
                     except TypeError:
-                        raise DimInitAccessError(var.reference[:-2], row, col)
+                        raise self.create_exception(DimInitAccessError, var.reference[:-2], row, col)
                     except IndexError:
                         break # allow partial initialisations
         elif len(d) == 3:
@@ -145,7 +145,7 @@ class DeclarationVisitor:
                             ref = self.create_reference(var, params=(layer, row, col), node=first_node(init_values))
                             code_block.append(self.visit_attr_stmt(ref, [ref, v[layer][row][col]]))
                         except TypeError:
-                            raise DimInitAccessError(var.reference[:-2], layer, row, col)
+                            raise self.create_exception(DimInitAccessError, var.reference[:-2], layer, row, col)
                         except IndexError:
                             break # allow partial initialisations
         return code_block
@@ -158,7 +158,10 @@ class DeclarationVisitor:
             if tokens.Token('=') in init:
                 eq_sn_pos = init.index(tokens.Token('='))
                 init_values = init[eq_sn_pos + 1]
-                init_type = check_init_type(init_values)
+                try:
+                    init_type = check_init_type(init_values)
+                except TypeMismatch as e:
+                    raise e.put_location(first_node(init_values))
                 dimensions = check_dim(init_values, stack={})
                 init_ranges = [self.create_range(0, x-1) for x in dimensions]
                 dim_init = self.create_initialisation(dimensions, init_values, init_type, node=
@@ -177,24 +180,18 @@ class DeclarationVisitor:
             try:
                 init_values and type_ and types.check_initialisation(type_, init_values)
             except TypeMismatch as e:
-                context = self.parser.context(position=node[-1].position)
-                pos = self.parser.pos_to_linecol(node[-1].position)
-                raise e.set_position(context, pos)
+                raise self.put_location(e, pos=node[-1].position)
             if init_values:
                 # TODO: change the use of compare_ranges to allow partial initializations?
                 if self.compare_ranges(ranges, init_ranges) != True:
-                    context = self.parser.context(position=node[-1].position)
-                    pos = self.parser.pos_to_linecol(node[-1].position)
-                    raise DimRangesMismatch(identifier, context, pos)
+                    raise self.create_exception(DimRangesMismatch, identifier)
                 else:
                     # we prefeer precise ranges.
                     ranges = init_ranges
             try:
-                type_ = types.compare_types(type_, init_type)
+                type_ = types.calculate_type(type_, init_type)
             except TypeMismatch as e:
-                context = self.parser.context(position=node.position)
-                pos = self.parser.pos_to_linecol(node.position)
-                raise e.set_location(self.parser.file_name, context, pos)
+                raise self.put_location(e)
             var = self.symbol_table.create_hitbasic_var(identifier, ranges, type_)
             if dim_init:
                 init_code = self.write_dim_init(var, dim_init)

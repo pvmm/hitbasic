@@ -269,3 +269,16 @@ class SurrogateFactory:
         node = kwargs.pop('node', self.current_node)
         position = kwargs.pop('pos', node.position if node else None)
         return self.subroutine_type(self.current_rule or NO_RULE, position, False, code_block, **kwargs)
+
+
+    def put_location(self, exception, pos=None):
+        'insert location in exception for a reraise'
+        pos = pos or self.current_node.position
+        return e.set_location(self.parser.file_name, self.parser.context(pos), self.parser.pos_to_linecol(pos))
+
+
+    def create_exception(self, exception_type, *args, pos=None):
+        'create exception with predefined location'
+        pos = pos or self.current_node.position
+        raise exception_type(*args, self.parser.file_name, self.parser.context(pos),
+                             self.parser.pos_to_linecol(pos))

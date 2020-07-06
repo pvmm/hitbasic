@@ -75,26 +75,25 @@ class LoopVisitor:
 
 
     def visit_do_loop_stmt(self, node, children):
-        if len(node) == 6:
-            if node[1][0].flat_str().title() == 'While':
-                # Evalute while loop with condition at the beginning.
-                (cond_type, expr), code_block = children
-                return self.create_do_while(expr, flatten(code_block))
-            if node[1][0].flat_str().title() == 'Until':
-                # Evalute until loop with condition at the beginning.
-                (cond_type, expr), code_block = children
-                return self.create_do_until(expr, flatten(code_block))
+        assert len(node) == 6
+        if node[1][0].flat_str().title() == 'While':
+            # Evalute while loop with condition at the beginning.
+            (cond_type, expr), code_block = children
+            return self.create_do_while(expr, flatten(code_block))
+        if node[1][0].flat_str().title() == 'Until':
+            # Evalute until loop with condition at the beginning.
+            (cond_type, expr), code_block = children
+            return self.create_do_until(expr, flatten(code_block))
 
-            if node[5][0].flat_str().title() in 'While':
-                # Evalute while loop with condition at the end.
-                code_block, (cond_type, expr) = children
-                return self.create_loop_while(expr, flatten(code_block))
+        if node[5][0].flat_str().title() in 'While':
+            # Evalute while loop with condition at the end.
+            code_block, (cond_type, expr) = children
+            return self.create_loop_while(expr, flatten(code_block))
 
-            if node[5][0].flat_str().title() in 'Until':
-                # Evalute until loop with condition at the end.
-                code_block, (cond_type, expr) = children
-                return self.create_loop_until(expr, flatten(code_block))
-        raise SyntaxError()
+        if node[5][0].flat_str().title() in 'Until':
+            # Evalute until loop with condition at the end.
+            code_block, (cond_type, expr) = children
+            return self.create_loop_until(expr, flatten(code_block))
 
 
     def visit_do_loop_cond(self, node, children):
@@ -122,16 +121,13 @@ class LoopVisitor:
         if children: statement = self.create_statement('Next', params=children[0].pop())
         else: statement = self.create_statement('Next')
         if not statement.params and not self.check_in_loop():
-            raise LoopNotFound(self.parser.context(statement.position),
-                    self.parser.pos_to_linecol(statement.position))
+            raise self.create_exception(LoopNotFound, pos=statement.position)
         for var in iter(statement.params):
             try:
                 if not self.check_in_loop(var):
-                    raise LoopNotFound(self.parser.context(node.position),
-                            self.parser.pos_to_linecol(node.position))
+                    raise self.create_exception(LoopNotFound)
             except KeyError:
-                raise LoopMismatch(self.parser.context(node.position),
-                        self.parser.pos_to_linecol(node.position))
+                raise self.create_exception(LoopMismatch)
         return statement
 
 
@@ -145,9 +141,7 @@ class LoopVisitor:
         try:
             ref = self.symbol_table.get_hitbasic_var(identifier)
         except NameNotDeclared as e:
-            context = self.parser.context(node[0].position)
-            pos = self.parser.pos_to_linecol(node[0].position)
-            raise e.set_location(self.parser.file_name, context, pos)
+            raise self.put_location(e, pos=node[0].position)
         return self.create_reference(ref, params)
 
 
@@ -166,8 +160,6 @@ class LoopVisitor:
         if not ref and self.no_dim_flag:
             return self.create_variable(identifier, params, reference=ref)
         if not ref:
-            context = self.parser.context(node[0].position)
-            pos = self.parser.pos_to_linecol(node[0].position)
-            raise NameNotDeclared(identifier, context, pos)
+            raise self.create_exception(NameNotDeclared, pos=node[0].position)
         else:
             return self.create_reference(ref, params)

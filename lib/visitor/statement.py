@@ -39,12 +39,14 @@ class StatementVisitor:
 
     def visit_attr_stmt(self, node, children):
         var, expr = children
-        if types.compatible_types(var.type, expr.type, coercion=True):
+        if types.compatible_types(var.type, expr.type):
             if type(expr.value) != types.Function:
                 return self.create_attribution(var, expr)
             else:
                 # extra glue code necessary if rvalue is a function
                 return self.write_vfc_subroutine(var=var, ref=expr) # caller node
+        else:
+            raise self.create_exception(TypeMismatch, expr.type, var.type, var.value.reference, pos=node[0].position)
 
 
     def visit_branch_stmt(self, node, children):
@@ -77,8 +79,7 @@ class StatementVisitor:
             params = parse_arg_list(children, nil_element=self.create_nil(), max=3)
         except MissingOperand as e:
             param = node[-1]
-            raise e.set_location(self.parser.file_name, self.parser.context(position=param.position),
-                    self.parser.pos_to_linecol(param.position))
+            raise self.put_location(e, param.position)
         return self.create_statement('Color', params=params)
 
 
@@ -211,15 +212,12 @@ class StatementVisitor:
             params = parse_arg_list(children, nil_element=self.create_nil(), max=screen_attrs_len)
         except MissingOperand as e:
             param = node[-1]
-            raise e.set_location(self.parser.file_name, self.parser.context(position=param.position),
-                    self.parser.pos_to_linecol(param.position))
+            raise self.put_location(e, param.position)
         for param, attr in zip(params, msx.arch[self.arch].screen_attrs()):
             if type(param) != types.Nil and not isinstance(param, types.numeric_classes()):
-                raise TypeMismatch(types.Integer, type(param), context=self.parser.context(position=param.position),
-                        pos=self.parser.pos_to_linecol(param.position))
+                raise self.create_exception(TypeMismatch, expr.type, var.type, var.value.reference, pos=param.position)
             if type(param) != types.Nil and param.is_constexp and not param.literal_value() in attr:
-                raise IllegalFunctionCall(self.parser.context(position=param.position),
-                        self.parser.pos_to_linecol(param.position))
+                raise self.create_exception(IllegalFunctionCall, pos=param.position)
         return self.create_statement('Screen', params=params)
 
 

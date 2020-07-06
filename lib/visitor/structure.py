@@ -17,7 +17,7 @@ class StructureVisitor:
             op2 = self.create_operation('<=', var, expr.op2, node=expr)
             return self.create_operation('And', op1, op2, node=expr)
             #return self.create_unary_op('Not', tmp, node=expr)
-        raise SyntaxError('case has no reference to selector variable')
+        raise SyntaxError_('case has no reference to selector variable')
 
 
     @store_node
@@ -29,9 +29,7 @@ class StructureVisitor:
         code_block.append(self.create_attribution(ref, selector, node=node[1]))
         for case in cases:
             if not isinstance(case, clauses.case):
-                pos = case.position
-                linecol = self.parser.pos_to_linecol(pos)
-                raise SelectCaseError(case, linecol)
+                raise self.create_exception(SelectCaseError, case)
             old_expr = None
             for expr in case.params:
                 expr = self.expand_case_op(ref, expr)
@@ -81,4 +79,3 @@ class StructureVisitor:
 
     def visit_case_block(self, node, children):
         return children
-

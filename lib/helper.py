@@ -76,7 +76,7 @@ def insert(seq, value, after=(), before=()):
 def interleave(seq, delims):
     'Interleave a sequence with delim inserted between each two elements.'
     packet = []
-    packet.append(seq) 
+    packet.append(seq)
     delims = make_tuple(delims)
 
     for delim in delims:
@@ -131,7 +131,7 @@ def parse_comma_list(lst, nil_element=None, expect_parenthesis=False, max=None):
         result.append(nil_element)
         max -= 1
     if max < 0:
-        raise SyntaxError('too many values (received %s more)' % (-max))
+        raise SyntaxError_('too many values (received %s more)' % (-max))
     return tuple(result)
 
 
@@ -165,7 +165,7 @@ def parse_arg_list(lst, sep=',', nil_element=None, max=None):
         # Last element cannot be empty
         raise MissingOperand()
     if max < 0:
-        raise SyntaxError('too many values (received %s more)' % (-max))
+        raise SyntaxError_('too many values (received %s more)' % (-max))
     return tuple(result)
 
 
@@ -198,9 +198,8 @@ def mangle_function(f):
         result = mangled_name + n + ':' + TYPE_CHAR[str(f.types[0])]
         print('result =', result)
         return result
-    raise Exception('unknown type', f.types[0])
+    raise SyntaxError_('unknown type', f.types[0])
 
 
 def print_parameters(obj):
     return ', '.join([PRINTABLE_TYPE[x.type] for x in obj.params])
-
