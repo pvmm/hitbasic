@@ -29,7 +29,7 @@ ALLOWED_TYPE_NAMES = [ 'Nil', 'String', 'Integer', 'Double', 'Single', 'Address'
 TYPE_CHARS = [ '$', '%', '#', '!' ]
 NAME_MAPPING = { '$' : 'String', '%' : 'Integer', '#' : 'Double', '!' : 'Single' }
 CHAR_MAPPING = { 'String' : '$', 'Integer' : '%', 'Double' : '#', 'Single' : '!' }
-NUMBER_CLASS = { 'Boolean': 0, 'Integer': 1, 'Single': 2, 'Double': 3 }
+NUMERIC_CLASSES = { 'Boolean': 0, 'Integer': 1, 'Single': 2, 'Double': 3 }
 
 READ_ONLY = 0
 WRITE_ONLY = 1 # Not tecnically a function or variable
@@ -69,38 +69,34 @@ def register(type_name, type_):
         globals()['current_default_type'] = type_
 
 
-def compare_types(type1, type2, coercion=True):
+def calculate_type(type1, type2, coercion=True):
     assert type1 != None and type2 != None
-    if (type1, type2) == (None, None):
-        raise TypeMismatch()
-    elif type1 is Any: return type2
+    if type1 is Any: return type2
     elif type2 is Any: return type1
     if type1 == type2:
         return type1
     if not coercion and type1 != type2:
         raise TypeMismatch(type1, type2)
-    if printable(type1) in NUMBER_CLASS.keys() and printable(type2) == 'String':
+    if type1 in NUMERIC_CLASSES.keys() and type2 == String:
         raise TypeMismatch(type1, type2)
-    if printable(type2) in NUMBER_CLASS.keys() and printable(type1) == 'String':
+    if type2 in NUMERIC_CLASSES.keys() and type1 == String:
         raise TypeMismatch(type1, type2)
-    if NUMBER_CLASS[printable(type1)] > NUMBER_CLASS[printable(type2)]:
+    if NUMERIC_CLASSES[printable(type1)] > NUMERIC_CLASSES[printable(type2)]:
         return type1
     else:
         return type2
 
 
-def compatible_types(type1, type2, coercion=True):
-    'Treat None as a wildcard'
+def compatible_types(type1, type2):
+    'Treat Any as a wildcard'
     assert type1 != None and type2 != None
-    if None in (type1, type2):
+    if Any in (type1, type2):
         return True
     if type1 == type2:
         return True
-    if not coercion and type1 != type2:
+    if printable(type1) in NUMERIC_CLASSES.keys() and type2 == String:
         return False
-    if printable(type1) in NUMBER_CLASS.keys() and printable(type2) == 'String':
-        return False
-    if printable(type2) in NUMBER_CLASS.keys() and printable(type1) == 'String':
+    if printable(type2) in NUMERIC_CLASSES.keys() and type1 == String:
         return False
     return True
 

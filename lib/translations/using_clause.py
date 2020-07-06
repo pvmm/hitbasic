@@ -7,7 +7,7 @@ class Clause:
 
     def __init__(self, rule, position, error, format=None, params=None, **kwargs):
         if not format or not params:
-            raise SyntaxError()
+            raise MissingOperand()
         Surrogate.__init__(self, rule, position, error, format=format, params=make_tuple(params), **kwargs)
 
 
@@ -15,4 +15,3 @@ class Clause:
         clause = ClauseComponents.from_arg_list('Using', ' ', self.format, ';')
         clause.append(insert(ClauseComponents(self.params), ' ', after=(',', ';')))
         return clause.translate()
-

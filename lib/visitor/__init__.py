@@ -6,6 +6,7 @@ from os import path
 from contextlib import suppress
 from arpeggio import PTNodeVisitor, NonTerminal
 
+from .decorator import store_node
 from .factory import SurrogateFactory
 from .statement import StatementVisitor
 from .declaration import DeclarationVisitor
@@ -87,8 +88,7 @@ class MSXBasicVisitor(StatementVisitor,
         try:
             code = CodeComponents(program).translate().freeze()
         except DimInitAccessError as e:
-            position = child.position
-            raise e.set_position(self.parser.context(position=position), self.parser.pos_to_linecol(position))
+            raise self.put_location(e, pos=child.position)
         return self.symbol_table, code
 
 
@@ -96,14 +96,14 @@ class MSXBasicVisitor(StatementVisitor,
         return children
 
 
+    @store_node
     def visit_label_addr(self, node, children):
         [identifier, *_] = children
         try:
             label = self.create_label(identifier)
             self.symbol_table.store_label(label)
         except NameError:
-            raise NameNotDeclared(identifier, self.parser.file_name, self.parser.context(position=node.position),
-                    self.parser.pos_to_linecol(node.position))
+            raise self.create_exception(NameNotDeclared, identifier)
         return label
 
 
@@ -206,6 +206,7 @@ class MSXBasicVisitor(StatementVisitor,
         return ''.join(identifier), ()
 
 
+    @store_node
     def visit_rvalue(self, node, children):
         if len(children) > 1:
             [(identifier, [*params]), *rexpr] = children
@@ -218,18 +219,18 @@ class MSXBasicVisitor(StatementVisitor,
             elif op == 'Eqv': return self.visit_eqv_op(node, [op1, op, op2])
             elif op == 'Xor': return self.visit_xor_op(node, [op1, op, op2])
             elif op == 'Or': return self.visit_or_op(node, [op1, op, op2])
-            raise SyntaxError('unknown operator %s' % op)
+            raise SyntaxError_('unknown operator %s' % op)
         else:
             [result] = children
             return result
 
 
+    @store_node
     def visit_var(self, node, children):
         [(identifier, [*params])] = children
         if params: identifier += '()'
         if not (var := self.symbol_table.check_id(identifier, params)):
-            raise NameNotDeclared(identifier, self.parser.file_name, self.parser.context(position=node.position),
-                    self.parser.pos_to_linecol(node.position))
+            raise self.create_exception(NameNotDeclared, identifier)
         return self.create_reference(var, params)
 
 
@@ -247,8 +248,7 @@ class MSXBasicVisitor(StatementVisitor,
         [(identifier, [*params])] = children
         if params: identifier += '()'
         if not (var := self.symbol_table.check_id(identifier, params)):
-            raise NameNotDeclared(identifier, self.parser.file_name, self.parser.context(position=node.position),
-                    self.parser.pos_to_linecol(node.position))
+            raise self.create_exception(NameNotDeclared, identifier)
         return self.create_reference(var, params)
 
 
@@ -266,8 +266,7 @@ class MSXBasicVisitor(StatementVisitor,
         [(identifier, [*params])] = children
         if params: identifier += '()'
         if not (var := self.symbol_table.check_id(identifier, params)):
-            raise NameNotDeclared(identifier, self.parser.file_name, self.parser.context(position=node.position),
-                    self.parser.pos_to_linecol(node.position))
+            raise self.create_exception(NameNotDeclared, identifier)
         return self.create_reference(var, params)
 
 
