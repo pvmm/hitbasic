@@ -123,6 +123,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
         print('* %s error: %s' % (e.__class__.__name__, str(e)))
         if hasattr(args, 'debug') and args.debug:
             raise e
+        sys.exit(-1)
     else:
         term = shutil.get_terminal_size((80, 25))
         if hasattr(args, 'debug') and args.debug:
