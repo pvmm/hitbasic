@@ -308,17 +308,26 @@ def str_optor():        return [ ( '(', str_expr, ')' ), ( string, ), ( str_var,
 
 
 # General
-def num_var():          return [ array, scalar ]
-def num_array():        return alphanum_name, num_type_des, '(', Optional( exprs ), ')'
-def num_scalar():       return alphanum_name, num_type_des
-def str_var():          return [ array, scalar ]
-def str_array():        return alphanum_name, str_type_des, '(', Optional( exprs ), ')'
-def str_scalar():       return alphanum_name, str_type_des
-def var():              return [ array, scalar ]
-def array():            return alphanum_name, Optional( type_des ), '(', Optional( exprs ), ')'
-def scalar():           return alphanum_name, Optional( type_des )
 def exprs():            return expr, ZeroOrMore( ',', expr )
 
+def var():              return [ array, scalar ]
+def array():            return array_name, array_args
+def array_name():       return alphanum_name, Optional( type_des )
+def array_args():       return '(', Optional( exprs ), ')'
+def scalar():           return scalar_name
+def scalar_name():      return alphanum_name, Optional( type_des )
+
+def str_var():          return [ str_array, str_scalar ]
+def str_array():        return str_array_name, array_args
+def str_array_name():   return alphanum_name, Optional( str_type_des )
+def str_scalar():       return str_scalar_name
+def str_scalar_name():  return alphanum_name, Optional( str_type_des )
+
+def num_var():          return [ num_array, num_scalar ]
+def num_array():        return num_array_name, array_args
+def num_array_name():   return alphanum_name, Optional( num_type_des )
+def num_scalar():       return num_scalar_name
+def num_scalar_name():  return alphanum_name, Optional( num_type_des )
 
 def comptor():          return [ '=', '<>', '<=', '<', '>=', '>']
 def non_quote_char():   return _(r'[^"]')
@@ -380,4 +389,3 @@ def create_parser(**kwargs):
         debug_mode = False
 
     return ParserPython(program, comments, reduce_tree=False, ignore_case=True, ws='\t ', skipws=True, debug=debug_mode)
-

@@ -196,78 +196,94 @@ class MSXBasicVisitor(StatementVisitor,
         return node.flat_str()
 
 
+    @store_node
+    def visit_var(self, node, children):
+        [(identifier, params)] = children
+        if type(params) == list: identifier += '()'
+        if not (var := self.symbol_table.check_id(identifier, params)):
+            raise self.create_exception(NameNotDeclared, identifier)
+        return self.create_reference(var, params)
+
+
     def visit_array(self, node, children):
-        *identifier, [*params] = children
-        return ''.join(identifier), params
+        return children
+
+
+    def visit_array_name(self, node, children):
+        identifier = children
+        return ''.join(identifier)
+
+
+    def visit_array_args(self, node, children):
+        if len(children) == 0:
+            return children
+        [[*args]] = children
+        return args
 
 
     def visit_scalar(self, node, children):
         identifier = children
-        return ''.join(identifier), ()
+        return ''.join(identifier), None
 
 
     @store_node
-    def visit_rvalue(self, node, children):
-        if len(children) > 1:
-            [(identifier, [*params]), *rexpr] = children
-            op = rexpr[0].title()
-            op1 = self.visit_var(node[0], [(identifier, params)])
-            op2 = rexpr[1]
-            if op == 'Imp': return self.visit_expr(node, [op1, op, op2])
-            elif op == 'Mod': return self.visit_mod_op(node, [op1, op, op2])
-            elif op == 'And': return self.visit_and_op(node, [op1, op, op2])
-            elif op == 'Eqv': return self.visit_eqv_op(node, [op1, op, op2])
-            elif op == 'Xor': return self.visit_xor_op(node, [op1, op, op2])
-            elif op == 'Or': return self.visit_or_op(node, [op1, op, op2])
-            raise SyntaxError_('unknown operator %s' % op)
-        else:
-            [result] = children
-            return result
-
-
-    @store_node
-    def visit_var(self, node, children):
-        [(identifier, [*params])] = children
-        if params: identifier += '()'
+    def visit_str_var(self, node, children):
+        [(identifier, params)] = children
+        if type(params) == list: identifier += '()'
         if not (var := self.symbol_table.check_id(identifier, params)):
             raise self.create_exception(NameNotDeclared, identifier)
         return self.create_reference(var, params)
 
 
     def visit_str_array(self, node, children):
-        *identifier, [*params] = children
-        return ''.join(identifier), params
+        return children
+
+
+    def visit_str_array_name(self, node, children):
+        identifier = children
+        return ''.join(identifier)
+
+
+    def visit_str_array_args(self, node, children):
+        if len(children) == 0:
+            return children
+        [[*args]] = children
+        return args
 
 
     def visit_str_scalar(self, node, children):
         identifier = children
-        return ''.join(identifier), ()
+        return ''.join(identifier), None
 
 
-    def visit_str_var(self, node, children):
-        [(identifier, [*params])] = children
-        if params: identifier += '()'
+    @store_node
+    def visit_num_var(self, node, children):
+        [(identifier, params)] = children
+        if type(params) == list: identifier += '()'
         if not (var := self.symbol_table.check_id(identifier, params)):
             raise self.create_exception(NameNotDeclared, identifier)
         return self.create_reference(var, params)
 
 
     def visit_num_array(self, node, children):
-        *identifier, [*params] = childrenf
-        return ''.join(identifier), params
+        return children
+
+
+    def visit_num_array_name(self, node, children):
+        identifier = children
+        return ''.join(identifier)
+
+
+    def visit_num_array_args(self, node, children):
+        if len(children) == 0:
+            return children
+        [[*args]] = children
+        return args
 
 
     def visit_num_scalar(self, node, children):
         identifier = children
-        return ''.join(identifier), ()
-
-
-    def visit_num_var(self, node, children):
-        [(identifier, [*params])] = children
-        if params: identifier += '()'
-        if not (var := self.symbol_table.check_id(identifier, params)):
-            raise self.create_exception(NameNotDeclared, identifier)
-        return self.create_reference(var, params)
+        return ''.join(identifier), None
 
 
     def visit_trailing_spaces(self, node, children):

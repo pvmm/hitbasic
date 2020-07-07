@@ -21,17 +21,15 @@ if __name__ == '__main__':
     group2.add_argument('-p', '--pretty-print', action='store_false', required=False, help='generate code in pretty-print version (default)')
     group2.add_argument('-d', '--debug', action='store_true', required=False, help='raise exception all the way up if it happens (for debugging)')
     group2.add_argument('-g', '--graphviz', action='store_true', required=False, help='generate Graphviz files program_parse_tree.dot and program_parser_model.dot')
-    group2.add_argument('-v', '--short-vars', action='store_false', required=False, help='force BASIC short length variables mode')
     group2.add_argument('-b', '--begin', metavar='n', default=10, type=int, help='begin line number at n (default: 10)')
     group2.add_argument('-i', '--increment', metavar='n', default=10, type=int, help='set line number increments by n (default: 10)')
-    group2.add_argument('-n', '--no-dim', action='store_true', required=False, help="no need to declare non-arrays with Dim before using them")
+    group2.add_argument('-n', '--no-decl', action='store_true', required=False, help="no need to declare scalar variables with Dim before using them")
     group2.add_argument('-l', '--line-size', metavar='n', default=254, required=False, help="maximum line size (default: 254)")
     group2.add_argument('-k', '--tokenize', action='store_true', required=False, help="generate tokenized MSX-BASIC output")
     group2.add_argument('-e', '--clean', action='store_true', required=False, help="generate clean and readable source code")
     args = argp.parse_args(None if sys.argv[1:] else ['--help'])
 
-    if args.tests is True:
-        # Go to test routine
+    if args.tests:
         import inspect
         from importlib import import_module
         import os
