@@ -1,22 +1,33 @@
+import re
+
+from types import SimpleNamespace
+
 from .factory import SurrogateFactory
+from .decorator import store_node
+
 from ..symbol_table import SymbolTable
 from ..helper import *
 from ..exceptions import *
-from .. import msx
 
+from .. import msx
 from .. import language_types as types
 from .. import language_statements as statements
 
 
 class StatementVisitor:
-    def visit_statements(self, node, children):
-        return flatten(children)
 
-
-    def visit_statement(self, node, children):
-        if len(children):
-            return children.pop()
-        return children
+    def check_statement_params(self, stmt, params):
+        'check if statement expected parameters match user input'
+        conv_types = {'i': 'Integer', 's': 'String'}
+        reg_ex = statements.create_regexp(msx.arch[self.arch].stmt_lib(stmt).pattern) # max=13 elements
+        signature = statements.create_signature(params)
+        if (match := re.match(reg_ex.pattern, signature)):
+            if len(match.group(1)) > 0 and (epos := len(match.group(1)) - len(match.group(0))):
+                raise self.create_exception(TypeMismatch, conv_types[reg_ex.type(epos)],
+                                            conv_types[signature[epos]],
+                                            msx.arch[self.arch].stmt_lib(stmt).names[epos])
+        else:
+            raise self.create_exception(MissingOperand, 'expected parameters')
 
 
     def write_vfc_subroutine(self, var, ref):
@@ -37,6 +48,16 @@ class StatementVisitor:
         return self.create_statement('Multiple', code_block=code_block)
 
 
+    def visit_statements(self, node, children):
+        return flatten(children)
+
+
+    def visit_statement(self, node, children):
+        if len(children):
+            return children.pop()
+        return children
+
+
     def visit_attr_stmt(self, node, children):
         var, expr = children
         if types.compatible_types(var.type, expr.type):
@@ -46,7 +67,8 @@ class StatementVisitor:
                 # extra glue code necessary if rvalue is a function
                 return self.write_vfc_subroutine(var=var, ref=expr) # caller node
         else:
-            raise self.create_exception(TypeMismatch, expr.type, var.type, var.value.reference, pos=node[0].position)
+            raise self.create_exception(TypeMismatch, types.printable_type(expr), types.printable_type(var),
+                                        var.value.reference, pos=node[0].position)
 
 
     def visit_branch_stmt(self, node, children):
@@ -159,8 +181,14 @@ class StatementVisitor:
 
     def visit_play_stmt(self, node, children):
         params = children
-        if isinstance(params[0], types.Integer):
-            params = '#%s' % params[0].value, *params[1:]
+        # detect wrong parameter count or type
+        self.check_statement_params('PLAY', params)
+        # Put a '#' before channel number
+        if node[1].flat_str() == '#':
+            if isinstance(params[0], types.Integer):
+                params = '#%s' % params[0].value, *params[1:]
+            else:
+                raise self.create_exception(TypeMismatch, 'Channel', types.printable_type(params[0]))
         return self.create_statement('Play', params=params)
 
 
@@ -215,7 +243,8 @@ class StatementVisitor:
             raise self.put_location(e, param.position)
         for param, attr in zip(params, msx.arch[self.arch].screen_attrs()):
             if type(param) != types.Nil and not isinstance(param, types.numeric_classes()):
-                raise self.create_exception(TypeMismatch, expr.type, var.type, var.value.reference, pos=param.position)
+                raise self.create_exception(TypeMismatch, types.printable_type(expr), types.printable_type(var),
+                                            var.value.reference, pos=param.position)
             if type(param) != types.Nil and param.is_constexp and not param.literal_value() in attr:
                 raise self.create_exception(IllegalFunctionCall, pos=param.position)
         return self.create_statement('Screen', params=params)

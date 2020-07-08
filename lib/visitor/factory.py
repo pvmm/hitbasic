@@ -14,17 +14,7 @@ from .. import language_types as types
 from .. import language_clauses as clauses
 from .. import language_statements as statements
 from .. import language_subroutines as subroutines
-from .. import NO_RULE
-
-
-def subc(module, cls_name):
-    'remove unnecessary bits of a module class and turn it into a dictionary for type composition'
-    subcls = dict(module.__dict__[cls_name].__dict__)
-    remove = ['__module__', '__dict__', '__weakref__', '__doc__' ]
-    for r in remove:
-        with suppress(KeyError):
-            del subcls[r]
-    return subcls
+from .. import NO_RULE, subc
 
 
 class SurrogateFactory:
@@ -280,5 +270,5 @@ class SurrogateFactory:
     def create_exception(self, exception_type, *args, pos=None):
         'create exception with predefined location'
         pos = pos or self.current_node.position
-        raise exception_type(*args, self.parser.file_name, self.parser.context(pos),
-                             self.parser.pos_to_linecol(pos))
+        raise exception_type(*args, filename=self.parser.file_name, context=self.parser.context(pos),
+                             pos=self.parser.pos_to_linecol(pos))

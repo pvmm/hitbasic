@@ -12,7 +12,7 @@ from .hitbasic import Surrogate
 
 # fake types
 Nil = type('Nil', (Surrogate,), { 'translate': lambda self: '' })
-Any = type('Any', (Surrogate,), {}) # just for parameter matching in function calling
+Any = type('Any', (Surrogate,), {}) # just for parameter matching in function call and range declaration
 OptInteger = type('OptInteger', (Surrogate,), {})
 Boolean = type('Boolean', (Surrogate,), {})
 
@@ -37,11 +37,6 @@ WRITE_ONLY = 1 # Not tecnically a function or variable
 
 def numeric_classes():
     return (Integer, Double, Single)
-
-
-def create_nil(**kwargs):
-    position = kwargs.pop('pos', 0)
-    return Nil(NO_RULE, position, False, **kwargs)
 
 
 def printable_type(item):
@@ -76,11 +71,11 @@ def calculate_type(type1, type2, coercion=True):
     if type1 == type2:
         return type1
     if not coercion and type1 != type2:
-        raise TypeMismatch(type1, type2)
+        raise TypeMismatch(printable(type1), printable(type2))
     if type1 in NUMERIC_CLASSES.keys() and type2 == String:
-        raise TypeMismatch(type1, type2)
+        raise TypeMismatch(printable(type1), printable(type2))
     if type2 in NUMERIC_CLASSES.keys() and type1 == String:
-        raise TypeMismatch(type1, type2)
+        raise TypeMismatch(printable(type1), printable(type2))
     if NUMERIC_CLASSES[printable(type1)] > NUMERIC_CLASSES[printable(type2)]:
         return type1
     else:
@@ -109,10 +104,10 @@ def check_initialisation(type_, value):
             if isinstance(item, list):
                 check_initialisation(type_, item)
             elif not compatible_types(type_.__name__, item.type.__name__):
-                raise TypeMismatch(type_, item, search_position(item, value))
+                raise TypeMismatch(printable(type_), printable_type(item), search_position(item, value))
         return True
     if not compatible_types(printable(type_), printable_type(value)):
-        raise TypeMismatch(type_, value.type, search_position(value))
+        raise TypeMismatch(printable(type_), printable_type(value), search_position(value))
     return True
 
 
@@ -194,7 +189,7 @@ class Function(Callee):
         pattern = functools.reduce(operator.add, [pmap[p.type] for p in self.params])
         funcall = functools.reduce(operator.add, [fmap[p.type] for p in params])
         if not re.match(pattern, funcall):
-            raise TypeMismatch(type, value.type)
+            raise TypeMismatch(printable(type), printable_type(value))
 
 
 class BuiltIn(Callee):

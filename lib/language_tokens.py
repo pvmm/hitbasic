@@ -8,11 +8,6 @@ token_type = type('Token', (Surrogate,), dict(token_module.__dict__['Token'].__d
 nil_type = type('Nil', (Surrogate,), {})
 
 
-def create_nil(**kwargs):
-    position = kwargs.pop('pos', 0)
-    return nil_type(NO_RULE, position, False, **kwargs)
-
-
 def create_token(*tokens, **kwargs):
     # *tokens allow a composite token
     printable_tokens = ' '.join([token.title() for token in tokens])
@@ -31,4 +26,3 @@ class Token:
 
     def __repr__(self):
         return 'Token(%s)' % ' '.join(self.token)
-

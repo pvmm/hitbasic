@@ -230,7 +230,7 @@ class SymbolTable(dict):
         elif hbid[-1] in types.TYPE_CHARS:
             # detect type descriptor in hitbasic var if it exists.
             if type != None and types.get_type_from_id(hbid) != type:
-                raise TypeMismatch(type, types.get_type_from_id(hbid))
+                raise TypeMismatch(types.printable(type), types.printable(types.get_type_from_id(hbid)))
             type = types.get_type_from_id(hbid)
         elif type == None:
             type = types.current_default_type
