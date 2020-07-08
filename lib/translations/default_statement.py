@@ -25,6 +25,8 @@ class Statement:
 
 
     def __eq__(self, other):
+        if isinstance(other, str):
+            return ' '.join(self.tokens).upper() == other.upper()
         if isinstance(other, statements.Statement):
             return self.tokens == other.tokens
         return False
@@ -42,4 +44,3 @@ class Statement:
         if params: statement.add(' ', *params)
         debug('statement =', statement)
         return statement.translate()
-

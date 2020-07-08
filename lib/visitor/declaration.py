@@ -18,14 +18,14 @@ def check_init_type(arg, old_type=None):
             else:
                 new_type = check_init_type(item, old_type)
             if new_type and old_type and new_type != old_type:
-                raise TypeMismatch(old_type, new_type)
+                raise TypeMismatch(types.printable(old_type), types.printable(new_type))
             old_type = new_type
         return old_type
     else:
         if old_type:
             if types.compatible_types(old_type, arg.type):
                 return old_type
-            raise TypeMismatch(old_type, arg.type)
+            raise TypeMismatch(types.printable(old_type), types.printable_type(arg))
         return arg.type
 
 

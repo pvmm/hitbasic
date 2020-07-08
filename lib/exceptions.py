@@ -113,13 +113,12 @@ class ParameterCount(TranslationError):
 
 
 class TypeMismatch(TranslationError):
-    def __init__(self, type1=None, type2=None, identifier=None, filename=None, context=None, pos=None):
+    def __init__(self, type_dst=None, type_src=None, identifier=None, filename=None, context=None, pos=None):
         super().__init__(filename, context, pos)
         if identifier:
-            self.message = "cannot cast '%s' of type '%s' to '%s'" % (identifier, type2.__name__,
-                type1.__name__)
-        elif type1 and type2:
-            self.message = "cannot cast object of type '%s' to '%s'" % (type2.__name__, type1.__name__)
+            self.message = "cannot cast '%s' of type '%s' to '%s'" % (identifier, type_src, type_dst)
+        elif type_src and type_dst:
+            self.message = "cannot cast object of type '%s' to '%s'" % (type_src, type_dst)
         else:
             self.message = 'no usable type found'
 

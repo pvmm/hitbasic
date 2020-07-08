@@ -1,6 +1,9 @@
+from types import SimpleNamespace
+
 from .helper import *
 
 from . import language_types as types
+
 
 # BASIC version
 MSX_BASIC_1_0 = 0
@@ -55,6 +58,9 @@ OP_PRIORITY = {
 }
 
 
+class Instruction(SimpleNamespace): pass
+
+
 class MSX1_Architecture(object):
 
     SCREEN_MODES = [0, 1, 2, 3]
@@ -62,6 +68,11 @@ class MSX1_Architecture(object):
     KEY_CLICK = [0, 1]
     BAUD_RATE = [1, 2]
     PRINTER_TYPE = [0, 1]
+
+    _stmt_lib = {
+        'PLAY': Instruction(pattern='i?ss?s?s?s?s?s?s?s?s?s?s?s?', # max=13 channels
+                            names=['channel %s' % num for num in range(1, 13)]),
+    }
 
 
     @property
@@ -72,6 +83,11 @@ class MSX1_Architecture(object):
     @classmethod
     def screen_attrs(klass):
         return [klass.SCREEN_MODES, klass.SPRITE_SIZE, klass.KEY_CLICK, klass.BAUD_RATE, klass.PRINTER_TYPE]
+
+
+    @classmethod
+    def stmt_lib(klass, stmt_name):
+        return klass._stmt_lib[stmt_name]
 
 
 class MSX2_Architecture(MSX1_Architecture):

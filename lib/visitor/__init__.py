@@ -114,7 +114,8 @@ class MSXBasicVisitor(StatementVisitor,
         body.insert(0, self.create_label('%s()' % identifier, pos=node.position))
 
         # TODO: come up with a better job of detecting dangling codepaths
-        if body[-1] != statements.Statement('Return'):
+        #if body[-1] != statements.Statement('Return'):
+        if isinstance(body[-1], self.statement_type['Default']) and body[-1] == 'Return':
             body.append(self.create_statement('Return', node=body[-1]))
 
         # Store function in symbol table and return Function object

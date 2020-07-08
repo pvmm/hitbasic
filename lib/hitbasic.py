@@ -46,7 +46,7 @@ def dim_var_type():     return var_type
 def dim_var():          return dim_var_name, Optional( _('\('), dim_var_ranges, _('\)') )
 def dim_var_ranges():   return Optional( dim_var_expr, ZeroOrMore( _(r','), dim_var_expr ) )
 def dim_var_name():     return alphanum_name, Optional( type_des )
-def dim_var_expr():     return ZeroOrMore( [ ( num_expr, 'To', num_expr ), ( num_expr, ) ] )
+def dim_var_expr():     return ZeroOrMore( [ ( expr, 'To', expr ), ( expr, ) ] )
 def dim_init():         return [ ( '{', Optional( dim_init_array ), '}' ), expr ]
 def dim_init_array():   return dim_init, ZeroOrMore( ',', dim_init )
 def dim_as_kw():        return 'As'
@@ -102,7 +102,7 @@ def do_stmt():          return [ ( 'Exit', 'Do' ), statement ]
 
 # For loop rules
 def for_stmt():         return 'For', var, '=', for_range_decl
-def for_range_decl():   return [ ( num_expr, 'To', num_expr, 'Step', num_expr ), ( num_expr, 'To', num_expr ) ]
+def for_range_decl():   return [ ( expr, 'To', expr, 'Step', expr ), ( expr, 'To', expr ) ]
 def next_stmt():        return 'Next', next_vars
 def next_vars():        return next_var, ZeroOrMore( ',', next_var )
 def next_var():         return var
@@ -134,7 +134,7 @@ def sub_end():          return 'End', 'Sub'
 # Input rules
 def input_stmt():       return 'Input', [ input_prompt, input_file ]
 def input_prompt():     return ( Optional( string, ';' ), input_vars )
-def input_file():       return ( '#', num_expr, ',', input_vars )
+def input_file():       return ( '#', expr, ',', input_vars )
 def input_vars():       return var, ZeroOrMore( ',', var )
 
 
@@ -142,7 +142,7 @@ def input_vars():       return var, ZeroOrMore( ',', var )
 def print_stmt():       return [ '?', 'Print' ], [ print_fileno, '' ], Optional( print_params )
 def print_params():     return [ [ print_using_fmt, print_exprs ],
                                  ( print_exprs, print_using_fmt ) ]
-def print_fileno():     return '#', num_expr, ','
+def print_fileno():     return '#', expr, ','
 def print_using_fmt():  return 'Using', [ string, var], ';', print_exprs
 def print_exprs():      return print_expr, ZeroOrMore( print_sep, print_expr )
 def print_expr():       return Not( 'Using' ), expr # Any expr but the keyword 'Using'
@@ -152,8 +152,8 @@ def print_sep():        return [ ',', ';' ]
 # branch instructions
 def branch_stmts():     return [ on_sprite_stmt, on_interval_stmt, on_branch_stmt, branch_stmt, return_stmt ]
 def on_sprite_stmt():   return 'On', 'Sprite', 'Gosub', numeral
-def on_interval_stmt(): return 'On', ( interval_tk, eq_tk, num_expr ), 'Gosub', comma_sep_adrs
-def on_branch_stmt():   return 'On', num_expr, branch_tk, comma_sep_adrs
+def on_interval_stmt(): return 'On', ( interval_tk, eq_tk, expr ), 'Gosub', comma_sep_adrs
+def on_branch_stmt():   return 'On', expr, branch_tk, comma_sep_adrs
 def branch_stmt():      return branch_tk, [ label_clause, numeral ]
 def return_stmt():      return 'Return', Optional([ label_clause, numeral ])
 def comma_sep_adrs():   return ZeroOrMore(',', numerals )
@@ -184,7 +184,7 @@ def exit_stmt():        return 'Exit', [ 'Function', 'Sub' ]
 # Graphics statements
 def graphics_stmts():   return [ draw_stmt, circle_stmt, color_stmt, copy_stmt, line_stmt, paint_stmt, preset_stmt,
                                  pset_stmt, put_sprite_stmt, screen_stmt ]
-def draw_stmt():        return 'Draw', str_expr
+def draw_stmt():        return 'Draw', expr
 def circle_stmt():      return 'Circle', g_ostep_point, circle_stmt_args
 def circle_stmt_args(): return Optional( comma, g_color, Optional( comma, g_color ) )
 def color_stmt():       return 'Color', Optional( g_color ), Optional( comma, g_color, Optional( comma, g_color ) )
@@ -197,29 +197,29 @@ def preset_stmt():      return 'Preset', g_ostep_point, preset_stmt_args
 def preset_stmt_args(): return Optional( comma, g_color, Optional( comma, g_optor ) )
 def pset_stmt():        return 'Pset', g_ostep_point, pset_stmt_args
 def pset_stmt_args():   return Optional( comma, g_color, Optional( comma, g_optor ) )
-def put_sprite_stmt():  return 'Put', 'Sprite', num_expr, comma, g_ostep_point, put_sprite_stmt_args
+def put_sprite_stmt():  return 'Put', 'Sprite', expr, comma, g_ostep_point, put_sprite_stmt_args
 def put_sprite_stmt_args(): return Optional( comma, g_color, Optional( comma, g_pttn_num ) )
 def screen_stmt():      return 'Screen', Optional( g_mode ), Optional( comma ), Optional( g_sprite_size ), Optional( comma ), Optional( g_key_click ), Optional( comma ), Optional( g_baud_rate ), Optional( comma ), Optional( g_printer_type ), Optional( comma ), Optional( g_interlace_mode )
 
-def g_radius():         return num_expr
-def g_color():          return num_expr
-def g_tracing_start():  return num_expr
-def g_tracing_end():    return num_expr
-def g_aspect():         return num_expr
+def g_radius():         return expr
+def g_color():          return expr
+def g_tracing_start():  return expr
+def g_tracing_end():    return expr
+def g_aspect():         return expr
 def g_shape():          return [ 'BF', 'B' ]
 def g_optor():          return [ 'And', 'Or', 'Preset', 'Pset', 'Xor', 'Tand', 'Tor', 'Tpreset', 'Tpset', 'Txor' ]
-def g_page():           return num_expr
-def g_mode():           return num_expr
-def g_sprite_size():    return num_expr
-def g_key_click():      return num_expr
-def g_baud_rate():      return num_expr
-def g_printer_type():   return num_expr
-def g_interlace_mode(): return num_expr
-def g_direction():      return num_expr
-def g_pttn_num():       return num_expr
+def g_page():           return expr
+def g_mode():           return expr
+def g_sprite_size():    return expr
+def g_key_click():      return expr
+def g_baud_rate():      return expr
+def g_printer_type():   return expr
+def g_interlace_mode(): return expr
+def g_direction():      return expr
+def g_pttn_num():       return expr
 def g_dst_ostep_point():return _('-'), Optional( _( 'Step' ) ), g_point
 def g_ostep_point():    return Optional( _( 'Step' ) ), g_point
-def g_point():          return '(', num_expr, comma, num_expr, ')'
+def g_point():          return '(', expr, comma, expr, ')'
 def g_copy_src():       return [ ( g_point, g_dst_ostep_point, Optional( comma, g_page ) ),
                                  ( g_array, Optional( comma, g_direction ) ),
                                  ( filepath, Optional( comma, g_direction ) ) ]
@@ -229,7 +229,7 @@ def g_copy_dst():       return [ ( g_point, Optional( comma, g_page, Optional( c
 def g_array():          return alphanum_name, Optional( type_des )
 
 # Play instruction
-def play_stmt():        return 'Play', Optional( '#', num_expr, ',' ), Optional( str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr, Optional( ',', str_expr ) ) ) ) ) ) ) ) ) ) ) ) )
+def play_stmt():        return 'Play', Optional( '#', expr, ',' ), Optional( expr, Optional( ',', expr, Optional( ',', expr, Optional( ',', expr, Optional( ',', expr, Optional( ',', expr, Optional( ',', expr, Optional( ',', expr, Optional( ',', expr, Optional( ',', expr, Optional( ',', expr, Optional( ',', expr, Optional( ',', expr ) ) ) ) ) ) ) ) ) ) ) ) )
 
 
 # Resume instruction
@@ -247,7 +247,7 @@ def paramless_stmt():   return [ 'Nop', 'Cls', 'End' ]
 
 
 # Single param instruction
-def simple_stmt():      return simple_stmt_tk, num_expr
+def simple_stmt():      return simple_stmt_tk, expr
 def simple_stmt_tk():   return [ 'Error', 'Width' ]
 
 
@@ -279,32 +279,6 @@ def mul_op():           return neg_op, ZeroOrMore( mul_or_div_tk, neg_op )
 def neg_op():           return ZeroOrMore( signal ), exp_op
 def exp_op():           return optor, ZeroOrMore( _('\^'), optor )
 def optor():            return [ ( '(', expr, ')' ), numeral, string, var ]
-
-
-# num_expr rules
-def num_expr():         return num_imp_op
-def num_imp_op():       return num_eqv_op, ZeroOrMore( 'Imp', num_eqv_op )
-def num_eqv_op():       return num_xor_op, ZeroOrMore( 'Eqv', num_xor_op )
-def num_xor_op():       return num_or_op, ZeroOrMore( 'Xor', num_or_op )
-def num_or_op():        return num_and_op, ZeroOrMore( 'or', num_and_op )
-def num_and_op():       return num_not_op, ZeroOrMore( 'And', num_not_op )
-def num_not_op():       return ZeroOrMore( 'Not' ), num_comp_op
-def num_comp_op():      return num_add_op, ZeroOrMore( comptor, num_add_op )
-def num_case_comp_op(): return num_comptor, num_add_op
-def num_add_op():       return num_mod_op, ZeroOrMore( add_or_sub_tk, num_mod_op )
-def num_mod_op():       return num_idiv_op, ZeroOrMore( 'Mod', num_idiv_op )
-def num_idiv_op():      return num_mul_op, ZeroOrMore( '\\', num_mul_op )
-def num_mul_op():       return num_neg_op, ZeroOrMore( mul_or_div_tk, num_neg_op )
-def num_neg_op():       return ZeroOrMore( signal ), num_exp_op
-def num_exp_op():       return num_optor, ZeroOrMore( '^', num_optor )
-def num_optor():        return [ ( '(', num_expr, ')' ), ( numeral, ), ( num_var, ) ]
-
-
-# str_expr rules
-def str_expr():         return str_comp_op
-def str_comp_op():      return str_add_op, ZeroOrMore( comptor, str_add_op )
-def str_add_op():       return str_optor, ZeroOrMore( add_tk, str_optor )
-def str_optor():        return [ ( '(', str_expr, ')' ), ( string, ), ( str_var, ) ]
 
 
 # General
