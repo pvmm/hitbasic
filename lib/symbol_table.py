@@ -322,7 +322,7 @@ class SymbolTable(dict):
 
 
     def create_hitbasic_var(self, hbid=None, ranges=(), type=None, init_value=None, node=None, context='_global'):
-        if self.check_hitbasic_var(hbid):
+        if hbid and self.check_hitbasic_var(hbid):
             raise NameRedefined(hbid)
         if hbid:
             basic_id = self.generate_basic_var_id(hbid)
