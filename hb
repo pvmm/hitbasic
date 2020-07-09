@@ -26,7 +26,6 @@ if __name__ == '__main__':
     group2.add_argument('-n', '--no-decl', action='store_true', required=False, help="no need to declare scalar variables with Dim before using them")
     group2.add_argument('-l', '--line-size', metavar='n', default=254, required=False, help="maximum line size (default: 254)")
     group2.add_argument('-k', '--tokenize', action='store_true', required=False, help="generate tokenized MSX-BASIC output")
-    group2.add_argument('-e', '--clean', action='store_true', required=False, help="generate clean and readable source code")
     args = argp.parse_args(None if sys.argv[1:] else ['--help'])
 
     if args.tests:

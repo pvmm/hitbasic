@@ -17,7 +17,7 @@ Executing **HitBasic** without parameters returns the following help message:
 
 ```
 $ ./hb
-usage: hb [-h] (-t | --version | -c .ASC infile [.ASC infile ...] | -s) [-o outfile] [-v] [-b n] [-i n] [-n] [-l n] [-k] [-e]
+usage: hb [-h] (-t | --version | -c .ASC infile [.ASC infile ...] | -s) [-o outfile] [-p] [-d] [-g] [-b n] [-i n] [-n] [-l n] [-k]
 
 HitBasic transpiles high level Visual Basic like language into MSX-BASIC.
 
@@ -32,13 +32,14 @@ optional arguments:
 override default configuration:
   -o outfile, --output outfile
                         write into outfile (default: out.asc)
-  -v, --short-vars      force BASIC short length variables mode
+  -p, --pretty-print    generate code in pretty-print version (default)
+  -d, --debug           raise exception all the way up if it happens (for debugging)
+  -g, --graphviz        generate Graphviz files program_parse_tree.dot and program_parser_model.dot
   -b n, --begin n       begin line number at n (default: 10)
   -i n, --increment n   set line number increments by n (default: 10)
-  -n, --no-dim          no need to declare non-arrays with Dim before using them
+  -n, --no-decl         no need to declare scalar variables with Dim before using them
   -l n, --line-size n   maximum line size (default: 254)
   -k, --tokenize        generate tokenized MSX-BASIC output
-  -e, --clean           generate clean and readable source code
 
 For bug report, suggestions, praises or complains, please go to: <https://github.com/pvmm/hitbasic>.
 
