@@ -322,6 +322,8 @@ class SymbolTable(dict):
 
 
     def create_hitbasic_var(self, hbid=None, ranges=(), type=None, init_value=None, node=None, context='_global'):
+        if self.check_hitbasic_var(hbid):
+            raise NameRedefined(hbid)
         if hbid:
             basic_id = self.generate_basic_var_id(hbid)
             var = self.register_variable(hbid, basic_id, ranges=ranges, type=type, init_value=init_value, node=node)
@@ -336,4 +338,3 @@ class SymbolTable(dict):
 
 class NamespaceExhausted(Exception):
     "no valid names left to create variables"
-

@@ -118,7 +118,7 @@ class MSXBasicVisitor(StatementVisitor,
 
         # TODO: come up with a better job of detecting dangling codepaths
         #if body[-1] != statements.Statement('Return'):
-        if isinstance(body[-1], self.statement_type['Default']) and body[-1] == 'Return':
+        if isinstance(body[-1], statements.TYPES['Default']) and body[-1] == 'Return':
             body.append(self.create_statement('Return', node=body[-1]))
 
         # Store function in symbol table and return Function object
@@ -213,10 +213,8 @@ class MSXBasicVisitor(StatementVisitor,
         known_vars = self.symbol_table.get_hitbasic_vars()
         known_vars.sort()
         var_parser = vars.create_var_parser(known_vars)
-        try:
+        with suppress(NoMatch):
             return var_parser.parse(identifier)
-        except NoMatch as e:
-            print(e)
 
 
     @store_node

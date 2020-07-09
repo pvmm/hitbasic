@@ -62,7 +62,7 @@ class FactoryProxy:
     def create_case_op(self, op, op2, need_rparens=False, **kwargs):
         node = kwargs.pop('node', self.current_node)
         try:
-            return factory.create_case_op(op, op2, need_parens, node=node, **kwargs)
+            return factory.create_case_op(op, op2, need_rparens, node=node, **kwargs)
         except TypeMismatch as e:
             raise e.set_location(self.parser.file_name, self.parser.context(position=node.position),
                     self.parser.pos_to_linecol(node.position))
@@ -115,7 +115,8 @@ class FactoryProxy:
 
     def put_location(self, exception, pos=None):
         'insert location in exception for a reraise'
-        return e.set_location(self.parser.file_name, self.parser.context(pos), self.parser.pos_to_linecol(pos))
+        return exception.set_location(self.parser.file_name, self.parser.context(pos),
+                                      self.parser.pos_to_linecol(pos))
 
 
     def create_exception(self, exception_type, *args, **kwargs):

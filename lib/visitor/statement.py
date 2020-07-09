@@ -11,6 +11,7 @@ from ..exceptions import *
 
 from .. import msx
 from .. import language_types as types
+from .. import language_clauses as clauses
 from .. import language_statements as statements
 
 
@@ -139,7 +140,7 @@ class StatementVisitor:
 
     def visit_line_stmt(self, node, children):
         # LINE STEP(<X1>,<Y1>)-STEP(<X2>,<Y2>),<Color>,<Shape>,<Operator>
-        if len(children) > 1 and isinstance(children[1], self.clause_type['point']):
+        if len(children) > 1 and isinstance(children[1], clauses.TYPES['point']):
             # Line [Step](x1,y1)-[Step](x2,y2) syntax
             try:
                 src, dst, args = children
