@@ -15,5 +15,5 @@ class Statement:
         for statement in self.code_block:
             code.append(statement)
 
-        return StatementComponents.from_arg_list('IF', ' ', self.expression, ' ', 'THEN', ' ', self.branch).translate()
-
+        loop_test = StatementComponents.from_arg_list('IF', ' ', self.expression, ' ', 'THEN', ' ', self.branch)
+        return code.add(loop_test).translate()
