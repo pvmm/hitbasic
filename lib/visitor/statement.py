@@ -18,7 +18,7 @@ class StatementVisitor:
 
     def check_statement_params(self, stmt, params):
         'check if statement expected parameters match user input'
-        conv_types = {'i': 'Integer', 's': 'String'}
+        conv_types = {'i': 'Integer', 'o': 'Operator', 'p': 'Point', 's': 'String'}
         reg_ex = statements.create_regexp(msx.arch[self.arch].stmt_lib(stmt).pattern) # max=13 elements
         signature = statements.create_signature(params)
         if (match := re.match(reg_ex.pattern, signature)):
@@ -77,7 +77,7 @@ class StatementVisitor:
 
 
     def visit_draw_stmt(self, node, children):
-        dml_str = make_tuple(children)
+        dml_str = children
         return self.create_statement('Draw', params=dml_str)
 
 
@@ -138,12 +138,14 @@ class StatementVisitor:
 
 
     def visit_line_stmt(self, node, children):
+        # LINE STEP(<X1>,<Y1>)-STEP(<X2>,<Y2>),<Color>,<Shape>,<Operator> 
         if len(children) > 1 and isinstance(children[1], self.clause_type['point']):
             # Line [Step](x1,y1)-[Step](x2,y2) syntax
             try:
                 src, dst, args = children
             except ValueError:
                 src, dst, *args = children
+            self.check_statement_params('LINE', (src, dst) + make_tuple(args))
             return self.create_statement('Line', params=(self.create_box((src.x, src.y, src.step),
                 (dst.x, dst.y, dst.step)), *args))
         else:
@@ -152,6 +154,7 @@ class StatementVisitor:
                 dst, args = children
             except ValueError:
                 dst, *args = children
+            self.check_statement_params('LINE', (dst,) + make_tuple(args))
             return self.create_statement('Line', params=(self.create_box((dst.x, dst.y, dst.step)), *args))
 
 
@@ -166,6 +169,7 @@ class StatementVisitor:
             src, args = children
         except ValueError:
             src, *args = children
+        self.check_statement_params('PAINT', (src,) + args)
         return self.create_statement('Paint', params=self.create_sep_list(src, *args))
 
 
@@ -180,6 +184,7 @@ class StatementVisitor:
 
 
     def visit_play_stmt(self, node, children):
+        # PLAY #<Device>,"<MmlStringChannel1>","<MmlStringChannel2>",...,"<MmlStringChannel13>" 
         params = children
         # detect wrong parameter count or type
         self.check_statement_params('PLAY', params)
@@ -198,6 +203,8 @@ class StatementVisitor:
             src, args = children
         except ValueError:
             src, *args = children
+        # detect wrong parameter count or type
+        self.check_statement_params('PSET', params)
         return self.create_statement('Pset', params=self.create_sep_list(src, *args))
 
 
@@ -274,6 +281,10 @@ class StatementVisitor:
 
     def visit_g_point(self, node, children):
         x, _, y = children
+        if not isinstance(x, types.Numeric):
+            raise self.create_exception(TypeMismatch, 'Point', types.printable_type(x))
+        if not isinstance(x, types.Numeric):
+            raise self.create_exception(TypeMismatch, 'Point', types.printable_type(y))
         return x, y
 
 

@@ -21,11 +21,14 @@ String = None
 Integer = None
 Double = None
 Single = None
+Numeric = (None, None, None, None)
+Point = None # graphics coordinate system: <Step>-(x, y)
+Token = None # token parameter when used as graphic operator or shape: Pset, Preset, Xor, Or, And, B, BF, etc.
 DEFAULT_TYPE = Double
 
 TYPES = { 'Nil': Nil, 'String' : None, 'Integer' : None, 'Double' : None, 'Single' : None, 'Boolean' : Boolean,
-          'Any': None }
-ALLOWED_TYPE_NAMES = [ 'Nil', 'String', 'Integer', 'Double', 'Single', 'Address' ]
+          'Point': None, 'Token': None, 'Any': None }
+ALLOWED_TYPE_NAMES = [ 'Nil', 'String', 'Integer', 'Double', 'Single', 'Point', 'Token' ]
 TYPE_CHARS = [ '$', '%', '#', '!' ]
 NAME_MAPPING = { '$' : 'String', '%' : 'Integer', '#' : 'Double', '!' : 'Single' }
 CHAR_MAPPING = { 'String' : '$', 'Integer' : '%', 'Double' : '#', 'Single' : '!' }
@@ -56,12 +59,14 @@ def register(type_name, type_):
     'register language types "globally"'
     assert type(type_name) == str and type_ != None
     type_name = type_name.title()
-    if type_name in ['String', 'Integer', 'Double', 'Single']:
+    if type_name in ['String', 'Integer', 'Double', 'Single', 'Point']:
         globals()[type_name] = type_
         globals()['TYPES'][type_name] = type_
     if type_name == 'Double':
         globals()['DEFAULT_TYPE'] = type_
         globals()['current_default_type'] = type_
+    if type_name in ['Integer', 'Double', 'Single', 'Boolean']:
+        globals()['Numeric'] = (Integer, Double, Single, Boolean)
 
 
 def calculate_type(type1, type2, coercion=True):
@@ -158,6 +163,11 @@ def strip_attrs_from_id(identifier):
     return identifier[:-1] if identifier[-1] in TYPE_CHARS else identifier
 
 
+#
+# Symbol table types
+#
+
+
 class Callee:
     'because BASIC treats functions and arrays similarly'
     def shorter(self):
@@ -173,7 +183,6 @@ class Callee:
         if self.identifier.endswith('()'):
             return self.identifier[0:-2]
         return self.identifier
-
 
 class Function(Callee):
     'reference to HitBasic function'

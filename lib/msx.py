@@ -70,8 +70,13 @@ class MSX1_Architecture(object):
     PRINTER_TYPE = [0, 1]
 
     _stmt_lib = {
-        'PLAY': Instruction(pattern='i?ss?s?s?s?s?s?s?s?s?s?s?s?', # max=13 channels
-                            names=['channel %s' % num for num in range(1, 13)]),
+        # PLAY #<Device>,"<MmlStringChannel1>","<MmlStringChannel2>",...,"<MmlStringChannel13>" 
+        'PLAY' : Instruction(pattern='i?ss?s?s?s?s?s?s?s?s?s?s?s?', # max=13 channels
+                             names=['Channel %s' % num for num in range(1, 13)]),
+        # LINE [STEP(<X1>,<Y1>)]-STEP(<X2>,<Y2>),<Color>,<Shape>,<Operator> 
+        'LINE' : Instruction(pattern='p?pi?t?t?', names=['Point', 'Colour', 'Shape', 'Operator']),
+        'PAINT': Instruction(pattern='pi?i?', names=['Point', 'Colour', 'Border Colour']),
+        'PSET' : Instruction(pattern='pi?t?', names=['Point', 'Colour', 'Operator']),
     }
 
 

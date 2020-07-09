@@ -42,22 +42,12 @@ class Statement:
         self.tokens = tuple([token.upper() for token in tokens])
 
 
-def create_signature(params):
-    result = ''
-    for p in params:
-        if type(p) == types.Integer: result += 'i'
-        if type(p) == types.String: result += 's'
-    return result
-    # ptypes = { types.Integer: 'i', types.String: 's' }
-    # return [ptypes[p] for p in params]
-
-
 class RegExpError(Exception): pass
 
 
 def create_regexp(pattern):
     'create a pattern for matching against statement invocation'
-    ctypes = {'i': 'i', 's': 's', 'a': '(i|s)'}
+    ctypes = {'i': 'i', 'p': 'p', 's': 's', 't': 't', 'a': '(i|s)'}
     params = []
     re_params = []
     count = 0
@@ -113,3 +103,14 @@ def create_regexp(pattern):
     return SimpleNamespace(pattern='^(?=(%s))(.*)$' % ''.join(re_params),
                            count=lambda: count,
                            type=lambda n: params[n])
+
+
+def create_signature(params):
+    result = ''
+    for p in params:
+        if type(p) == types.Integer: result += 'i'
+        elif type(p) == types.Point: result += 'p'
+        elif type(p) == types.String: result += 's'
+        elif type(p) == types.Token: result += 't'
+    return result
+

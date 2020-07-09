@@ -60,6 +60,7 @@ class SurrogateFactory:
             clauses.register(clause, self.clause_type[clause])
 
         self.initialisation_type = type('Initialisation', (Surrogate,), {})
+        types.register('Point', self.clause_type['point']) # expose point type to language_statements module
 
         for module_name, module in dict(filter(lambda i: i[0].endswith('_statement'), self.module.items())).items():
             statement = module_name.replace('_statement', '')
@@ -85,6 +86,9 @@ class SurrogateFactory:
     def create_token(self, *token, **kwargs):
         self.create_factory_types()
         # *token allow a compound token
+        printable_token = ' '.join(t.upper() for t in make_tuple(token))
+        if not printable_token in tokens.ALLOWED_TOKENS:
+            raise NotImplementedError("token '%s' unknown" % ''.join(t.upper() for t in make_tuple(token)))
         node = kwargs.pop('node', self.current_node)
         position = kwargs.pop('pos', node.position if node else None)
         token_ = tuple([tmp.upper() for tmp in token])
