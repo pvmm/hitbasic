@@ -330,5 +330,10 @@ class SymbolTable(dict):
         return var
 
 
+    def get_hitbasic_vars(self, context='_global'):
+        return list(self[context]['_hitbasic_vars'].keys())
+
+
 class NamespaceExhausted(Exception):
     "no valid names left to create variables"
+

@@ -1,19 +1,38 @@
 from contextlib import suppress
-from arpeggio import Terminal
+from arpeggio import Terminal, PTNodeVisitor
 from math import trunc
 
 from .decorator import *
+from .factory import FactoryProxy
 from ..helper import *
+from ..factory import SurrogateFactory
 
 from .. import msx
 from .. import language_types as types
 from .. import language_clauses as clauses
 
 
-class ExpressionVisitor:
+# class ExpressionVisitor(PTNodeVisitor, SurrogateFactory):
+class ExpressionVisitor(FactoryProxy, PTNodeVisitor):
 
-    def __init__(self, parser):
-        self.parser = parser
+    def __init__(self, **kwargs):
+        self.parser = kwargs.pop('parser', None)
+        self.symbol_table = kwargs.pop('symbol_table', None)
+        self.debug = False
+        self.pp_flag = kwargs.pop('pp', False) # Pretty-print deactivated by default
+        PTNodeVisitor.__init__(self)
+        FactoryProxy.__init__(self)
+
+
+    def visit_var_name(self, node, children):
+        return children
+
+
+    def visit_known_vars_rule(self, node, children):
+        [identifier] = children
+        if (var := self.symbol_table.check_id(identifier)):
+            return self.create_reference(var)
+        return children.pop()
 
 
     def visit_exprs(self, node, children):
@@ -24,6 +43,7 @@ class ExpressionVisitor:
     def visit_expr(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
+            op = op.title()
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = not(op1) or op2
             else:
@@ -43,6 +63,7 @@ class ExpressionVisitor:
     def visit_eqv_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
+            op = op.title()
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = (op1 and op2) or (not(op1) and not(op2))
             else:
@@ -62,6 +83,7 @@ class ExpressionVisitor:
     def visit_xor_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
+            op = op.title()
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 ^ op2
             else:
@@ -81,6 +103,7 @@ class ExpressionVisitor:
     def visit_or_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
+            op = op.title()
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 or op2
             else:
@@ -100,6 +123,7 @@ class ExpressionVisitor:
     def visit_and_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
+            op = op.title()
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 and op2
             else:
@@ -173,6 +197,7 @@ class ExpressionVisitor:
     def visit_mod_op(self, node, children):
         if len(children) == 3:
             op1, op, op2 = children
+            op = op.title()
             if self.pp_flag and op1.is_constexp and op2.is_constexp:
                 result = op1 % op2
             else:
