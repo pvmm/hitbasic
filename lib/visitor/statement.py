@@ -2,15 +2,16 @@ import re
 
 from types import SimpleNamespace
 
-from .factory import SurrogateFactory
 from .decorator import store_node
 
+from ..factory import SurrogateFactory
 from ..symbol_table import SymbolTable
 from ..helper import *
 from ..exceptions import *
 
 from .. import msx
 from .. import language_types as types
+from .. import language_clauses as clauses
 from .. import language_statements as statements
 
 
@@ -138,8 +139,8 @@ class StatementVisitor:
 
 
     def visit_line_stmt(self, node, children):
-        # LINE STEP(<X1>,<Y1>)-STEP(<X2>,<Y2>),<Color>,<Shape>,<Operator> 
-        if len(children) > 1 and isinstance(children[1], self.clause_type['point']):
+        # LINE STEP(<X1>,<Y1>)-STEP(<X2>,<Y2>),<Color>,<Shape>,<Operator>
+        if len(children) > 1 and isinstance(children[1], clauses.TYPES['point']):
             # Line [Step](x1,y1)-[Step](x2,y2) syntax
             try:
                 src, dst, args = children
@@ -184,7 +185,7 @@ class StatementVisitor:
 
 
     def visit_play_stmt(self, node, children):
-        # PLAY #<Device>,"<MmlStringChannel1>","<MmlStringChannel2>",...,"<MmlStringChannel13>" 
+        # PLAY #<Device>,"<MmlStringChannel1>","<MmlStringChannel2>",...,"<MmlStringChannel13>"
         params = children
         # detect wrong parameter count or type
         self.check_statement_params('PLAY', params)

@@ -3,6 +3,7 @@ from .hitbasic import Surrogate
 from .translations import token as token_module
 
 
+OP_TOKENS = [ 'AND', 'AS', 'OR', 'XOR' ]
 ALLOWED_TOKENS = [ '=', ',', ';', 'AND', 'AS', 'B', 'BF', 'L', 'OR', 'R', 'STEP', 'TAND', 'TO', 'TOR', 'TPRESET', 'TPSET', 'TXOR', 'XOR' ]
 token_type = type('Token', (Surrogate,), dict(token_module.__dict__['Token'].__dict__))
 nil_type = type('Nil', (Surrogate,), {})

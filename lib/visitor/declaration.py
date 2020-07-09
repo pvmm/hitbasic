@@ -191,7 +191,7 @@ class DeclarationVisitor:
             try:
                 type_ = types.calculate_type(type_, init_type)
             except TypeMismatch as e:
-                raise self.put_location(e)
+                raise self.put_location(e, pos=node.position)
             var = self.symbol_table.create_hitbasic_var(identifier, ranges, type_)
             if dim_init:
                 init_code = self.write_dim_init(var, dim_init)
@@ -199,7 +199,10 @@ class DeclarationVisitor:
                 init_code = ()
             return self.create_clause('dim', var=var), init_code
         else:
-            var = self.symbol_table.create_hitbasic_var(identifier, ranges)
+            try:
+                var = self.symbol_table.create_hitbasic_var(identifier, ranges)
+            except NameRedefined as e:
+                raise self.put_location(e, pos=node.position)
             return self.create_clause('dim', var=var), ()
 
 

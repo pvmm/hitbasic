@@ -4,10 +4,10 @@ import inspect
 
 from os import path
 from contextlib import suppress
-from arpeggio import PTNodeVisitor, NonTerminal
+from arpeggio import PTNodeVisitor, NonTerminal, visit_parse_tree, NoMatch
 
 from .decorator import store_node
-from .factory import SurrogateFactory
+from .factory import FactoryProxy
 from .statement import StatementVisitor
 from .declaration import DeclarationVisitor
 from .expression import ExpressionVisitor
@@ -15,11 +15,15 @@ from .conditional import ConditionalVisitor
 from .loop import LoopVisitor
 from .structure import StructureVisitor
 from .printer import PrintVisitor
+
+from ..factory import SurrogateFactory
 from ..symbol_table import SymbolTable
 from ..helper import *
 from ..exceptions import *
 from ..translations import CodeComponents
 
+from .. import hitbasic
+from .. import vars
 from .. import language_types as types
 from .. import language_tokens as tokens
 from .. import language_statements as statements
@@ -33,7 +37,7 @@ class MSXBasicVisitor(StatementVisitor,
                       StructureVisitor,
                       PrintVisitor,
                       ConditionalVisitor,
-                      SurrogateFactory,
+                      FactoryProxy,
                       PTNodeVisitor):
 
     def __init__(self, parser, **kwargs):
@@ -41,7 +45,7 @@ class MSXBasicVisitor(StatementVisitor,
         begin_line = kwargs.pop('begin_line', 10)
 
         PTNodeVisitor.__init__(self, **kwargs)
-        SurrogateFactory.__init__(self)
+        FactoryProxy.__init__(self)
         PrintVisitor.__init__(self)
         DeclarationVisitor.__init__(self)
         LoopVisitor.__init__(self)
@@ -56,7 +60,6 @@ class MSXBasicVisitor(StatementVisitor,
         self.scratchpad = { 'var_list': [] }
         self.context = '_global'
         self.ret_var_count = 0
-        self.create_factory_types()
 
         # Symbol table
         self.symbol_table = SymbolTable()
@@ -115,7 +118,7 @@ class MSXBasicVisitor(StatementVisitor,
 
         # TODO: come up with a better job of detecting dangling codepaths
         #if body[-1] != statements.Statement('Return'):
-        if isinstance(body[-1], self.statement_type['Default']) and body[-1] == 'Return':
+        if isinstance(body[-1], statements.TYPES['Default']) and body[-1] == 'Return':
             body.append(self.create_statement('Return', node=body[-1]))
 
         # Store function in symbol table and return Function object
@@ -206,6 +209,34 @@ class MSXBasicVisitor(StatementVisitor,
         return self.create_reference(var, params)
 
 
+    def decompose(self, identifier):
+        known_vars = self.symbol_table.get_hitbasic_vars()
+        known_vars.sort()
+        var_parser = vars.create_var_parser(known_vars)
+        with suppress(NoMatch):
+            return var_parser.parse(identifier)
+
+
+    @store_node
+    def visit_rvalue(self, node, children):
+        [(identifier, params)] = children
+        if type(params) == list: identifier += '()'
+        var = self.symbol_table.check_id(identifier, params)
+        tree = self.decompose(identifier)
+        if var and not isinstance(var, types.BuiltIn):
+            if var and tree and tree.flat_str() != identifier:
+                var_list = [x.flat_str() for x in flatten(tree)]
+                expr = ' '.join(var_list).strip()
+                raise self.create_exception(AmbiguousCode, identifier, expr)
+        elif not var and tree:
+            code = visit_parse_tree(tree, ExpressionVisitor(symbol_table=self.symbol_table))
+            return self.visit_expr(tree, code)
+        if not var:
+            raise self.create_exception(NameNotDeclared, identifier)
+        else:
+            return self.create_reference(var, params)
+
+
     def visit_array(self, node, children):
         return children
 
@@ -223,66 +254,6 @@ class MSXBasicVisitor(StatementVisitor,
 
 
     def visit_scalar(self, node, children):
-        identifier = children
-        return ''.join(identifier), None
-
-
-    @store_node
-    def visit_str_var(self, node, children):
-        [(identifier, params)] = children
-        if type(params) == list: identifier += '()'
-        if not (var := self.symbol_table.check_id(identifier, params)):
-            raise self.create_exception(NameNotDeclared, identifier)
-        return self.create_reference(var, params)
-
-
-    def visit_str_array(self, node, children):
-        return children
-
-
-    def visit_str_array_name(self, node, children):
-        identifier = children
-        return ''.join(identifier)
-
-
-    def visit_str_array_args(self, node, children):
-        if len(children) == 0:
-            return children
-        [[*args]] = children
-        return args
-
-
-    def visit_str_scalar(self, node, children):
-        identifier = children
-        return ''.join(identifier), None
-
-
-    @store_node
-    def visit_num_var(self, node, children):
-        [(identifier, params)] = children
-        if type(params) == list: identifier += '()'
-        if not (var := self.symbol_table.check_id(identifier, params)):
-            raise self.create_exception(NameNotDeclared, identifier)
-        return self.create_reference(var, params)
-
-
-    def visit_num_array(self, node, children):
-        return children
-
-
-    def visit_num_array_name(self, node, children):
-        identifier = children
-        return ''.join(identifier)
-
-
-    def visit_num_array_args(self, node, children):
-        if len(children) == 0:
-            return children
-        [[*args]] = children
-        return args
-
-
-    def visit_num_scalar(self, node, children):
         identifier = children
         return ''.join(identifier), None
 

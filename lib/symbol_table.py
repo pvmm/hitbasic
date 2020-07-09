@@ -322,12 +322,18 @@ class SymbolTable(dict):
 
 
     def create_hitbasic_var(self, hbid=None, ranges=(), type=None, init_value=None, node=None, context='_global'):
+        if hbid and self.check_hitbasic_var(hbid):
+            raise NameRedefined(hbid)
         if hbid:
             basic_id = self.generate_basic_var_id(hbid)
             var = self.register_variable(hbid, basic_id, ranges=ranges, type=type, init_value=init_value, node=node)
         else:
             var = self.register_variable(ranges=ranges, type=type, init_value=init_value, node=node)
         return var
+
+
+    def get_hitbasic_vars(self, context='_global'):
+        return list(self[context]['_hitbasic_vars'].keys())
 
 
 class NamespaceExhausted(Exception):

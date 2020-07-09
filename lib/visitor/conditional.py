@@ -1,4 +1,4 @@
-from .factory import SurrogateFactory
+from ..factory import SurrogateFactory
 from ..symbol_table import SymbolTable
 from ..helper import *
 from ..exceptions import *
@@ -80,4 +80,3 @@ class ConditionalVisitor:
 
     def visit_else_clauses(self, node, children):
         return children
-

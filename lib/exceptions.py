@@ -174,3 +174,10 @@ class MissingOperand(TranslationError):
     def __init__(self, complement=None, filename=None, context=None, pos=None):
         super().__init__(filename, context, pos)
         self.message = 'Missing operand%s' % ' %s' % complement if complement else ''
+
+
+class AmbiguousCode(TranslationError):
+    'there is more than one way of parsing the source code'
+    def __init__(self, expr1=None, expr2=None, filename=None, context=None, pos=None):
+        super().__init__(filename, context, pos)
+        self.message = 'expression could be interpreted either as variable "%s" or as expression "%s"' % (expr1, expr2)

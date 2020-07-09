@@ -30,7 +30,7 @@ class TestParseTree(unittest.TestCase):
         return self.parser.parse_file(filename)
 
 
-    def visit(self, tree, filename=None):
+    def visit(self, tree):
         return visit_parse_tree(tree, MSXBasicVisitor(parser=self.parser, begin_line=10, debug=False))
 
 
