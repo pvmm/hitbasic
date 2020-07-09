@@ -57,7 +57,11 @@ class TestParseTree(unittest.TestCase):
         for source_file in test_files:
             s = io.StringIO()
             tree = self.parse_file(source_file) # looking for matching errors
-            symbol_table, code = self.visit(tree)
+            try:
+                symbol_table, code = self.visit(tree)
+            except Exception as e:
+                print('* exception captured in "%s"' % source_file, file=sys.stderr)
+                raise
 
 
     @unittest.skip("not implemented yet")
