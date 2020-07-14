@@ -62,7 +62,9 @@ class ClauseComponents(Sequence_):
     def translate(self):
         output = ClauseComponents()
         for item in self:
-            if isinstance(item, (str, int, float, bool)):
+            if isinstance(item, str):
+                output.append(item.upper())
+            elif isinstance(item, (int, float, bool)):
                 output.append(item)
             elif type(item) in clauses.TYPES.values():
                 output.extend(item.translate())

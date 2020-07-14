@@ -19,7 +19,7 @@ class Type:
 
 
     def translate(self):
-        return self.value
+        return str(self.value)
 
 
     def __lt__(self, other):
@@ -80,4 +80,3 @@ class Type:
         with suppress(AttributeError):
             return self.new(self.__class__, self.literal_value() ** other.literal_value(), position_end=other.position)
         return self.new(self.__class__, self.literal_value() ** other, position_end=self.position)
-

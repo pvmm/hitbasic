@@ -14,7 +14,7 @@ class PrintVisitor:
         statement, fileno, [*params] = children
         if fileno:
             return self.create_statement(statement, params=(fileno, *params))
-        return self.create_statement(statement, params=params, arg_sep=())
+        return self.create_statement(statement, params=params, sep=())
 
 
     def visit_print_params(self, node, children):
@@ -42,4 +42,3 @@ class PrintVisitor:
 
     def visit_print_sep(self, node, children):
         return self.create_token(children[0])
-

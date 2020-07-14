@@ -182,7 +182,7 @@ def sprite_tk():        return [ 'Sprite' ]
 def exit_stmt():        return 'Exit', [ 'Function', 'Sub' ]
 
 # Graphics statements
-def graphics_stmts():   return [ draw_stmt, circle_stmt, color_stmt, copy_stmt, line_stmt, paint_stmt, preset_stmt,
+def graphics_stmts():   return [ draw_stmt, circle_stmt, colordef_stmt, color_stmt, copy_stmt, line_stmt, paint_stmt, preset_stmt,
                                  pset_stmt, put_sprite_stmt, screen_stmt ]
 def draw_stmt():        return 'Draw', expr
 def circle_stmt():      return 'Circle', g_ostep_point, circle_stmt_args
@@ -200,6 +200,7 @@ def pset_stmt_args():   return Optional( comma, g_color, Optional( comma, g_opto
 def put_sprite_stmt():  return 'Put', 'Sprite', expr, comma, g_ostep_point, put_sprite_stmt_args
 def put_sprite_stmt_args(): return Optional( comma, g_color, Optional( comma, g_pttn_num ) )
 def screen_stmt():      return 'Screen', Optional( g_mode ), Optional( comma ), Optional( g_sprite_size ), Optional( comma ), Optional( g_key_click ), Optional( comma ), Optional( g_baud_rate ), Optional( comma ), Optional( g_printer_type ), Optional( comma ), Optional( g_interlace_mode )
+def colordef_stmt():    return 'Color', '=', [ 'New', 'Restore', ( '(', expr, comma, expr, comma, expr, comma, expr, ')' ) ]
 
 def g_radius():         return expr
 def g_color():          return expr
@@ -243,7 +244,7 @@ def comma_lst_st_tk():  return [ 'Erase' ]
 
 
 # Instruction with no parameters
-def paramless_stmt():   return [ 'Nop', 'Cls', 'End' ]
+def paramless_stmt():   return [ 'Beep', 'Cls', 'End', 'Nop' ]
 
 
 # Single param instruction
@@ -308,7 +309,7 @@ def oct_prefix():       return _(r'&O')
 def oct_digit():        return _(r'[0-7]')
 def bin_prefix():       return _(r'&B')
 def bin_digit():        return _(r'[01]')
-def filepath():         return string
+def filepath():         return string, ''
 def string():           return '"', Sequence( ZeroOrMore( non_quote_char ), skipws=False ), '"'
 def opt_stmt_sep():     return Optional( statement_sep )
 def statement_sep():    return [ ( new_lines, ':', new_lines ), OneOrMore( new_line ) ]

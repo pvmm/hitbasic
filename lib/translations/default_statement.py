@@ -10,10 +10,10 @@ debug = lambda *x: 0
 
 class Statement:
 
-    def __init__(self, rule, position, error, tokens=(), params=(), arg_sep=(',', ' '), **kwargs):
+    def __init__(self, rule, position, error, tokens=(), params=(), sep=(',', ' '), **kwargs):
         if not tokens: raise SyntaxError('unknown statement, tokens not specified')
         Surrogate.__init__(self, rule, position, error, tokens=make_tuple(tokens), params=make_tuple(params),
-                arg_sep=make_tuple(arg_sep), **kwargs)
+                sep=make_tuple(sep), **kwargs)
 
 
     def __str__(self):
@@ -36,11 +36,10 @@ class Statement:
         debug('self.params =', self.params)
         statement = StatementComponents(' '.join([token.upper() for token in self.tokens]))
         debug('statement =', statement)
-        debug('statement =', statement)
         params = ClauseComponents(self.params)
         debug('params =', params)
-        if self.arg_sep: params = interleave(params, self.arg_sep)
+        if self.sep: params = interleave(params, self.sep)
         debug('interleave result =', params)
-        if params: statement.add(' ', *params)
+        if len(statement) > 0 and params: statement.add(' ', *params)
         debug('statement =', statement)
         return statement.translate()

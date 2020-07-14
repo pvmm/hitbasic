@@ -68,6 +68,12 @@ class FactoryProxy:
                     self.parser.pos_to_linecol(node.position))
 
 
+    def create_tuple(self, *values, use_parentheses=False, **kwargs):
+        'Create a n-tuple.'
+        node = kwargs.pop('node', self.current_node)
+        return factory.create_tuple(*values, node=node, use_parentheses=use_parentheses, **kwargs)
+
+
     def create_initialisation(self, dimensions, values, type, **kwargs):
         'Processes Dim initialisation expressions.'
         node = kwargs.pop('node', None)
@@ -99,7 +105,7 @@ class FactoryProxy:
 
     def create_attribution(self, lvalue, rvalue, **kwargs):
         node = kwargs.pop('node', self.current_node)
-        return factory.create_attribution(lvalue, rvalue, node=node, **kwargs)
+        return factory.create_statement('Let', params=(lvalue, '=', rvalue), node=node, **kwargs)
 
 
     def create_label(self, identifier, type=statements.INTERNAL, line_number=None, **kwargs):

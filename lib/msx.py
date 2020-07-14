@@ -7,9 +7,10 @@ from . import language_types as types
 
 # BASIC version
 MSX_BASIC_1_0 = 0
+MSX_BASIC_2_0 = 1
 MSX_BASIC = MSX_BASIC_1_0
-DISK_BASIC_1 = 1
-DISK_BASIC_2 = 2
+DISK_BASIC_1 = 2
+DISK_BASIC_2 = 3
 DISK_BASIC = DISK_BASIC_1
 DEFAULT_BASIC_VER = MSX_BASIC
 
@@ -70,10 +71,10 @@ class MSX1_Architecture(object):
     PRINTER_TYPE = [0, 1]
 
     _stmt_lib = {
-        # PLAY #<Device>,"<MmlStringChannel1>","<MmlStringChannel2>",...,"<MmlStringChannel13>" 
+        # PLAY #<Device>,"<MmlStringChannel1>","<MmlStringChannel2>",...,"<MmlStringChannel13>"
         'PLAY' : Instruction(pattern='i?ss?s?s?s?s?s?s?s?s?s?s?s?', # max=13 channels
                              names=['Channel %s' % num for num in range(1, 13)]),
-        # LINE [STEP(<X1>,<Y1>)]-STEP(<X2>,<Y2>),<Color>,<Shape>,<Operator> 
+        # LINE [STEP(<X1>,<Y1>)]-STEP(<X2>,<Y2>),<Color>,<Shape>,<Operator>
         'LINE' : Instruction(pattern='p?pi?t?t?', names=['Point', 'Colour', 'Shape', 'Operator']),
         'PAINT': Instruction(pattern='pi?i?', names=['Point', 'Colour', 'Border Colour']),
         'PSET' : Instruction(pattern='pi?t?', names=['Point', 'Colour', 'Operator']),

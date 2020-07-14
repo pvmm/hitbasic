@@ -46,7 +46,7 @@ class TestParseTree(unittest.TestCase):
         text = """Print 1:Print 2"""
         tree = self.parse(text)
         symbol_table, code = self.visit(tree)
-        expected = [('@BeginProgram',), ('PRINT', ' ', 1), ('PRINT', ' ', 2), ('@EndProgram',), ('END',)]
+        expected = [('@BeginProgram',), ('PRINT', ' ', '1'), ('PRINT', ' ', '2'), ('@EndProgram',), ('END',)]
         assert code == expected, 'got "%s" as result' % code
 
 

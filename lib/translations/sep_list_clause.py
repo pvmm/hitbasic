@@ -25,4 +25,3 @@ class Clause:
 
     def __eq__(self, other):
         return repr(self) == repr(other)
-

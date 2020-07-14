@@ -126,7 +126,7 @@ class SurrogateFactory:
         node = kwargs.pop('node', None)
         rule = kwargs.pop('rule', NO_RULE)
         position = kwargs.pop('pos', node.position if node else None)
-        return self.clause_type['sep_list'](rule, position, False, *args, **kwargs)
+        return self.clause_type['sep_list'](rule, position, False, *args, sep=sep, **kwargs)
 
 
     def create_clause(self, clause, **kwargs):
@@ -178,6 +178,14 @@ class SurrogateFactory:
                     self.parser.pos_to_linecol(node.position))
 
 
+    def create_tuple(self, *values, use_parentheses=False, **kwargs):
+        'Create a n-tuple'
+        node = kwargs.pop('node', None)
+        rule = kwargs.pop('rule', NO_RULE)
+        position = kwargs.pop('pos', node.position if node else None)
+        return self.clause_type['tuple'](rule, position, False, values, use_parentheses=use_parentheses, **kwargs)
+
+
     def create_initialisation(self, dimensions, values, type, **kwargs):
         'Processes Dim initialisation expressions.'
         node = kwargs.pop('node', None)
@@ -215,8 +223,8 @@ class SurrogateFactory:
         assert tokens != None
         real_tokens = make_tuple(tokens)
         statement = ' '.join([token.title() for token in real_tokens])
-        if not tokens in statements.ALLOWED_STATEMENTS:
-            raise NotImplementedError("statement '%s' is not implemented" % statement)
+        # if not tokens in statements.ALLOWED_STATEMENTS:
+        #     raise NotImplementedError("statement '%s' is not implemented" % statement)
         node = kwargs.pop('node', None)
         rule = kwargs.pop('rule', NO_RULE)
         position = kwargs.pop('pos', node.position if node else None)
@@ -230,16 +238,16 @@ class SurrogateFactory:
         return statement_type(rule, position, False, **kwargs)
 
 
-    def create_attribution(self, lvalue, rvalue, **kwargs):
-        assert lvalue != None
-        assert isinstance(lvalue, self.clause_type['reference'])
-        assert rvalue != None
-        kwargs['tokens'] = 'Let'
-        node = kwargs.pop('node', None)
-        rule = kwargs.pop('rule', NO_RULE)
-        position = kwargs.pop('pos', node.position if node else None)
-        return self.statement_type['Default'](rule, position, False, params=(lvalue, '=', rvalue), arg_sep=' ',
-                                              **kwargs)
+    # def create_attribution(self, lvalue, rvalue, **kwargs):
+    #     assert lvalue != None
+    #     assert isinstance(lvalue, self.clause_type['reference'])
+    #     assert rvalue != None
+    #     kwargs['tokens'] = 'Let'
+    #     node = kwargs.pop('node', None)
+    #     rule = kwargs.pop('rule', NO_RULE)
+    #     position = kwargs.pop('pos', node.position if node else None)
+    #     return self.statement_type['Default'](rule, position, False, params=(lvalue, '=', rvalue), sep=' ',
+    #                                           **kwargs)
 
 
     def create_label(self, identifier, type=statements.INTERNAL, line_number=None, **kwargs):
