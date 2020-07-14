@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 from .decorator import store_node
 
-from ..factory import SurrogateFactory
+from ..factory import SurrogateFactory, factory
 from ..symbol_table import SymbolTable
 from ..helper import *
 from ..exceptions import *
@@ -37,7 +37,8 @@ class StatementVisitor:
         # going in
         for p_var, param in zip(ref.value.params, ref.params):
             tmp_var = self.create_reference(p_var, node=param)
-            code_block.append(self.create_attribution(tmp_var, param))
+            assert isinstance(tmp_var, factory.clause_type['reference'])
+            code_block.append(self.create_statement('Let', params=(tmp_var, '=', param), sep=None))
         target = self.symbol_table.check_label(ref.value.identifier)
         assert target is not None
         target_label = self.create_label(target)
@@ -45,7 +46,8 @@ class StatementVisitor:
         # getting out
         return_var = self.symbol_table.get_hitbasic_var(ref.value.short())
         assert return_var is not None
-        code_block.append(self.create_attribution(var, self.create_reference(return_var)))
+        assert isinstance(var, factory.clause_type['reference'])
+        code_block.append(self.create_statement('Let', params=(var, '=', self.create_reference(return_var)), sep=None))
         return self.create_statement('Multiple', code_block=code_block)
 
 
@@ -63,7 +65,8 @@ class StatementVisitor:
         var, expr = children
         if types.compatible_types(var.type, expr.type):
             if type(expr.value) != types.Function:
-                return self.create_attribution(var, expr)
+                assert isinstance(var, factory.clause_type['reference'])
+                return self.create_statement('Let', params=(var, '=', expr), sep=None)
             else:
                 # extra glue code necessary if rvalue is a function
                 return self.write_vfc_subroutine(var=var, ref=expr) # caller node
@@ -106,17 +109,30 @@ class StatementVisitor:
         return self.create_statement('Color', params=params)
 
 
+    def visit_colordef_stmt(self, node, children):
+        # COLOR = (<Color>,<RedLuminance>,<GreenLuminance>,<BlueLuminance>)
+        params = parse_comma_list(children, max=4)
+        colordef = self.create_tuple(*params, use_parentheses=True)
+        return self.create_statement('Let', params=('Color', '=', colordef), sep=None)
+
+
     def visit_exit_stmt(self, node, children):
         return self.create_statement('Return')
 
 
     def visit_input_stmt(self, node, children):
+        # INPUT "<Prompt>"; <Variable>,<Variable>...
         [(arg0, [*var_list])] = children
         if type(arg0) == types.String:
-            rem = self.create_sep_list(*var_list[1:])
-            return self.create_statement('Input', params=(arg0, ';', var_list[0], rem), arg_sep=())
-        else:
+            if not var_list: raise MissingOperand('missing parameters after %s' % arg0.value)
+            param0 = self.create_sep_list(arg0, var_list[0], sep=';')
+            return self.create_statement('Input', params=(param0, *var_list[1:]))
+        elif isinstance(arg0, clauses.reference):
+            return self.create_statement('Input', params=(arg0, *var_list))
+        elif isinstance(arg0, types.Integer):
             return self.create_statement('Input', params=('#%d' % arg0.value, *var_list))
+        else:
+            raise TypeMismatch('Channel', arg0.type)
 
 
     def visit_input_prompt(self, node, children):
@@ -134,6 +150,7 @@ class StatementVisitor:
 
 
     def visit_let_stmt(self, node, children):
+        # LET <Variable> = <Value>
         [result] = children
         return result
 
@@ -291,4 +308,5 @@ class StatementVisitor:
 
     def visit_var_defn(self, node, children):
         var, expr = children
-        return self.create_attribution(var, expr)
+        assert isinstance(var, factory.clause_type['reference'])
+        return self.create_statement('Let', params=(var, '=', expr), sep=None)

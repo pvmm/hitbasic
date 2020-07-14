@@ -8,10 +8,10 @@ from . import language_types as types
 
 
 # what currently works
-ALLOWED_STATEMENTS = [ 'Branch', 'Cls', 'Circle', 'Color', 'Conditional', 'Default', 'Dim', 'Do_Until', 'Do_While',
-                       'Draw', 'End', ('Exit', 'Do'), 'For_Loop', 'Goto', 'Gosub', 'Input', 'Label', 'Let', 'Line',
-                       'Loop_Until', 'Loop_While', 'Multiple', 'Next', 'Paint', 'Play', 'Preset', 'Print', 'Pset',
-                       'Put Sprite', 'Return', 'Screen', 'Select', '?' ]
+ALLOWED_STATEMENTS = [ 'Beep', 'Branch', 'Cls', 'Circle', 'Color', 'Conditional', 'Default', 'Dim', 'Do_Until',
+                       'Do_While', 'Draw', 'End', ('Exit', 'Do'), 'For_Loop', 'Goto', 'Gosub', 'Input', 'Label',
+                       'Let', 'Line', 'Loop_Until', 'Loop_While', 'Multiple', 'Next', 'Paint', 'Play', 'Preset',
+                       'Print', 'Pset', 'Put Sprite', 'Return', 'Screen', 'Select', '?' ]
 # non-parameterised statements
 SIMPLE_STATEMENTS = [ 'Beep', 'Cls', 'End', 'Return', ('Exit', 'Do') ]
 
@@ -113,4 +113,3 @@ def create_signature(params):
         elif type(p) == types.String: result += 's'
         elif type(p) == types.Token: result += 't'
     return result
-
