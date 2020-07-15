@@ -55,6 +55,7 @@ class MSXBasicVisitor(StatementVisitor,
         self.debug = kwargs.pop('debug', False)
         self.pp_flag = kwargs.pop('pp', False) # Pretty-print deactivated by default
         self.arch = 'msx2+' # TODO: set this from an option received from argparse
+        self.basic_ver = kwargs.pop('basic-ver', 2)
 
         # Scratchpad
         self.scratchpad = { 'var_list': [] }

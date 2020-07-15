@@ -17,6 +17,10 @@ from .. import language_statements as statements
 
 class StatementVisitor:
 
+    def check_arch(self, value):
+        if self.basic_ver < value: raise WrongBASICVersion(msx.VERSION_STR[value], msx.VERSION_STR[self.arch])
+
+
     def check_statement_params(self, stmt, params):
         'check if statement expected parameters match user input'
         conv_types = {'i': 'Integer', 'o': 'Operator', 'p': 'Point', 's': 'String'}
@@ -257,6 +261,12 @@ class StatementVisitor:
         return parse_arg_list(children[1:], nil_element=self.create_nil(), max=2)
 
 
+    def visit_put_kanji_stmt(self, node, children):
+        # PUT KANJI STEP(<X>,<Y>),<JIScode>,<Color>,<Operator>,<Mode>
+        self.check_arch(msx.MSX_BASIC_2_0)
+        raise NotImplemented()
+
+
     def visit_put_sprite_stmt(self, node, children):
         # PUT SPRITE <sprite number>,[STEP](<x>,<y>),[<color>][,<pattern number>]
         sp_num, comma, dst, args = children
@@ -283,6 +293,12 @@ class StatementVisitor:
             if type(param) != types.Nil and param.is_constexp and not param.literal_value() in attr:
                 raise self.create_exception(IllegalFunctionCall, pos=param.position)
         return self.create_statement('Screen', params=params)
+
+
+    def visit_set_page_stmt(self, node, children):
+        self.check_arch(msx.MSX_BASIC_2_0)
+        params = parse_arg_list(children, nil_element=self.create_nil(), max=2)
+        return self.create_statement('Set Page', params=params)
 
 
     def visit_g_ostep_point(self, node, children):

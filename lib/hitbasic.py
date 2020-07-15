@@ -19,10 +19,10 @@ def statement():        return [ function_stmt,
                                  print_stmt,
                                  branch_stmts,
                                  exit_stmt,
+                                 graphics_stmts,
                                  let_stmt,
                                  ( 'Def', range_type_decl ),
                                  input_stmt,
-                                 graphics_stmts,
                                  play_stmt,
                                  paramless_stmt,
                                  #multi_attr_stmt,
@@ -191,10 +191,11 @@ def exit_stmt():        return 'Exit', [ 'Function', 'Sub' ]
 
 # Graphics statements
 def graphics_stmts():   return [ draw_stmt, circle_stmt, colordef_stmt, color_stmt, copy_stmt, line_stmt, paint_stmt, preset_stmt,
-                                 pset_stmt, put_sprite_stmt, screen_stmt ]
+                                 pset_stmt, put_kanji_stmt, put_sprite_stmt, screen_stmt, set_page_stmt ]
 def draw_stmt():        return 'Draw', expr
 def circle_stmt():      return 'Circle', g_ostep_point, circle_stmt_args
 def circle_stmt_args(): return Optional( comma, g_color, Optional( comma, g_color ) )
+def colordef_stmt():    return 'Color', '=', [ 'New', 'Restore', ( '(', expr, comma, expr, comma, expr, comma, expr, ')' ) ]
 def color_stmt():       return 'Color', Optional( g_color ), Optional( comma, g_color, Optional( comma, g_color ) )
 def copy_stmt():        return 'Copy', g_copy_src, 'To', g_copy_dst
 def line_stmt():        return 'Line', Optional( g_ostep_point ), g_dst_ostep_point, line_stmt_args
@@ -204,12 +205,14 @@ def paint_stmt_args():  return Optional( comma, g_color, Optional( comma, g_colo
 def preset_stmt():      return 'Preset', g_ostep_point, preset_stmt_args
 def preset_stmt_args(): return Optional( comma, g_color, Optional( comma, g_optor ) )
 def pset_stmt():        return 'Pset', g_ostep_point, pset_stmt_args
+def put_kanji_stmt():   return 'Put', 'Kanji', g_ostep_point, g_jis_code, g_color, g_optor, g_mode
 def pset_stmt_args():   return Optional( comma, g_color, Optional( comma, g_optor ) )
 def put_sprite_stmt():  return 'Put', 'Sprite', expr, comma, g_ostep_point, put_sprite_stmt_args
 def put_sprite_stmt_args(): return Optional( comma, g_color, Optional( comma, g_pttn_num ) )
 def screen_stmt():      return 'Screen', Optional( g_mode ), Optional( comma ), Optional( g_sprite_size ), Optional( comma ), Optional( g_key_click ), Optional( comma ), Optional( g_baud_rate ), Optional( comma ), Optional( g_printer_type ), Optional( comma ), Optional( g_interlace_mode )
-def colordef_stmt():    return 'Color', '=', [ 'New', 'Restore', ( '(', expr, comma, expr, comma, expr, comma, expr, ')' ) ]
+def set_page_stmt():    return 'Set', 'Page', g_page, Optional( comma, g_page )
 
+def g_jis_code():       return expr
 def g_radius():         return expr
 def g_color():          return expr
 def g_tracing_start():  return expr
