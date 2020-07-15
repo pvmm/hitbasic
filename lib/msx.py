@@ -6,6 +6,7 @@ from . import language_types as types
 
 
 # BASIC version
+VERSION_STR = ['MSX-BASIC ver1.0', 'MSX-BASIC ver2.0', 'DISK-BASIC ver1.0', 'DISK-BASIC ver2.0']
 MSX_BASIC_1_0 = 0
 MSX_BASIC_2_0 = 1
 MSX_BASIC = MSX_BASIC_1_0

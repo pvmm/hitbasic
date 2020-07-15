@@ -14,5 +14,5 @@ def register(type_id, type_):
     globals()[type_id] = type_
 
 
-def create(identifier, *args, **kwargs):
-    return globals()[identifier.lower()](None, 0, False, *args, **kwargs)
+def create(type_id, *args, **kwargs):
+    return globals()[type_id.lower()](None, 0, False, *args, **kwargs)
