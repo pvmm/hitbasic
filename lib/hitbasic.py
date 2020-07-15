@@ -12,6 +12,8 @@ def statement():        return [ function_stmt,
                                  if_then_else_stmt,
                                  select_stmt,
                                  do_loop_stmt,
+                                 close_stmt,
+                                 [ open_stmt, open_stmt_rnd ],
                                  next_stmt,
                                  for_stmt,
                                  print_stmt,
@@ -99,6 +101,12 @@ def do_loop_cond():     return [ 'While', 'Until' ], expr
 def do_stmt_block():    return [ ( label_stmt, do_stmt ), do_stmt ], ZeroOrMore( statement_sep, do_stmt_block ), And( statement_sep, 'Loop' )
 def do_stmt():          return [ ( 'Exit', 'Do' ), statement ]
 
+
+# Open statement
+def open_stmt_rnd():    return 'Open', filepath, 'As', file_fileno, Optional( 'Len', '=', expr )
+def open_stmt():        return 'Open', filepath, 'For', ['Append', 'Input', 'Output'], 'As', file_fileno
+def close_stmt():       return 'Close', file_fileno
+def file_fileno():      return '#', expr
 
 # For loop rules
 def for_stmt():         return 'For', var, '=', for_range_decl

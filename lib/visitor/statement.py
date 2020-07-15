@@ -182,6 +182,16 @@ class StatementVisitor:
         return result
 
 
+    def visit_open_stmt(self, node, children):
+        filepath, direction, fileno = children
+        return self.create_statement('Open', params=(filepath, 'For', direction, 'As', '#%d' % fileno.value), sep=' ')
+
+
+    def visit_open_stmt_rnd(self, node, children):
+        filepath, fileno, *len = children
+        return self.create_statement('Open', params=(filepath, 'As', '#%d' % fileno.value, ('Len=%d' % len[0].value) if len else None), sep=' ')
+
+
     def visit_paint_stmt(self, node, children):
         try:
             src, args = children
