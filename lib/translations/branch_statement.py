@@ -10,5 +10,4 @@ class Statement:
 
 
     def translate(self):
-        return StatementComponents.from_arg_list(self.branch_type, ' ', '@'+self.target.identifier).translate()
-
+        return StatementComponents.from_arg_list(self.branch_type, ' ', self.target).translate()

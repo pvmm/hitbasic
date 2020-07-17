@@ -1,11 +1,11 @@
 from contextlib import suppress
-from arpeggio import UnorderedGroup, Sequence, Optional, ZeroOrMore, OneOrMore, EOF, ParserPython, And, Not, Empty, RegExMatch as _
+from arpeggio import UnorderedGroup, Sequence, Optional, ZeroOrMore, OneOrMore, EOF, ParserPython, And, Not, Empty, RegExMatch as RegEx
 from arpeggio import ParseTreeNode
 
 
 # Top tier
-def program():          return trailing_spaces, [ Optional( statements ), EOF ], trailing_spaces, EOF
-def statements():       return opt_stmt_sep, [ ( label_stmt, opt_stmt_sep, statement ), statement ], ZeroOrMore( statement_sep, statements )
+def program():          return trailing_spaces, Optional( statements ), trailing_spaces, EOF
+def statements():       return opt_stmt_sep, [ ( label_stmt, opt_stmt_sep, statement ), statement, label_stmt ], ZeroOrMore( statement_sep, statements )
 def statement():        return [ function_stmt,
                                  sub_stmt,
                                  dim_stmt,
@@ -28,14 +28,14 @@ def statement():        return [ function_stmt,
                                  paramless_stmt,
                                  #multi_attr_stmt,
                                  attr_stmt ]
-def trailing_spaces():  return _(r'\s*')
+def trailing_spaces():  return RegEx(r'\s*')
 def comments():         return [ comments1, comments2 ]
-def comments1():        return [ _(r"\s*'[^\n]*"),
-                                 ( _(r"^(Rem|')[^\n]*"), new_line ),
-                                 ( ':', _(r"\s*(Rem|')[^\n]*") ) ]
-def comments2():        return [ ( _(r"^\s*'[^\n]*"), new_line ),
-                                 ( _(r"^\s*(Rem|')[^\n]*"), new_line ),
-                                 ( ':', _(r"(Rem|')[^\n]*"), new_line ) ]
+def comments1():        return [ ( RegEx(r"\s*'[^\n]*"), ),
+                                 ( RegEx(r"^(Rem|')[^\n]*"), ),
+                                 ( RegEx(r":\s*(Rem|')[^\n]*"), ) ]
+def comments2():        return [ ( RegEx(r"^\s*'[^\n]*"), new_line ),
+                                 ( RegEx(r"^\s*(Rem|')[^\n]*"), new_line ),
+                                 ( RegEx(r":\s*(Rem|')[^\n]*"), new_line ) ]
 
 
 # Dim rules
@@ -46,8 +46,8 @@ def dim_var_decl():     return [ ( dim_var, dim_as_kw, dim_var_type, dim_eq_tk, 
                                  ( dim_var, dim_eq_tk, dim_init ),
                                    dim_var ]
 def dim_var_type():     return var_type
-def dim_var():          return dim_var_name, Optional( _('\('), dim_var_ranges, _('\)') )
-def dim_var_ranges():   return Optional( dim_var_expr, ZeroOrMore( _(r','), dim_var_expr ) )
+def dim_var():          return dim_var_name, Optional( RegEx('\('), dim_var_ranges, RegEx('\)') )
+def dim_var_ranges():   return Optional( dim_var_expr, ZeroOrMore( RegEx(r','), dim_var_expr ) )
 def dim_var_name():     return alphanum_name, Optional( type_des )
 def dim_var_expr():     return ZeroOrMore( [ ( expr, 'To', expr ), ( expr, ) ] )
 def dim_init():         return [ ( '{', Optional( dim_init_array ), '}' ), expr ]
@@ -92,7 +92,7 @@ def case_value():       return Not( 'Else' ), expr # Any expr but the keyword 'E
 def range_type_decl():  return var_type, var_ranges
 def var_type():         return [ 'Boolean', 'BOOL', 'Integer', 'INT', 'String', 'STR', 'Single', 'SNG', 'Double', 'DBL' ]
 def var_ranges():       return var_range, ZeroOrMore( ',', var_range )
-def var_range():        return _(r'[A-Z]'), '-', _(r'[A-Z]')
+def var_range():        return RegEx(r'[A-Z]'), '-', RegEx(r'[A-Z]')
 
 
 # DoLoop rules
@@ -160,13 +160,13 @@ def print_sep():        return [ ',', ';' ]
 
 # branch instructions
 def branch_stmts():     return [ on_sprite_stmt, on_interval_stmt, on_branch_stmt, branch_stmt, return_stmt ]
-def on_sprite_stmt():   return 'On', 'Sprite', 'Gosub', numeral
-def on_interval_stmt(): return 'On', ( 'Interval', '=', expr ), 'Gosub', comma_sep_adrs
-def on_branch_stmt():   return 'On', expr, branch_tk, comma_sep_adrs
-def branch_stmt():      return branch_tk, [ label_clause, numeral ]
-def return_stmt():      return 'Return', Optional([ label_clause, numeral ])
-def comma_sep_adrs():   return ZeroOrMore(',', numerals )
-def comma_sep_adrs():   return Optional([ label_clause, numeral ]), ZeroOrMore( comma, Optional([ label_clause, numeral ]) )
+def on_sprite_stmt():   return 'On', 'Sprite', 'Gosub', address
+def on_interval_stmt(): return 'On', ( 'Interval', '=', expr ), 'Gosub', comma_sep_addrs
+def on_branch_stmt():   return 'On', expr, branch_tk, comma_sep_addrs
+def branch_stmt():      return branch_tk, address
+def return_stmt():      return 'Return', Optional( address )
+def comma_sep_addrs():  return Optional( address ), ZeroOrMore( comma, Optional( address ) )
+def address():          return [ label_clause, numeral ]
 def branch_tk():        return [ goto_tk, gosub_tk ]
 def goto_tk():          return [ 'Goto' ]
 def gosub_tk():         return [ 'Gosub' ]
@@ -174,9 +174,8 @@ def gosub_tk():         return [ 'Gosub' ]
 
 # label stmt
 def label_stmt():       return label_addr, Optional( label_stmt )
-def label_addr():       return '@', _(r'[_A-Z][_A-Z0-9]*'), Optional(':') # some BASIC dialects require the ending ':'
-def label_clause():     return _(r'[_A-Z][_A-Z0-9]*')
-#def label():            return '@', _(r'[_A-Z][_A-Z0-9]*')
+def label_addr():       return '@', RegEx(r'[_A-Z][_A-Z0-9]*'), Optional(':') # some BASIC dialects require the ending ':'
+def label_clause():     return RegEx(r'[_A-Z][_A-Z0-9]*')
 
 
 # branch related statements
@@ -230,8 +229,8 @@ def g_printer_type():   return expr
 def g_interlace_mode(): return expr
 def g_direction():      return expr
 def g_pttn_num():       return expr
-def g_dst_ostep_point():return _('-'), Optional( _( 'Step' ) ), g_point
-def g_ostep_point():    return Optional( _( 'Step' ) ), g_point
+def g_dst_ostep_point():return RegEx('-'), Optional( RegEx( 'Step' ) ), g_point
+def g_ostep_point():    return Optional( RegEx( 'Step' ) ), g_point
 def g_point():          return '(', expr, comma, expr, ')'
 def g_copy_src():       return [ ( g_point, g_dst_ostep_point, Optional( comma, g_page ) ),
                                  ( g_array, Optional( comma, g_direction ) ),
@@ -277,20 +276,20 @@ def var_defn():         return var, '=', expr
 
 
 # expr rules
-def expr():             return eqv_op, ZeroOrMore( _(r'Imp'), eqv_op )
-def eqv_op():           return xor_op, ZeroOrMore( _(r'Eqv'), xor_op )
-def xor_op():           return or_op, ZeroOrMore( _(r'Xor'), or_op )
-def or_op():            return and_op, ZeroOrMore( _(r'or'), and_op )
-def and_op():           return not_op, ZeroOrMore( _(r'And'), not_op )
-def not_op():           return ZeroOrMore( _(r'Not') ), comp_op
+def expr():             return eqv_op, ZeroOrMore( RegEx(r'Imp'), eqv_op )
+def eqv_op():           return xor_op, ZeroOrMore( RegEx(r'Eqv'), xor_op )
+def xor_op():           return or_op, ZeroOrMore( RegEx(r'Xor'), or_op )
+def or_op():            return and_op, ZeroOrMore( RegEx(r'or'), and_op )
+def and_op():           return not_op, ZeroOrMore( RegEx(r'And'), not_op )
+def not_op():           return ZeroOrMore( RegEx(r'Not') ), comp_op
 def comp_op():          return add_op, ZeroOrMore( comptor, add_op )
 def case_comp_op():     return comptor, add_op
 def add_op():           return mod_op, ZeroOrMore( add_or_sub_tk, mod_op )
-def mod_op():           return idiv_op, ZeroOrMore( _(r'Mod'), idiv_op )
-def idiv_op():          return mul_op, ZeroOrMore( _(r'\\'), mul_op )
+def mod_op():           return idiv_op, ZeroOrMore( RegEx(r'Mod'), idiv_op )
+def idiv_op():          return mul_op, ZeroOrMore( RegEx(r'\\'), mul_op )
 def mul_op():           return neg_op, ZeroOrMore( mul_or_div_tk, neg_op )
 def neg_op():           return ZeroOrMore( signal ), exp_op
-def exp_op():           return optor, ZeroOrMore( _('\^'), optor )
+def exp_op():           return optor, ZeroOrMore( RegEx('\^'), optor )
 def optor():            return [ ( '(', expr, ')' ), numeral, string, rvalue ]
 
 
@@ -306,21 +305,21 @@ def scalar():           return scalar_name
 def scalar_name():      return alphanum_name, Optional( type_des )
 
 def comptor():          return [ '=', '<>', '<=', '<', '>=', '>']
-def non_quote_char():   return _(r'[^"]')
-def any_char():         return _(r'[^\n]')
+def non_quote_char():   return RegEx(r'[^"]')
+def any_char():         return RegEx(r'[^\n]')
 def numeral():          return [ fractional, integer ]
 def fractional():       return Optional( add_or_sub_tk ), Optional( digit ), '.', ZeroOrMore( digit )
 def integer():          return [ ( signal, OneOrMore( digit ) ),
                                  ( signal, hex_prefix, OneOrMore( hex_digit ) ),
                                  ( signal, oct_prefix, OneOrMore( oct_digit ) ),
                                  ( signal, bin_prefix, OneOrMore( bin_digit ) ) ]
-def digit():            return _(r'[0-9]')
-def hex_prefix():       return _(r'&H')
-def hex_digit():        return _(r'[0-9A-F]')
-def oct_prefix():       return _(r'&O')
-def oct_digit():        return _(r'[0-7]')
-def bin_prefix():       return _(r'&B')
-def bin_digit():        return _(r'[01]')
+def digit():            return RegEx(r'[0-9]')
+def hex_prefix():       return RegEx(r'&H')
+def hex_digit():        return RegEx(r'[0-9A-F]')
+def oct_prefix():       return RegEx(r'&O')
+def oct_digit():        return RegEx(r'[0-7]')
+def bin_prefix():       return RegEx(r'&B')
+def bin_digit():        return RegEx(r'[01]')
 def filepath():         return string, ''
 def string():           return '"', Sequence( ZeroOrMore( non_quote_char ), skipws=False ), '"'
 def opt_stmt_sep():     return Optional( statement_sep )
@@ -328,12 +327,12 @@ def statement_sep():    return [ ( new_lines, ':', new_lines ), OneOrMore( new_l
 def signal():           return Optional( add_or_sub_tk )
 def reserved():         return [ 'And', 'As', 'Imp', 'Eqv', 'Mod', 'Xor', 'Or' ] # 'To' and others?
 # Mimics MSX-BASIC parsing rules by parsing "aimpb" as "A IMP B"
-#def alphanum_name():    return Not( reserved ), _(r'[A-Z]'), ZeroOrMore( Not( reserved ), _(r'[A-Z0-9]') )
-def alphanum_name():    return _(r'[A-Z][_A-Z0-9]*')
-def type_des():         return _(r'[$#!%]')
-def comma():            return _(',')
+#def alphanum_name():    return Not( reserved ), RegEx(r'[A-Z]'), ZeroOrMore( Not( reserved ), RegEx(r'[A-Z0-9]') )
+def alphanum_name():    return RegEx(r'[A-Z][_A-Z0-9]*')
+def type_des():         return RegEx(r'[$#!%]')
+def comma():            return RegEx(',')
 def new_lines():        return ZeroOrMore('\n')
-def new_line():         return '\n'
+def new_line():         return "\n"
 
 
 # Useful token groups

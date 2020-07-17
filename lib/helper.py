@@ -164,7 +164,7 @@ def parse_arg_list(lst, sep=',', nil_element=None, max=None):
     elif item == ',':
         # Last element cannot be empty
         raise MissingOperand()
-    if max < 0:
+    if not max is None and max < 0:
         raise SyntaxError_('too many values (received %s more)' % (-max))
     return tuple(result)
 

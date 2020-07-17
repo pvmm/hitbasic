@@ -185,6 +185,14 @@ class MSXBasicVisitor(StatementVisitor,
         return None
 
 
+    def visit_comma_sep_adrs(self, node, children):
+        return parse_arg_list(children)
+
+
+    def visit_address(self, node, children):
+        return children.pop()
+
+
     def visit_type_des(self, node, children):
         return node.flat_str()
 
@@ -211,6 +219,7 @@ class MSXBasicVisitor(StatementVisitor,
 
 
     def decompose(self, identifier):
+        'Break variable in smaller components and operations, like "Axorb" could become A xor B.'
         known_vars = self.symbol_table.get_hitbasic_vars()
         known_vars.sort()
         var_parser = vars.create_var_parser(known_vars)

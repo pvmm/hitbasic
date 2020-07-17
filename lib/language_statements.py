@@ -15,7 +15,7 @@ ALLOWED_STATEMENTS = [ 'Beep', 'Branch', 'Cls', 'Circle', 'Color', 'Conditional'
 # non-parameterised statements
 SIMPLE_STATEMENTS = [ 'Beep', 'Cls', 'End', 'Return', ('Exit', 'Do') ]
 
-GOTO, GOSUB = 'GOTO', 'GOSUB'
+GOTO, GOSUB = 'Goto', 'Gosub'
 BRANCH_TYPE = [ GOTO, GOSUB ]
 
 INTERNAL, BEGIN_PROGRAM, END_PROGRAM = 0, 1, 2

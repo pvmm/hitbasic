@@ -8,6 +8,11 @@ CASE_IS = 0
 CASE_ELSE = 1
 
 
+# Type of List of elements (list_type)
+REGULAR = 0
+ADDRESSES = 1
+
+
 def register(type_id, type_):
     type_id = type_id.lower()
     globals()['TYPES'][type_id] = type_

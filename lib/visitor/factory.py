@@ -1,6 +1,7 @@
 from ..factory import factory
 from ..exceptions import *
 
+from .. import language_clauses as clauses
 from .. import language_statements as statements
 
 
@@ -30,9 +31,9 @@ class FactoryProxy:
         return factory.create_literal(value, type, node=node, **kwargs)
 
 
-    def create_sep_list(self, *args, sep=',', **kwargs):
+    def create_sep_list(self, *args, sep=',', list_type=clauses.REGULAR, **kwargs):
         node = kwargs.pop('node', self.current_node)
-        return factory.create_sep_list(*args, sep=sep, node=node, **kwargs)
+        return factory.create_sep_list(*args, sep=sep, list_type=list_type, node=node, **kwargs)
 
 
     def create_clause(self, clause, **kwargs):

@@ -23,7 +23,7 @@ Double = None
 Single = None
 Numeric = (None, None, None, None)
 Point = None # graphics coordinate system: <Step>-(x, y)
-Token = None # token parameter when used as graphic operator or shape: Pset, Preset, Xor, Or, And, B, BF, etc.
+Token = None # token parameter when used as graphic operator or shape: Pset, Preset, Xor, Or, And, B, BF, L, etc.
 DEFAULT_TYPE = Double
 
 TYPES = { 'Nil': Nil, 'String' : None, 'Integer' : None, 'Double' : None, 'Single' : None, 'Boolean' : Boolean,
@@ -34,8 +34,9 @@ NAME_MAPPING = { '$' : 'String', '%' : 'Integer', '#' : 'Double', '!' : 'Single'
 CHAR_MAPPING = { 'String' : '$', 'Integer' : '%', 'Double' : '#', 'Single' : '!' }
 NUMERIC_CLASSES = { 'Boolean': 0, 'Integer': 1, 'Single': 2, 'Double': 3 }
 
+# Built-In attributes
 READ_ONLY = 0
-WRITE_ONLY = 1 # Not tecnically a function or variable
+WRITE_ONLY = 1 # technically not a function/variable, but an instruction
 
 
 def numeric_classes():

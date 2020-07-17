@@ -81,7 +81,12 @@ class StatementVisitor:
 
     def visit_branch_stmt(self, node, children):
         stmt, label = children
-        return self.create_statement(stmt, params='@%s' % label)
+        return self.create_statement(stmt, params=label)
+
+
+    def visit_address(self, node, children):
+        address, = children
+        return self.create_clause('label', address)
 
 
     def visit_draw_stmt(self, node, children):
@@ -198,13 +203,23 @@ class StatementVisitor:
 
     def visit_on_branch_stmt(self, node, children):
         # ON <ConditionExpression> [GOTO|GOSUB] <LineNumber>,<LineNumber>,...
-        expr, branch_type, *branch_list = children
-        return self.create_statement('On', params=(expr, branch_type, self.create_sep_list(*branch_list)), sep=' ')
+        expr, branch_type, branch_list = children
+        return self.create_statement('On', sep=' ',
+                                     params=(expr, self.create_statement('Branch', target=branch_list,
+                                                                         branch_type=branch_type)))
 
 
     def visit_on_interval_stmt(self, node, children):
         expr, dst = children
-        return self.create_statement('On', params=(self.create_attribution('Interval', expr), 'Gosub', dst), sep=' ')
+        return self.create_statement('On', sep=' ',
+                                     params=(self.create_attribution('Interval', expr),
+                                             self.create_statement('Branch', target=dst,
+                                                                   branch_type=statements.GOSUB)))
+
+
+    def visit_comma_sep_addrs(self, node, children):
+        addresses = parse_arg_list(children, nil_element=self.create_nil())
+        return self.create_sep_list(*addresses, list_type=clauses.ADDRESSES)
 
 
     def visit_on_sprite_stmt(self, node, children):
