@@ -18,8 +18,14 @@ class Clause:
         return ClauseComponents.from_arg_list(*previous, *values, *next).translate()
 
 
+    def __str__(self):
+        p.reset()
+        p(', '.join([str(value) for value in self.values]))
+        return '(%s)' % p.getvalue()
+
+
     def __repr__(self):
-        return 'Tuple'
+        return 'Tuple%s' % str(self)
 
 
     def __eq__(self, other):

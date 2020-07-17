@@ -238,16 +238,13 @@ class SurrogateFactory:
         return statement_type(rule, position, False, **kwargs)
 
 
-    # def create_attribution(self, lvalue, rvalue, **kwargs):
-    #     assert lvalue != None
-    #     assert isinstance(lvalue, self.clause_type['reference'])
-    #     assert rvalue != None
-    #     kwargs['tokens'] = 'Let'
-    #     node = kwargs.pop('node', None)
-    #     rule = kwargs.pop('rule', NO_RULE)
-    #     position = kwargs.pop('pos', node.position if node else None)
-    #     return self.statement_type['Default'](rule, position, False, params=(lvalue, '=', rvalue), sep=' ',
-    #                                           **kwargs)
+    def create_attribution(self, lvalue, rvalue, **kwargs):
+        assert lvalue != None
+        assert rvalue != None
+        node = kwargs.pop('node', None)
+        rule = kwargs.pop('rule', NO_RULE)
+        position = kwargs.pop('pos', node.position if node else None)
+        return self.clause_type['attribution'](rule, position, False, lvalue, rvalue, **kwargs)
 
 
     def create_label(self, identifier, type=statements.INTERNAL, line_number=None, **kwargs):

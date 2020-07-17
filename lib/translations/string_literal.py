@@ -16,8 +16,11 @@ class Type:
         return '"%s"' % self.value
 
 
+    def __str__(self):
+        return self.value
+
+
     def __add__(self, other):
         with suppress(AttributeError):
             return self.__class__(self.value + other.value, position=self.position, position_end=self.position_end)
         return self.__class__(self.value + other, position=self.position, position_end=self.position_end)
-

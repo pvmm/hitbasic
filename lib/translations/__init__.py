@@ -180,6 +180,7 @@ class CodeComponents(Sequence_):
         output = CodeComponents()
         old_result = None
         for statement in self:
+            result = statement.translate()
             try:
                 result = statement.translate()
             except TypeError:

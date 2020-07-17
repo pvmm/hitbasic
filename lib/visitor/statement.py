@@ -42,7 +42,7 @@ class StatementVisitor:
         for p_var, param in zip(ref.value.params, ref.params):
             tmp_var = self.create_reference(p_var, node=param)
             assert isinstance(tmp_var, factory.clause_type['reference'])
-            code_block.append(self.create_statement('Let', params=(tmp_var, '=', param), sep=None))
+            code_block.append(self.create_statement('Let', params=self.create_attribution(tmp_var, param)))
         target = self.symbol_table.check_label(ref.value.identifier)
         assert target is not None
         target_label = self.create_label(target)
@@ -51,7 +51,7 @@ class StatementVisitor:
         return_var = self.symbol_table.get_hitbasic_var(ref.value.short())
         assert return_var is not None
         assert isinstance(var, factory.clause_type['reference'])
-        code_block.append(self.create_statement('Let', params=(var, '=', self.create_reference(return_var)), sep=None))
+        code_block.append(self.create_statement('Let', params=self.create_attribution(var, self.create_reference(return_var))))
         return self.create_statement('Multiple', code_block=code_block)
 
 
@@ -70,7 +70,7 @@ class StatementVisitor:
         if types.compatible_types(var.type, expr.type):
             if type(expr.value) != types.Function:
                 assert isinstance(var, factory.clause_type['reference'])
-                return self.create_statement('Let', params=(var, '=', expr), sep=None)
+                return self.create_statement('Let', params=self.create_attribution(var, expr))
             else:
                 # extra glue code necessary if rvalue is a function
                 return self.write_vfc_subroutine(var=var, ref=expr) # caller node
@@ -117,7 +117,7 @@ class StatementVisitor:
         # COLOR = (<Color>,<RedLuminance>,<GreenLuminance>,<BlueLuminance>)
         params = parse_comma_list(children, max=4)
         colordef = self.create_tuple(*params, use_parentheses=True)
-        return self.create_statement('Let', params=('Color', '=', colordef), sep=None)
+        return self.create_statement('', params=self.create_attribution('Color', colordef))
 
 
     def visit_exit_stmt(self, node, children):
@@ -194,6 +194,21 @@ class StatementVisitor:
     def visit_open_stmt_rnd(self, node, children):
         filepath, fileno, *len = children
         return self.create_statement('Open', params=(filepath, 'As', '#%d' % fileno.value, ('Len=%d' % len[0].value) if len else None), sep=' ')
+
+
+    def visit_on_branch_stmt(self, node, children):
+        # ON <ConditionExpression> [GOTO|GOSUB] <LineNumber>,<LineNumber>,...
+        expr, branch_type, *branch_list = children
+        return self.create_statement('On', params=(expr, branch_type, self.create_sep_list(*branch_list)), sep=' ')
+
+
+    def visit_on_interval_stmt(self, node, children):
+        expr, dst = children
+        return self.create_statement('On', params=(self.create_attribution('Interval', expr), 'Gosub', dst), sep=' ')
+
+
+    def visit_on_sprite_stmt(self, node, children):
+        pass
 
 
     def visit_paint_stmt(self, node, children):
@@ -335,4 +350,9 @@ class StatementVisitor:
     def visit_var_defn(self, node, children):
         var, expr = children
         assert isinstance(var, factory.clause_type['reference'])
-        return self.create_statement('Let', params=(var, '=', expr), sep=None)
+        return self.create_statement('Let', params=self.create_attribution(var, expr))
+
+
+    def visit_switcher_stmt(self, node, children):
+        stmt, *params = children
+        return self.create_statement(stmt, params=params)

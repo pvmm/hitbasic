@@ -22,6 +22,10 @@ class Type:
         return str(self.value)
 
 
+    def __str__(self):
+        return str(self.value)
+
+
     def __lt__(self, other):
         with suppress(AttributeError):
             return self.value < other.value

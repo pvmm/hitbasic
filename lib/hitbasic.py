@@ -24,6 +24,7 @@ def statement():        return [ function_stmt,
                                  ( 'Def', range_type_decl ),
                                  input_stmt,
                                  play_stmt,
+                                 switcher_stmt,
                                  paramless_stmt,
                                  #multi_attr_stmt,
                                  attr_stmt ]
@@ -160,7 +161,7 @@ def print_sep():        return [ ',', ';' ]
 # branch instructions
 def branch_stmts():     return [ on_sprite_stmt, on_interval_stmt, on_branch_stmt, branch_stmt, return_stmt ]
 def on_sprite_stmt():   return 'On', 'Sprite', 'Gosub', numeral
-def on_interval_stmt(): return 'On', ( interval_tk, eq_tk, expr ), 'Gosub', comma_sep_adrs
+def on_interval_stmt(): return 'On', ( 'Interval', '=', expr ), 'Gosub', comma_sep_adrs
 def on_branch_stmt():   return 'On', expr, branch_tk, comma_sep_adrs
 def branch_stmt():      return branch_tk, [ label_clause, numeral ]
 def return_stmt():      return 'Return', Optional([ label_clause, numeral ])
@@ -180,7 +181,7 @@ def label_clause():     return _(r'[_A-Z][_A-Z0-9]*')
 
 # branch related statements
 def switcher_stmt():    return switchers_tk, switch_tk
-def swichers_tk():      return [ interval_tk, sprite_tk ]
+def switchers_tk():     return [ interval_tk, sprite_tk ]
 def switch_tk():        return [ 'On', 'Off', 'Stop' ]
 def interval_tk():      return [ 'Interval' ]
 def sprite_tk():        return [ 'Sprite' ]
