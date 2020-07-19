@@ -10,12 +10,12 @@ from . import language_types as types
 # what currently works
 ALLOWED_STATEMENTS = [ 'Beep', 'Branch', 'Cls', 'Circle', 'Color', 'Conditional', 'Default', 'Dim', 'Do_Until',
                        'Do_While', 'Draw', 'End', ('Exit', 'Do'), 'For_Loop', 'Goto', 'Gosub', 'Input', 'Label',
-                       'Let', 'Line', 'Loop_Until', 'Loop_While', 'Multiple', 'Next', 'Paint', 'Play', 'Preset',
-                       'Print', 'Pset', 'Put Sprite', 'Return', 'Screen', 'Select', '?' ]
+                       'Let', 'Line', 'Loop_Until', 'Loop_While', 'Multiple', 'Next', 'Open', 'Paint', 'Play',
+                       'Preset', 'Print', 'Pset', 'Put Sprite', 'Return', 'Screen', 'Select', '?' ]
 # non-parameterised statements
 SIMPLE_STATEMENTS = [ 'Beep', 'Cls', 'End', 'Return', ('Exit', 'Do') ]
 
-GOTO, GOSUB = 'GOTO', 'GOSUB'
+GOTO, GOSUB = 'Goto', 'Gosub'
 BRANCH_TYPE = [ GOTO, GOSUB ]
 
 INTERNAL, BEGIN_PROGRAM, END_PROGRAM = 0, 1, 2

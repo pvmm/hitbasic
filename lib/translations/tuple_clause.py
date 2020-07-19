@@ -14,16 +14,18 @@ class Clause:
 
     def translate(self):
         previous, next = (['('], [')']) if self.use_parentheses else ([], [])
-        values = interleave(self.values, delims=(' ', ','))
+        values = interleave(self.values, delims=(',', ' '))
         return ClauseComponents.from_arg_list(*previous, *values, *next).translate()
 
 
     def __str__(self):
-        return '(%s)' % ', '.join(self.values)
+        p.reset()
+        p(', '.join([str(value) for value in self.values]))
+        return '(%s)' % p.getvalue()
 
 
     def __repr__(self):
-        return 'Tuple(%s)' % str(self)
+        return 'Tuple%s' % str(self)
 
 
     def __eq__(self, other):

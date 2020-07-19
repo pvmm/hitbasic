@@ -17,6 +17,10 @@ from .. import language_statements as statements
 
 class StatementVisitor:
 
+    def check_arch(self, value):
+        if self.basic_ver < value: raise WrongBASICVersion(msx.VERSION_STR[value], msx.VERSION_STR[self.arch])
+
+
     def check_statement_params(self, stmt, params):
         'check if statement expected parameters match user input'
         conv_types = {'i': 'Integer', 'o': 'Operator', 'p': 'Point', 's': 'String'}
@@ -38,7 +42,7 @@ class StatementVisitor:
         for p_var, param in zip(ref.value.params, ref.params):
             tmp_var = self.create_reference(p_var, node=param)
             assert isinstance(tmp_var, factory.clause_type['reference'])
-            code_block.append(self.create_statement('Let', params=(tmp_var, '=', param), sep=None))
+            code_block.append(self.create_statement('Let', params=self.create_attribution(tmp_var, param)))
         target = self.symbol_table.check_label(ref.value.identifier)
         assert target is not None
         target_label = self.create_label(target)
@@ -47,7 +51,7 @@ class StatementVisitor:
         return_var = self.symbol_table.get_hitbasic_var(ref.value.short())
         assert return_var is not None
         assert isinstance(var, factory.clause_type['reference'])
-        code_block.append(self.create_statement('Let', params=(var, '=', self.create_reference(return_var)), sep=None))
+        code_block.append(self.create_statement('Let', params=self.create_attribution(var, self.create_reference(return_var))))
         return self.create_statement('Multiple', code_block=code_block)
 
 
@@ -66,7 +70,7 @@ class StatementVisitor:
         if types.compatible_types(var.type, expr.type):
             if type(expr.value) != types.Function:
                 assert isinstance(var, factory.clause_type['reference'])
-                return self.create_statement('Let', params=(var, '=', expr), sep=None)
+                return self.create_statement('Let', params=self.create_attribution(var, expr))
             else:
                 # extra glue code necessary if rvalue is a function
                 return self.write_vfc_subroutine(var=var, ref=expr) # caller node
@@ -77,7 +81,12 @@ class StatementVisitor:
 
     def visit_branch_stmt(self, node, children):
         stmt, label = children
-        return self.create_statement(stmt, params='@%s' % label)
+        return self.create_statement(stmt, params=label)
+
+
+    def visit_address(self, node, children):
+        address, = children
+        return self.create_clause('label', address)
 
 
     def visit_draw_stmt(self, node, children):
@@ -113,7 +122,7 @@ class StatementVisitor:
         # COLOR = (<Color>,<RedLuminance>,<GreenLuminance>,<BlueLuminance>)
         params = parse_comma_list(children, max=4)
         colordef = self.create_tuple(*params, use_parentheses=True)
-        return self.create_statement('Let', params=('Color', '=', colordef), sep=None)
+        return self.create_statement('', params=self.create_attribution('Color', colordef))
 
 
     def visit_exit_stmt(self, node, children):
@@ -182,6 +191,41 @@ class StatementVisitor:
         return result
 
 
+    def visit_open_stmt(self, node, children):
+        filepath, direction, fileno = children
+        return self.create_statement('Open', params=(filepath, 'For', direction, 'As', '#%d' % fileno.value), sep=' ')
+
+
+    def visit_open_stmt_rnd(self, node, children):
+        filepath, fileno, *len = children
+        return self.create_statement('Open', params=(filepath, 'As', '#%d' % fileno.value, ('Len=%d' % len[0].value) if len else None), sep=' ')
+
+
+    def visit_on_branch_stmt(self, node, children):
+        # ON <ConditionExpression> [GOTO|GOSUB] <LineNumber>,<LineNumber>,...
+        expr, branch_type, branch_list = children
+        return self.create_statement('On', sep=' ',
+                                     params=(expr, self.create_statement('Branch', target=branch_list,
+                                                                         branch_type=branch_type)))
+
+
+    def visit_on_interval_stmt(self, node, children):
+        expr, dst = children
+        return self.create_statement('On', sep=' ',
+                                     params=(self.create_attribution('Interval', expr),
+                                             self.create_statement('Branch', target=dst,
+                                                                   branch_type=statements.GOSUB)))
+
+
+    def visit_comma_sep_addrs(self, node, children):
+        addresses = parse_arg_list(children, nil_element=self.create_nil())
+        return self.create_sep_list(*addresses, list_type=clauses.ADDRESSES)
+
+
+    def visit_on_sprite_stmt(self, node, children):
+        pass
+
+
     def visit_paint_stmt(self, node, children):
         try:
             src, args = children
@@ -247,6 +291,12 @@ class StatementVisitor:
         return parse_arg_list(children[1:], nil_element=self.create_nil(), max=2)
 
 
+    def visit_put_kanji_stmt(self, node, children):
+        # PUT KANJI STEP(<X>,<Y>),<JIScode>,<Color>,<Operator>,<Mode>
+        self.check_arch(msx.MSX_BASIC_2_0)
+        raise NotImplemented()
+
+
     def visit_put_sprite_stmt(self, node, children):
         # PUT SPRITE <sprite number>,[STEP](<x>,<y>),[<color>][,<pattern number>]
         sp_num, comma, dst, args = children
@@ -273,6 +323,12 @@ class StatementVisitor:
             if type(param) != types.Nil and param.is_constexp and not param.literal_value() in attr:
                 raise self.create_exception(IllegalFunctionCall, pos=param.position)
         return self.create_statement('Screen', params=params)
+
+
+    def visit_set_page_stmt(self, node, children):
+        self.check_arch(msx.MSX_BASIC_2_0)
+        params = parse_arg_list(children, nil_element=self.create_nil(), max=2)
+        return self.create_statement('Set Page', params=params)
 
 
     def visit_g_ostep_point(self, node, children):
@@ -309,4 +365,9 @@ class StatementVisitor:
     def visit_var_defn(self, node, children):
         var, expr = children
         assert isinstance(var, factory.clause_type['reference'])
-        return self.create_statement('Let', params=(var, '=', expr), sep=None)
+        return self.create_statement('Let', params=self.create_attribution(var, expr))
+
+
+    def visit_switcher_stmt(self, node, children):
+        stmt, *params = children
+        return self.create_statement(stmt, params=params)

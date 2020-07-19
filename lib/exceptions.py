@@ -181,3 +181,13 @@ class AmbiguousCode(TranslationError):
     def __init__(self, expr1=None, expr2=None, filename=None, context=None, pos=None):
         super().__init__(filename, context, pos)
         self.message = 'expression could be interpreted either as variable "%s" or as expression "%s"' % (expr1, expr2)
+
+
+class WrongBASICVersion(TranslationError):
+    'there is more than one way of parsing the source code'
+    def __init__(self, ver1, ver2, filename=None, context=None, pos=None):
+        super().__init__(filename, context, pos)
+        if ver2:
+            self.message = 'expected %s instruction, but got %s instruction' % (expr1, expr2)
+        elif ver1:
+            self.message = 'expected %s instruction' % (expr1, expr2)

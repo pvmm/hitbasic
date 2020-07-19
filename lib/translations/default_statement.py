@@ -33,13 +33,18 @@ class Statement:
 
 
     def translate(self):
+        debug('Begin %s' % self)
         debug('self.params =', self.params)
-        statement = StatementComponents(' '.join([token.upper() for token in self.tokens]))
-        debug('statement =', statement)
+        instruction = ' '.join([token.upper() for token in self.tokens])
+        debug('instruction =', instruction)
+        if instruction: statement = StatementComponents(instruction)
+        else: statement = StatementComponents()
         params = ClauseComponents(self.params)
         debug('params =', params)
         if self.sep: params = interleave(params, self.sep)
         debug('interleave result =', params)
-        if len(statement) > 0 and params: statement.add(' ', *params)
+        if instruction and params: statement.add(' ', *params)
+        elif params: statement.add(*params)
         debug('statement =', statement)
+        debug('End %s' % self)
         return statement.translate()

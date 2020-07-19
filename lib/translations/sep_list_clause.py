@@ -1,4 +1,6 @@
 from . import ClauseComponents
+from .. import language_clauses as clauses
+from .. import language_types as types
 
 from ..hitbasic import Surrogate
 from ..exceptions import *
@@ -7,16 +9,20 @@ from ..helper import *
 
 class Clause:
 
-    def __init__(self, rule, position, error, *args, sep=',', **kwargs):
-        Surrogate.__init__(self, rule, position, error, args=args, sep=sep, **kwargs)
+    def __init__(self, rule, position, error, *args, sep=',', list_type=clauses.REGULAR, **kwargs):
+        Surrogate.__init__(self, rule, position, error, args=args, sep=sep, list_type=list_type, **kwargs)
 
 
     def translate(self):
+        result = ClauseComponents()
         if self.args:
-            lst = interleave(self.args, delims=(self.sep, ' '))
-            lst = [s.upper() if type(s) == str else s for s in lst]
-            return ClauseComponents(lst).translate()
-        return ClauseComponents()
+            if self.list_type == clauses.REGULAR:
+                args = [s.upper() if type(s) == str else s.translate() for s in self.args]
+            else:
+                args = [('@%s' % s) if type(s) == str else s.translate() for s in self.args]
+            args = interleave(args, delims=(self.sep, ' '))
+            result.add(*args)
+        return result.translate()
 
 
     def __repr__(self):

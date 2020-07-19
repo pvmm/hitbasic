@@ -62,12 +62,18 @@ class ClauseComponents(Sequence_):
     def translate(self):
         output = ClauseComponents()
         for item in self:
-            if isinstance(item, (str, int, float, bool)):
+            if isinstance(item, str):
+                output.append(item if item.startswith('@') else item.upper())
+            elif type(item) == tokens.token_type:
+                output.extend([s.upper() for s in item.token])
+            elif isinstance(item, (int, float, bool)):
                 output.append(item)
             elif type(item) in clauses.TYPES.values():
                 output.extend(item.translate())
             elif type(item) in types.TYPES.values():
                 output.append(item.translate())
+            # elif type(item) in types.Token:
+            #     output.extend(item.upper())
             elif isinstance(item, ClauseComponents):
                 output.extend(item.translate())
             elif isinstance(item, (StatementComponents, CodeComponents)):
@@ -106,30 +112,16 @@ class StatementComponents(Sequence_):
 
 
     def translate(self):
-        output = ClauseComponents()
-        for item in self:
-            if isinstance(item, (str, int, float, bool)):
-                output.append(item)
-            elif type(item) in clauses.TYPES.values():
-                output.extend(item.translate())
-            elif type(item) in types.TYPE.values():
-                output.extend(item.translate())
-            elif isinstance(item, ClauseComponents):
-                output.extend(item.translate())
-            elif isinstance(item, (StatementComponents, CodeComponents)):
-                raise TypeMismatch('StatementComponents', type(item).__name__)
-        return output
-
-
-    def translate(self):
         output = StatementComponents()
         for item in self:
-            if isinstance(item, (str, int, float, bool)):
+            if isinstance(item, CodeComponents):
+                raise TypeMismatch('StatementComponents', type(item).__name__)
+            elif isinstance(item, str):
+                output.append(item if item.startswith('@') else item.upper())
+            elif isinstance(item, (int, float, bool)):
                 output.append(item)
             elif isinstance(item, ClauseComponents):
                 self.extend(item.translate())
-            elif isinstance(item, CodeComponents):
-                raise TypeMismatch('StatementComponents', type(item).__name__)
             elif type(item) in types.TYPES.values():
                 output.append(item.translate())
             elif type(item) in clauses.TYPES.values():
@@ -178,6 +170,7 @@ class CodeComponents(Sequence_):
         output = CodeComponents()
         old_result = None
         for statement in self:
+            result = statement.translate()
             try:
                 result = statement.translate()
             except TypeError:
