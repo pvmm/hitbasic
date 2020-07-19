@@ -219,12 +219,11 @@ class SurrogateFactory:
         return self.clause_type['box'](rule, position, False, *points, **kwargs)
 
 
-    def create_statement(self, tokens, **kwargs):
-        assert tokens != None
+    def create_statement(self, *tokens, **kwargs):
         real_tokens = make_tuple(tokens)
         statement = ' '.join([token.title() for token in real_tokens])
-        # if not tokens in statements.ALLOWED_STATEMENTS:
-        #     raise NotImplementedError("statement '%s' is not implemented" % statement)
+        if not statement in statements.ALLOWED_STATEMENTS:
+            raise NotImplementedError("statement '%s' is not implemented" % statement)
         node = kwargs.pop('node', None)
         rule = kwargs.pop('rule', NO_RULE)
         position = kwargs.pop('pos', node.position if node else None)

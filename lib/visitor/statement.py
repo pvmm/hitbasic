@@ -122,7 +122,7 @@ class StatementVisitor:
         # COLOR = (<Color>,<RedLuminance>,<GreenLuminance>,<BlueLuminance>)
         params = parse_comma_list(children, max=4)
         colordef = self.create_tuple(*params, use_parentheses=True)
-        return self.create_statement('', params=self.create_attribution('Color', colordef))
+        return self.create_statement(params=self.create_attribution('Color', colordef))
 
 
     def visit_exit_stmt(self, node, children):

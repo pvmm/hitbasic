@@ -33,7 +33,7 @@ class TestGrammar(unittest.TestCase):
     def test_empty(self):
         'A really empty string this time. Without comments or spaces.'
         result = '[%s]' % self.parse('')
-        assert result == '[ | ]'
+        assert result == '[]', 'got %s instead' % result
 
 
     def test_no_match_in_files(self):
