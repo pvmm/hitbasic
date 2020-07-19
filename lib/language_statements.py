@@ -8,10 +8,10 @@ from . import language_types as types
 
 
 # what currently works
-ALLOWED_STATEMENTS = [ 'Beep', 'Branch', 'Cls', 'Circle', 'Color', 'Conditional', 'Default', 'Dim', 'Do_Until',
-                       'Do_While', 'Draw', 'End', ('Exit', 'Do'), 'For_Loop', 'Goto', 'Gosub', 'Input', 'Label',
-                       'Let', 'Line', 'Loop_Until', 'Loop_While', 'Multiple', 'Next', 'Open', 'Paint', 'Play',
-                       'Preset', 'Print', 'Pset', 'Put Sprite', 'Return', 'Screen', 'Select', '?' ]
+ALLOWED_STATEMENTS = [ '', 'Beep', 'Branch', 'Cls', 'Circle', 'Color', 'Conditional', 'Default', 'Dim', 'Do Until',
+                       'Do While', 'Draw', 'End', 'Exit Do', 'For', 'Goto', 'Gosub', 'Input', 'Interval', 'Label',
+                       'Let', 'Line', 'Loop Until', 'Loop While', 'Multiple', 'Next', 'On', 'Open', 'Paint', 'Play',
+                       'Preset', 'Print', 'Pset', 'Put Sprite', 'Return', 'Screen', 'Select', '?', 'Set Page' ]
 # non-parameterised statements
 SIMPLE_STATEMENTS = [ 'Beep', 'Cls', 'End', 'Return', ('Exit', 'Do') ]
 

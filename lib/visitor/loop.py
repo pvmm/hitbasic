@@ -35,7 +35,7 @@ class LoopVisitor:
         self.symbol_table.store_label(end_label)
         exit_branch = self.create_statement('Branch', target=end_label, branch_type=statements.GOTO)
 
-        return self.create_statement('Do_While', expression=expr, code_block=flatten(code_block), start_label=
+        return self.create_statement('Do', 'While', expression=expr, code_block=flatten(code_block), start_label=
                 start_label, end_label=end_label, exit_branch=exit_branch, continue_branch=continue_branch)
 
 
@@ -50,7 +50,7 @@ class LoopVisitor:
         self.symbol_table.store_label(end_label)
         exit_branch = self.create_statement('Branch', target=end_label, branch_type=statements.GOTO)
 
-        return self.create_statement('Do_Until', expression=expr, code_block=flatten(code_block), start_label=
+        return self.create_statement('Do', 'Until', expression=expr, code_block=flatten(code_block), start_label=
                 start_label, end_label=end_label, exit_branch=exit_branch, continue_branch=continue_branch)
 
 
@@ -60,7 +60,7 @@ class LoopVisitor:
         self.symbol_table.store_label(do_loop_start)
         loop_branch = self.create_statement('Branch', target=do_loop_start, branch_type=statements.GOTO)
 
-        return self.create_statement('Loop_While', expression=expr, code_block=flatten(code_block), do_loop_start=
+        return self.create_statement('Loop', 'While', expression=expr, code_block=flatten(code_block), do_loop_start=
                 do_loop_start, branch=loop_branch)
 
 
@@ -70,7 +70,7 @@ class LoopVisitor:
         self.symbol_table.store_label(do_loop_start)
         loop_branch = self.create_statement('Branch', target=do_loop_start, branch_type=statements.GOTO)
 
-        return self.create_statement('Loop_Until', expression=expr, code_block=flatten(code_block), do_loop_start=
+        return self.create_statement('Loop', 'Until', expression=expr, code_block=flatten(code_block), do_loop_start=
                 do_loop_start, branch=loop_branch)
 
 
@@ -106,7 +106,7 @@ class LoopVisitor:
 
     def visit_do_stmt(self, node, children):
         if len(children) == 0:
-            return [self.create_statement(('Exit', 'Do'))]
+            return [self.create_statement('Exit', 'Do')]
         return children[0]
 
 
@@ -114,7 +114,7 @@ class LoopVisitor:
         var, (begin, end, step) = children
         assert var.value != None
         self.save_loop(var)
-        return self.create_statement('For_Loop', var=var, begin=begin, end=end, step=step)
+        return self.create_statement('For', var=var, begin=begin, end=end, step=step)
 
 
     def visit_next_stmt(self, node, children):

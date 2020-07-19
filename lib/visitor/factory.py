@@ -99,9 +99,9 @@ class FactoryProxy:
         return factory.create_box(*points, node=node, **kwargs)
 
 
-    def create_statement(self, tokens, **kwargs):
+    def create_statement(self, *tokens, **kwargs):
         node = kwargs.pop('node', self.current_node)
-        return factory.create_statement(tokens, node=node, **kwargs)
+        return factory.create_statement(*tokens, node=node, **kwargs)
 
 
     def create_attribution(self, lvalue, rvalue, **kwargs):
