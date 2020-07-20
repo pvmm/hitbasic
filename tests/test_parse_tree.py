@@ -48,22 +48,6 @@ class TestParseTree(unittest.TestCase):
         assert code == expected, 'got "%s" as result' % code
 
 
-    def test_visitor1(self):
-        text = """Print 1:Print 2"""
-        symbol_table, code = self.visit(text)
-        expected = [('@BeginProgram',), ('PRINT', ' ', '1'), ('PRINT', ' ', '2'), ('@EndProgram',), ('END',)]
-        assert code == expected, 'got "%s" as result' % code
-
-
-    def test_visitor15(self):
-        source_file = './tests/samples/nodes/15_select_case.asc'
-        symbol_table, code = self.visit_file(source_file)
-        code = str().join(str(code).replace("' '", '␢').split())
-        with open(path.splitext(source_file)[0] + '.objdump', 'r') as obj_file:
-            expected = str().join(obj_file.read().replace("' '", '␢').split())
-            assert expected == code, 'expected: """\n%s\n""" in file "%s", got """\n%s\n""" instead' % (expected, source_file, code) # looking for comparison errors
-
-
     def test_parse_tree_in_files(self):
         'try to parse all .asc files in the nodes directory'
         test_files = glob(path.join('tests', 'samples', 'nodes', '*.asc'))

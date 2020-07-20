@@ -58,7 +58,7 @@ class SurrogateFactory:
             clauses.register(clause, self.clause_type[clause])
 
         self.initialisation_type = type('Initialisation', (Surrogate,), {})
-        types.register('Point', self.clause_type['point']) # expose point type to language_statements module
+        clauses.register('Point', self.clause_type['point']) # expose point type to language_statements module
 
         for module_name, module in dict(filter(lambda i: i[0].endswith('_statement'), self.module.items())).items():
             statement = module_name.replace('_statement', '')

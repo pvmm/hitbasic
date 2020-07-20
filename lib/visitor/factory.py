@@ -106,7 +106,7 @@ class FactoryProxy:
 
     def create_attribution(self, lvalue, rvalue, **kwargs):
         node = kwargs.pop('node', self.current_node)
-        return factory.create_statement('Let', params=(lvalue, '=', rvalue), node=node, **kwargs)
+        return factory.create_attribution(lvalue, rvalue, node=node, **kwargs)
 
 
     def create_label(self, identifier, type=statements.INTERNAL, line_number=None, **kwargs):

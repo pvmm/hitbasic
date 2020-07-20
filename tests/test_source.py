@@ -54,4 +54,4 @@ class TestSource(unittest.TestCase):
                     assert source == result, 'expected: """\n%s\n""" in file "%s", got """\n%s\n""" instead' % (result, source_file, source) # looking for comparison errors
             except FileNotFoundError as e:
                 with open(path.splitext(source_file)[0] + '.result.asc', 'w') as obj_file:
-                    print(source, file=obj_file)
+                    print(source, file=obj_file, end='')
