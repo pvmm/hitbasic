@@ -1,0 +1,1 @@
+[('@BeginProgram',),('DIM',␢,'A%','(',0,')'),('LET',␢,'A%','(',0,')',␢,'=',␢,'10'),('@DoLoopStart0',),('IF',␢,'NOT','(','A%','(','0',')',␢,'<>',␢,'10',')',␢,'THEN',␢,'GOTO',␢,'@DoLoopEnd0'),('PRINT',␢,'41'),('EXIT','DO'),('PRINT',␢,'42'),('END',),('GOTO',␢,'@DoLoopStart0'),('@DoLoopEnd0',),('@EndProgram',),('END',)]

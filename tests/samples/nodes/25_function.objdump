@@ -1,0 +1,1 @@
+[('@BeginProgram',),('LET',␢,'L$',␢,'=',␢,'"PT"'),('LET',␢,'L%',␢,'=',␢,'1'),('GOSUB',␢,'@wordYear2()'),('LET',␢,'OS$',␢,'=',␢,'WY$'),('@EndProgram',),('END',),('@wordYear2()',),('PRINT',␢,'1',␢,'*',␢,'2'),('IF',␢,'NOT',␢,'(','L$',␢,'=',␢,'"PT"',')',␢,'THEN',␢,'GOTO',␢,'@EndIf0','\n'),('LET',␢,'WY$',␢,'=',␢,'"ano"'),('RETURN',),('@EndIf0',),('LET',␢,'WY$',␢,'=',␢,'"year"')]
