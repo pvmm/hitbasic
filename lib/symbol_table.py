@@ -1,5 +1,6 @@
+import random
+
 from contextlib import suppress
-from random import randint
 
 from . import msx
 from . import language_types as types
@@ -22,6 +23,7 @@ class SymbolTable(dict):
                 '_labels': {},
                 '_prefix_counters': {}
         }
+        random.seed(1)
 
 
     def predefined_identifiers(self):
@@ -222,7 +224,7 @@ class SymbolTable(dict):
 
     def register_variable(self, hbid=None, basic_id=None, ranges=(), init_value=None, type=None, node=None, context='_global'):
         if hbid == None:
-            value = randint(10, 960)
+            value = random.randint(10, 960)
             if value > 35 and value < 360: value += 360
             hbid = self.base36(value)
             if type == None:

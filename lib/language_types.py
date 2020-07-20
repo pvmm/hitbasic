@@ -22,13 +22,12 @@ Integer = None
 Double = None
 Single = None
 Numeric = (None, None, None, None)
-Point = None # graphics coordinate system: <Step>-(x, y)
-Token = None # token parameter when used as graphic operator or shape: Pset, Preset, Xor, Or, And, B, BF, L, etc.
+Token = None # token when used as parameter as in graphic operations: Pset, Preset, Xor, Or, And, B, BF, L, etc.
 DEFAULT_TYPE = Double
 
 TYPES = { 'Nil': Nil, 'String' : None, 'Integer' : None, 'Double' : None, 'Single' : None, 'Boolean' : Boolean,
-          'Point': None, 'Token': None, 'Any': None }
-ALLOWED_TYPE_NAMES = [ 'Nil', 'String', 'Integer', 'Double', 'Single', 'Point', 'Token' ]
+          'Token': None, 'Any': None }
+ALLOWED_TYPE_NAMES = [ 'Nil', 'String', 'Integer', 'Double', 'Single', 'Token' ]
 TYPE_CHARS = [ '$', '%', '#', '!' ]
 NAME_MAPPING = { '$' : 'String', '%' : 'Integer', '#' : 'Double', '!' : 'Single' }
 CHAR_MAPPING = { 'String' : '$', 'Integer' : '%', 'Double' : '#', 'Single' : '!' }
@@ -60,7 +59,7 @@ def register(type_name, type_):
     'register language types "globally"'
     assert type(type_name) == str and type_ != None
     type_name = type_name.title()
-    if type_name in ['String', 'Integer', 'Double', 'Single', 'Point']:
+    if type_name in ['String', 'Integer', 'Double', 'Single']:
         globals()[type_name] = type_
         globals()['TYPES'][type_name] = type_
     if type_name == 'Double':

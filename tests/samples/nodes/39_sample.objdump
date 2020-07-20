@@ -1,0 +1,1 @@
+[('@BeginProgram',),('@Somewhere1',),('LET',␢,'A%',␢,'=',␢,'10'),('@Somewhere2',),('ON',␢,'A%',␢,'GOTO',␢,'@Somewhere1',',',␢,'@Somewhere2',',',␢,'',',',␢,'@Somewhere3'),('@Somewhere3',),('INTERVAL',␢,'OFF'),('INTERVAL',␢,'ON'),('ON',␢,'INTERVAL',␢,'=',␢,'100',␢,'GOSUB',␢,'@Somewhere1'),('INTERVAL',␢,'STOP'),('@EndProgram',),('END',)]
