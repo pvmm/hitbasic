@@ -27,7 +27,7 @@ class TestGrammar(unittest.TestCase):
 
     def check_grammar(self, text, expected, file_name=None):
         result = '[%s]' % (self.parse_file(file_name) if file_name else self.parse(text))
-        assert result == expected, 'in file "%s"' % file_name
+        assert result == expected, 'in file "%s": got "%s" instead.' % (file_name, result)
 
 
     def test_empty(self):
@@ -48,7 +48,7 @@ class TestGrammar(unittest.TestCase):
 
     def test_grammar_in_files(self):
         'test all .asc files in tests/samples against their respective .tokens file'
-        test_files = glob(path.join('tests', 'samples', '[0-9][0-9].asc'))
+        test_files = glob(path.join('tests', 'samples', 'grammar', '*.asc'))
         test_files.sort()
         for file_name in test_files:
             try:

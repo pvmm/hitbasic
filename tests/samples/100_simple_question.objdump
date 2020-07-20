@@ -1,6 +1,0 @@
-[('@BeginProgram',),
- ('INPUT', ' ', '"What is your name? And surname?"', ';', 'K$', 'J$'),
- ('PRINT', ' ', '"Hello "', ';', 'K$', ';', '" "', ';', 'J$', ';', '"!"'),
- ('INPUT', ' ', '#1', ',', ' ', 'K$', ',', ' ', 'J$'),
- ('@EndProgram',),
- ('END',)]

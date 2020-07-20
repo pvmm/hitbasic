@@ -1,8 +1,0 @@
-[('@BeginProgram',),
- ('PRINT', ' ', '"hello, world!"'),
- ('PRINT', ' ', 1, ' ', '=', ' ', 1),
- ('PRINT', ' ', '"Not today!"'),
- ('PRINT', ' ', 1, ',', 2, ',', 3),
- ('END',),
- ('@EndProgram',),
- ('END',)]
