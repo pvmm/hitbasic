@@ -27,6 +27,7 @@ class TestParseTree(unittest.TestCase):
 
 
     def parse_file(self, filename):
+        'Generate symbol table and intermediate code.'
         return self.parser.parse_file(filename)
 
 
@@ -35,7 +36,7 @@ class TestParseTree(unittest.TestCase):
 
 
     def test_visitor0(self):
-        """An empty program is a valid program"""
+        'An empty program is a valid program.'
         tree = self.parse('')
         symbol_table, code = self.visit(tree)
         expected = [('@BeginProgram',), ('@EndProgram',), ('END',)]
@@ -51,7 +52,7 @@ class TestParseTree(unittest.TestCase):
 
 
     def test_parse_tree_in_files(self):
-        'try to parse all .asc files starting with 1?? in tests/samples'
+        'try to parse all .asc files in the nodes directory'
         test_files = glob(path.join('tests', 'samples', '1??_*.asc'))
         test_files.sort()
         for source_file in test_files:
@@ -66,7 +67,7 @@ class TestParseTree(unittest.TestCase):
 
     @unittest.skip("not implemented yet")
     def test_parse_tree_comparing_objdump(self):
-        'try to parse all .asc files starting with 1?? in tests/samples'
+        'try to parse all .asc files in the nodes directory and compare them with the respective objdump file'
         test_files = glob(path.join('tests', 'samples', '1??_*.asc'))
         test_files.sort()
         for source_file in test_files:
