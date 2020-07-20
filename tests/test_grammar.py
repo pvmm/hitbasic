@@ -37,8 +37,8 @@ class TestGrammar(unittest.TestCase):
 
 
     def test_no_match_in_files(self):
-        'all *.nomatch-asc should trigger arpeggio.NoMatch exception'
-        test_files = glob(path.join('tests', 'samples', '*.nomatch-asc'))
+        'All *.nomatch.asc should trigger an arpeggio.NoMatch exception.'
+        test_files = glob(path.join('tests', 'samples', 'grammar', '*.nomatch.asc'))
         test_files.sort()
         for source_name in test_files:
             with self.assertRaises(arpeggio.NoMatch, msg=source_name):
@@ -51,6 +51,8 @@ class TestGrammar(unittest.TestCase):
         test_files = glob(path.join('tests', 'samples', 'grammar', '*.asc'))
         test_files.sort()
         for file_name in test_files:
+            if file_name.endswith('.nomatch.asc'):
+                continue
             try:
                 with open(file_name, 'r') as source_file:
                     source_code = source_file.read()

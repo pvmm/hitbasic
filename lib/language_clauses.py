@@ -1,6 +1,6 @@
 # support statement elements that work
 ALLOWED_CLAUSES = ['dim', 'expression', 'fileno', 'initialisation', 'label', 'operation', 'unary_op', 'using',
-                   'case', 'case_op', 'tuple']
+                   'case', 'case_op', 'tuple', 'point']
 TYPES = {}
 
 # case type

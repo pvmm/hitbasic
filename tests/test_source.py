@@ -38,3 +38,20 @@ class TestSource(unittest.TestCase):
         test_file = path.join('tests', 'samples', 'sources', '00_empty.asc')
         source = self.generate_source(test_file)
         assert source == "10 END\n", 'got "%s" as result' % source
+
+
+    def test_source_from_file(self):
+        'try to parse all .asc files in the sources directory and compare them with the respective preexisting .asc file'
+        test_files = glob(path.join('tests', 'samples', 'sources', '*.asc'))
+        test_files.sort()
+        for source_file in test_files:
+            if source_file.endswith('.result.asc'):
+                continue
+            source = self.generate_source(source_file)
+            try:
+                with open(path.splitext(source_file)[0] + '.result.asc', 'r') as obj_file:
+                    result = obj_file.read()
+                    assert source == result, 'expected: """\n%s\n""" in file "%s", got """\n%s\n""" instead' % (result, source_file, source) # looking for comparison errors
+            except FileNotFoundError as e:
+                with open(path.splitext(source_file)[0] + '.result.asc', 'w') as obj_file:
+                    print(source, file=obj_file, end='')

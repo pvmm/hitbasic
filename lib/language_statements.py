@@ -5,6 +5,7 @@ from contextlib import suppress
 
 from . import NO_RULE
 from . import language_types as types
+from . import language_clauses as clauses
 
 
 # what currently works
@@ -109,7 +110,7 @@ def create_signature(params):
     result = ''
     for p in params:
         if type(p) == types.Integer: result += 'i'
-        elif type(p) == types.Point: result += 'p'
+        elif type(p) == clauses.point: result += 'p'
         elif type(p) == types.String: result += 's'
         elif type(p) == types.Token: result += 't'
     return result
