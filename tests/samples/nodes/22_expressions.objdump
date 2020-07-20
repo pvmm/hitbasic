@@ -1,0 +1,1 @@
+[('@BeginProgram',),('LET',␢,'A$',␢,'=',␢,'INKEY$'),('LET',␢,'X%',␢,'=',␢,'1'),('PRINT',␢,'NOT',␢,'X%'),('PRINT',␢,'1'),('PRINT',␢,'1.0'),('@EndProgram',),('END',)]

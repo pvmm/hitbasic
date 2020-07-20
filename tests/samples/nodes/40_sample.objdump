@@ -1,0 +1,1 @@
+[('@BeginProgram',),('FOR',␢,'I%',␢,'=',␢,'0',␢,'TO',␢,'20'),('PRINT',␢,'I%'),('NEXT',␢,'I%'),('@EndProgram',),('END',)]

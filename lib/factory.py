@@ -145,11 +145,7 @@ class SurrogateFactory:
         assert op != None
         assert operand != None
         node = kwargs.pop('node', None)
-        try:
-            return self.create_clause('unary_op', op=op, operand=operand, need_parens=need_parens, **kwargs)
-        except TypeMismatch as e:
-            raise e.set_location(self.parser.file_name, self.parser.context(position=node.position),
-                    self.parser.pos_to_linecol(node.position))
+        return self.create_clause('unary_op', op=op, operand=operand, need_parens=need_parens, **kwargs)
 
 
     def create_operation(self, op, op1, op2, need_parens=False, **kwargs):
@@ -160,22 +156,14 @@ class SurrogateFactory:
         assert op2 != None
         assert not isinstance(type(op2), str)
         node = kwargs.pop('node', None)
-        try:
-            return self.create_clause('operation', op=op, op1=op1, op2=op2, need_parens=need_parens, **kwargs)
-        except TypeMismatch as e:
-            raise e.set_location(self.parser.file_name, self.parser.context(position=node.position),
-                    self.parser.pos_to_linecol(node.position))
+        return self.create_clause('operation', op=op, op1=op1, op2=op2, need_parens=need_parens, **kwargs)
 
 
     def create_case_op(self, op, op2, need_rparens=False, **kwargs):
         assert op != None
         assert op2 != None
         node = kwargs.pop('node', None)
-        try:
-            return self.create_clause('case_op', op=op, op2=op2, need_rparens=need_rparens, **kwargs)
-        except TypeMismatch as e:
-            raise e.set_location(self.parser.file_name, self.parser.context(position=node.position),
-                    self.parser.pos_to_linecol(node.position))
+        return self.create_clause('case_op', op=op, op2=op2, need_rparens=need_rparens, **kwargs)
 
 
     def create_tuple(self, *values, use_parentheses=False, **kwargs):
@@ -260,17 +248,6 @@ class SurrogateFactory:
         rule = kwargs.pop('rule', NO_RULE)
         position = kwargs.pop('pos', node.position if node else None)
         return self.subroutine_type(rule, position, False, code_block, **kwargs)
-
-
-    def put_location(self, exception, pos=None):
-        'insert location in exception for a reraise'
-        return e.set_location(self.parser.file_name, self.parser.context(pos), self.parser.pos_to_linecol(pos))
-
-
-    def create_exception(self, exception_type, *args, pos=None):
-        'create exception with predefined location'
-        raise exception_type(*args, filename=self.parser.file_name, context=self.parser.context(pos),
-                             pos=self.parser.pos_to_linecol(pos))
 
 
 factory = SurrogateFactory()

@@ -13,7 +13,7 @@ class Clause:
         try:
             msx.unary_op_type(op, operand.type)
         except KeyError:
-            raise TypeMismatch(types.printable(msx.get_op_type(op)), types.printable_type(operand), operand.value.reference)
+            raise TypeMismatch(types.printable(msx.get_op_type(op)), types.printable(operand.type), operand.value.reference)
         type_ = types.Integer if msx.is_logic_op(op) else operand.type
         Surrogate.__init__(self, rule, position, error, op=op, operand=operand, need_parens=need_parens, type=type_, **kwargs)
 
