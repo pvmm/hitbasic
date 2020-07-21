@@ -58,12 +58,12 @@ def dim_eq_tk():        return '='
 
 # If-then-else rules
 def if_then_else_stmt():  return [
-                        ( 'If', expr, 'Then', Optional( statement_sep ), Optional( then_clauses ), Optional( statement_sep ), 'Else', Optional( statement_sep ), Optional( else_clauses ), Optional( statement_sep ), end_if_stmt ),
-                        ( 'If', expr, 'Then', Optional( statement_sep ), Optional( else_clauses, statement_sep ), end_if_stmt ),
-                        ( 'If', expr, 'Then', inln_then_clauses, 'Else', inln_else_clauses ),
-                        ( 'If', expr, 'Then', inln_else_clauses ),
-                        ( 'If', expr, 'Goto', label_clause, 'Else', label_clause ),
-                        ( 'If', expr, 'Goto', label_clause )
+                        ( 'If', expr, then_tk, Optional( statement_sep ), Optional( then_clauses ), Optional( statement_sep ), 'Else', Optional( statement_sep ), Optional( else_clauses ), Optional( statement_sep ), end_if_stmt ),
+                        ( 'If', expr, then_tk, Optional( statement_sep ), Optional( else_clauses, statement_sep ), end_if_stmt ),
+                        ( 'If', expr, then_tk, inln_then_clauses, 'Else', inln_else_clauses ),
+                        ( 'If', expr, then_tk, inln_else_clauses ),
+                        ( 'If', expr, branch_stmt, 'Else', label_clause ),
+                        ( 'If', expr, branch_stmt )
                         ]
 def inln_then_clauses():  return Optional( inln_stmts ), And( 'Else' )
 def inln_else_clauses():  return Optional( inln_stmts ), And([ EOF, new_line ])
@@ -71,6 +71,7 @@ def inln_stmts():         return statement, ZeroOrMore( ':', inln_stmts )
 def then_clauses():       return [ ( label_stmt, statement ), statement ], ZeroOrMore( statement_sep, then_clauses ), And([ statement_sep, 'Else' ])
 def else_clauses():       return [ ( label_stmt, statement ), statement ], ZeroOrMore( statement_sep, else_clauses ), And([( statement_sep, end_if_stmt ), end_if_stmt ])
 def end_if_stmt():        return 'End', 'If'
+def then_tk():            return [ 'Then' ]
 
 
 # Select rules

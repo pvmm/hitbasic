@@ -39,7 +39,7 @@ class StructureVisitor:
             if old_expr: # Case Is
                 #expr = self.create_operation('Or', old_expr, expr, node=expr)
                 #expr = self.visit_not_op(old_expr, ['Not', old_expr])
-                code_block.append(self.visit_if_then_else_stmt(case, [old_expr, flatten(case.code_block)]))
+                code_block.append(self.visit_if_then_else_stmt(case, [old_expr, 'Then', flatten(case.code_block)]))
             else: # Case Else
                 code_block.append(self.create_statement('Multiple', code_block=flatten(case.code_block)))
         return self.create_statement('Multiple', code_block=code_block)

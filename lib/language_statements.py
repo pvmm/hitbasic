@@ -7,6 +7,8 @@ from . import NO_RULE
 from . import language_types as types
 from . import language_clauses as clauses
 
+from .helper import *
+
 
 # what currently works
 ALLOWED_STATEMENTS = [ '', 'Beep', 'Branch', 'Cls', 'Circle', 'Color', 'Conditional', 'Default', 'Dim', 'Do Until',
@@ -23,6 +25,14 @@ INTERNAL, BEGIN_PROGRAM, END_PROGRAM = 0, 1, 2
 LABEL_TYPE = [ INTERNAL, BEGIN_PROGRAM, END_PROGRAM ]
 
 TYPES = {}
+
+
+def contains(instruction, type=()):
+    tokens = tuple([s.title() for s in make_tuple(type)])
+    if isinstance(instruction, tuple(TYPES.values())):
+        i_tokens = tuple([s.title() for s in instruction.tokens])
+        return isinstance(instruction, tuple(TYPES.values())) and tokens and i_tokens == tokens
+    return False
 
 
 def register(token, type_):

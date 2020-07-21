@@ -24,13 +24,17 @@ class TestSource(unittest.TestCase):
         self.parser = hitbasic.create_parser()
 
 
-    def generate_source(self, filename):
+    def generate_source(self, file_name):
         'Generate MSX-BASIC source for ASC file as input.'
-        tree = self.parser.parse_file(filename)
-        symbol_table, code = visit_parse_tree(tree, MSXBasicVisitor(parser=self.parser, begin_line=10, debug=False))
-        output = io.StringIO()
-        TextGenerator(symbol_table, output).print(code)
-        return output.getvalue()
+        tree = self.parser.parse_file(file_name)
+        try:
+            symbol_table, code = visit_parse_tree(tree, MSXBasicVisitor(parser=self.parser, begin_line=10, debug=False))
+            output = io.StringIO()
+            TextGenerator(symbol_table, output).print(code)
+            return output.getvalue()
+        except Exception as e:
+            print('* exception captured in "%s"' % file_name)
+            raise
 
 
     def test_source00(self):

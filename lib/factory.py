@@ -83,7 +83,7 @@ class SurrogateFactory:
 
     def create_token(self, *token, **kwargs): # *token allow a compound token
         printable_token = ' '.join(t.upper() for t in make_tuple(token))
-        if not printable_token in tokens.ALLOWED_TOKENS:
+        if not printable_token in tokens.ALL_TOKENS:
             raise NotImplementedError("token '%s' unknown" % ''.join(t.upper() for t in make_tuple(token)))
         token_ = tuple([tmp.upper() for tmp in token])
         node = kwargs.pop('node', None)
