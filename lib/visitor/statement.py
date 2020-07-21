@@ -89,6 +89,11 @@ class StatementVisitor:
         return self.create_clause('label', address)
 
 
+    def visit_call_stmt(self, node, children):
+        instruction, params = children
+        return self.create_statement('Call', params=params)
+
+
     def visit_draw_stmt(self, node, children):
         dml_str = children
         return self.create_statement('Draw', params=dml_str)

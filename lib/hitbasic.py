@@ -6,7 +6,8 @@ from arpeggio import ParseTreeNode
 # Top tier
 def program():          return trailing_spaces, Optional( statements ), trailing_spaces, EOF
 def statements():       return opt_stmt_sep, [ ( label_stmt, opt_stmt_sep, statement ), statement, label_stmt ], ZeroOrMore( statement_sep, statements )
-def statement():        return [ function_stmt,
+def statement():        return [ call_stmt,
+                                 function_stmt,
                                  sub_stmt,
                                  dim_stmt,
                                  if_then_else_stmt,
@@ -36,6 +37,10 @@ def comments1():        return [ ( RegEx(r"\s*'[^\n]*"), ),
 def comments2():        return [ ( RegEx(r"^\s*'[^\n]*"), new_line ),
                                  ( RegEx(r"^\s*(Rem|')[^\n]*"), new_line ),
                                  ( RegEx(r":\s*(Rem|')[^\n]*"), new_line ) ]
+
+# Call rules
+def call_stmt():        return [ 'Call', '_'], call_stmt_args
+def call_stmt_args():   return RegEx('[^:\n]+')
 
 
 # Dim rules

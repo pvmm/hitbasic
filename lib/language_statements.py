@@ -11,10 +11,10 @@ from .helper import *
 
 
 # what currently works
-ALLOWED_STATEMENTS = [ '', 'Beep', 'Branch', 'Cls', 'Circle', 'Color', 'Conditional', 'Default', 'Dim', 'Do Until',
-                       'Do While', 'Draw', 'End', 'Exit Do', 'For', 'Goto', 'Gosub', 'Input', 'Interval', 'Label',
-                       'Let', 'Line', 'Loop Until', 'Loop While', 'Multiple', 'Next', 'On', 'Open', 'Paint', 'Play',
-                       'Preset', 'Print', 'Pset', 'Put Sprite', 'Return', 'Screen', 'Select', '?', 'Set Page' ]
+ALLOWED_STATEMENTS = [ '', 'Beep', 'Branch', 'Call', 'Cls', 'Circle', 'Color', 'Conditional', 'Default', 'Dim',
+                       'Do Until', 'Do While', 'Draw', 'End', 'Exit Do', 'For', 'Goto', 'Gosub', 'Input', 'Interval',
+                       'Label', 'Let', 'Line', 'Loop Until', 'Loop While', 'Multiple', 'Next', 'On', 'Open', 'Paint',
+                       'Play', 'Preset', 'Print', 'Pset', 'Put Sprite', 'Return', 'Screen', 'Select', '?', 'Set Page' ]
 # non-parameterised statements
 SIMPLE_STATEMENTS = [ 'Beep', 'Cls', 'End', 'Return', ('Exit', 'Do') ]
 
