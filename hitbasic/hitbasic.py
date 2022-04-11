@@ -314,11 +314,11 @@ def integer():          return [ ( signal, OneOrMore( digit ) ),
                                  ( signal, oct_prefix, OneOrMore( oct_digit ) ),
                                  ( signal, bin_prefix, OneOrMore( bin_digit ) ) ]
 def digit():            return RegEx(r'[0-9]')
-def hex_prefix():       return RegEx(r'&H')
+def hex_prefix():       return RegEx(r'\&H')
 def hex_digit():        return RegEx(r'[0-9A-F]')
-def oct_prefix():       return RegEx(r'&O')
+def oct_prefix():       return RegEx(r'\&O')
 def oct_digit():        return RegEx(r'[0-7]')
-def bin_prefix():       return RegEx(r'&B')
+def bin_prefix():       return RegEx(r'\&B')
 def bin_digit():        return RegEx(r'[01]')
 def filepath():         return string, ''
 def string():           return '"', Sequence( ZeroOrMore( non_quote_char ), skipws=False ), '"'

@@ -12,7 +12,6 @@ if __name__ == '__main__':
             epilog="For bug report, suggestions, praises or complains, please go to: <https://github.com/pvmm/hitbasic>.")
 
     group1 = argp.add_mutually_exclusive_group(required=True)
-    group1.add_argument('-t', '--tests', action='store_true', required=False, help='run collection of tests')
     group1.add_argument('--version', action='store_true', required=False, help='display version and finishes')
     group1.add_argument('-c', metavar='.ASC infile', nargs='+', type=argparse.FileType('r'), help='compile source from infile(s)')
     group1.add_argument('-s', '--stdin', action='store_true', required=False, help='transpile to MSX-BASIC program from standard input')
@@ -28,37 +27,7 @@ if __name__ == '__main__':
     group2.add_argument('-k', '--tokenize', action='store_true', required=False, help="generate tokenized MSX-BASIC output")
     args = argp.parse_args(None if sys.argv[1:] else ['--help'])
 
-    if args.tests:
-        import inspect
-        from importlib import import_module
-        import os
-        from os import path
-        from glob import glob
-        import unittest
-
-        os.chdir(path.dirname(path.realpath(__file__)))
-        test_modules = glob(path.join('tests', 'test_*.py'))
-        test_suite = unittest.TestSuite()
-
-        for file in test_modules:
-            module_name = file.replace('.py', '').replace(os.sep, '.')
-            print(' * Selecting test module "%s"...' % module_name.replace('tests.', ''))
-            module = import_module(module_name)
-
-            for class_name in filter(lambda c: inspect.isclass(module.__dict__[c]) and issubclass(module.__dict__[c], unittest.TestCase), module.__dict__):
-                print(' * Selecting test class "%s"...' % class_name)
-                klass = module.__dict__[class_name]
-                methods = list(filter(lambda method: method.startswith('test_'), klass.__dict__))
-                runner = unittest.TextTestRunner(verbosity=0, stream=sys.stdout, buffer=True)
-
-                for method in methods:
-                    suite = unittest.TestSuite([klass(method)])
-                    runner.run(suite)
-
-        print(' * Running tests done.')
-        argp.exit(status=0)
-
-    elif args.version:
+    if args.version:
         term = shutil.get_terminal_size((80, 25))
         title = textwrap.fill('HitBasic version 0.4.0', width=term.columns)
         copyright = textwrap.fill('Copyright (c) 2020, Pedro Vaz de Mello de Medeiros', width=term.columns)
@@ -87,7 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
         args.output = open(args.output, 'w')
 
     # Create text string from file or stdin and run it through the parser
-    from lib import hitbasic
+    from hitbasic import hitbasic
     parser = hitbasic.create_parser(debug=args.graphviz)
 
     if args.stdin == True:
@@ -113,7 +82,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     # Run output tree through the node visitor
     from arpeggio import visit_parse_tree
-    from lib.visitor import MSXBasicVisitor
+    from hitbasic.visitor import MSXBasicVisitor
 
     try:
         symbol_table, code = visit_parse_tree(tree, MSXBasicVisitor(parser=parser,
@@ -130,8 +99,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.tokenize:
         raise NotImplemented
-        from lib.printers.tokenized import Generator as TokenizedGenerator
+        from hitbasic.printers.tokenized import Generator as TokenizedGenerator
         TokenizedGenerator(symbol_table, args.output).print(code)
     else:
-        from lib.printers.text import Generator as TextGenerator
+        from hitbasic.printers.text import Generator as TextGenerator
         TextGenerator(symbol_table, args.output).print(code)

@@ -8,10 +8,10 @@ from os import path
 from glob import glob
 from contextlib import suppress
 from arpeggio import visit_parse_tree
-from lib import hitbasic
-from lib.visitor import MSXBasicVisitor
-from lib.language_statements import *
-from lib.exceptions import *
+from hitbasic import hitbasic
+from hitbasic.visitor import MSXBasicVisitor
+from hitbasic.language_statements import *
+from hitbasic.exceptions import *
 
 
 class TestParseTree(unittest.TestCase):

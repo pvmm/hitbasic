@@ -1,7 +1,8 @@
-__pycache__
 .*.swp
-*.dot
-*.pdf
-out.bas
-out.asc
 traceback*.txt
+*.pyc
+/dist/
+__pycache__
+/*.egg-info
+.eggs
+.venv

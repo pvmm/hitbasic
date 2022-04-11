@@ -7,7 +7,7 @@ import arpeggio
 from contextlib import suppress
 from os import path
 from glob import glob
-from lib import hitbasic
+from hitbasic import hitbasic
 
 
 class TestGrammar(unittest.TestCase):

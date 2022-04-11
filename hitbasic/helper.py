@@ -1,7 +1,7 @@
 import itertools
 import io
 
-from collections import Sequence
+from collections.abc import Sequence
 from contextlib import suppress
 
 from .exceptions import *

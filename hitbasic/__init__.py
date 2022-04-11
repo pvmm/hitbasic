@@ -1,5 +1,6 @@
 from contextlib import suppress
 
+__version__ = '1.0.0'
 
 class NO_RULE: rule_name = '<no rule>'
 

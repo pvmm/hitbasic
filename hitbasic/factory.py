@@ -37,7 +37,7 @@ class SurrogateFactory:
             split_name = module_name.split(os.sep)
             if split_name[-1] == '__init__.py': continue
             key = split_name[-1].replace('.py', '')
-            module_path = 'lib.%s.%s' % (split_name[-2], split_name[-1].replace('.py', ''))
+            module_path = 'hitbasic.%s.%s' % (split_name[-2], split_name[-1].replace('.py', ''))
             self.module[key] = import_module(module_path)
 
         # Allow creation of literals outside factory.
@@ -110,6 +110,7 @@ class SurrogateFactory:
 
 
     def create_literal(self, value, type, **kwargs):
+        print(value, type, kwargs)
         assert value != None
         assert type != None
         if not types.printable(type) in types.ALLOWED_TYPE_NAMES:

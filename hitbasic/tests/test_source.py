@@ -9,11 +9,11 @@ from os import path
 from glob import glob
 from contextlib import suppress
 from arpeggio import visit_parse_tree
-from lib import hitbasic
+from hitbasic import hitbasic
 
-from lib.visitor import MSXBasicVisitor
-from lib.language_statements import *
-from lib.printers.text import Generator as TextGenerator
+from hitbasic.visitor import MSXBasicVisitor
+from hitbasic.language_statements import *
+from hitbasic.printers.text import Generator as TextGenerator
 
 
 class TestSource(unittest.TestCase):
@@ -35,14 +35,14 @@ class TestSource(unittest.TestCase):
 
     def test_source00(self):
         'An empty program is a valid program.'
-        test_file = path.join('tests', 'samples', 'sources', '00_empty.asc')
+        test_file = path.join('hitbasic', 'tests', 'samples', 'sources', '00_empty.asc')
         source = self.generate_source(test_file)
         assert source == "10 END\n", 'got "%s" as result' % source
 
 
     def test_source_from_file(self):
         'try to parse all .asc files in the sources directory and compare them with the respective preexisting .asc file'
-        test_files = glob(path.join('tests', 'samples', 'sources', '*.asc'))
+        test_files = glob(path.join('hitbasic', 'tests', 'samples', 'sources', '*.asc'))
         test_files.sort()
         for source_file in test_files:
             if source_file.endswith('.result.asc'):
