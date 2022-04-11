@@ -1,0 +1,62 @@
+from textx import metamodel_from_str, get_children_of_type
+
+#Statements: Sep? blah*=StmtTypes[/:|\n/];
+
+grammar = """
+Program: statements=Statements;
+Statements: head=FirstStmt tail*=Statement;
+FirstStmt: Sep? content=StmtTypes;
+Statement: Sep content=StmtTypes;
+StmtTypes: SelectCase | PrintStmt;
+SelectCase: 'Select' expr=Expression ':' cases*=CaseStmt 'End' 'Select' ';';
+Expression: /[^:]+/;
+CaseStmt: 'Case' expr=Expression ':' statements=Statements 'End' 'Case' ';';
+PrintStmt: 'Print' num=INT;
+Sep: ':' | "\n";
+"""
+
+# Classes for other rules will be dynamically generated.
+class Expression(object):
+    def __init__(self, parent, expr):
+        self.parent = parent
+        self.expr = expr
+
+    def __str__(self):
+        return "{}".format(self.expr)
+
+# Create meta-model from the grammar.
+mm = metamodel_from_str(grammar, classes=[Expression], skipws=True, ws='\n\t ', ignore_case=True)
+
+source_code = """
+    Print 1 : Print 2 : Print 6 :
+    Print 3 :
+    Select xpto:
+        Case bla:
+           : Print 7
+        End Case ;
+    End Select ; :
+    Print 4 :
+    Print 8
+"""
+
+# Meta-model knows how to parse and instantiate models.
+program = mm.model_from_str(source_code)
+
+# At this point model is a plain Python object graph with instances of
+# dynamically created classes and attributes following the grammar.
+
+def cname(o):
+    return o.__class__.__name__
+
+# Let's interpret the program 
+statements = [program.statements.head] + program.statements.tail;
+
+for statement in statements:
+    statement = statement.content;
+    print('{}: {}.'.format(cname(statement), statement))
+    if cname(statement) == 'PrintStmt':
+        print('Print', statement.num)
+    elif cname(statement) == 'SelectCase':
+        print('Select', statement.expr)
+        print('Select', statement.cases)
+
