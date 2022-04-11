@@ -29,14 +29,7 @@ def statement():        return [ function_stmt,
                                  #multi_attr_stmt,
                                  attr_stmt ]
 def trailing_spaces():  return RegEx(r'\s*')
-def comments():         return [ comments1, comments2 ]
-def comments1():        return [ ( RegEx(r"\s*'[^\n]*"), ),
-                                 ( RegEx(r"^(Rem|')[^\n]*"), ),
-                                 ( RegEx(r":\s*(Rem|')[^\n]*"), ) ]
-def comments2():        return [ ( RegEx(r"^\s*'[^\n]*"), new_line ),
-                                 ( RegEx(r"^\s*(Rem|')[^\n]*"), new_line ),
-                                 ( RegEx(r":\s*(Rem|')[^\n]*"), new_line ) ]
-
+def comments():         return [ "'" , 'Rem' ], ZeroOrMore( Not("\n"), RegEx('.') ), And([ new_line, EOF ])
 
 # Dim rules
 def dim_stmt():         return 'Dim', dim_vars
@@ -331,7 +324,7 @@ def reserved():         return [ 'And', 'As', 'Imp', 'Eqv', 'Mod', 'Xor', 'Or' ]
 def alphanum_name():    return RegEx(r'[A-Z][_A-Z0-9]*')
 def type_des():         return RegEx(r'[$#!%]')
 def comma():            return RegEx(',')
-def new_lines():        return ZeroOrMore('\n')
+def new_lines():        return ZeroOrMore("\n")
 def new_line():         return "\n"
 
 
@@ -360,4 +353,4 @@ def create_parser(**kwargs):
         debug_mode = kwargs['debug']
     except KeyError:
         debug_mode = False
-    return ParserPython(program, comments, reduce_tree=False, ignore_case=True, ws='\t ', skipws=True, debug=debug_mode)
+    return ParserPython(program, comment_def=comments, reduce_tree=False, ignore_case=True, ws='\t ', skipws=True, debug=debug_mode)
