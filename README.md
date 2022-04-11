@@ -10,6 +10,18 @@ Install Python 3.8.x and pip, the package installer for Python, then execute the
 $ pip install -r requirements.txt
 ```
 
+You might want to install virtualenv and do it inside a controlled environment to avoid messing with your system:
+```
+virtualenv venv -p python3
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+To execute the test routine, execute the unittest module on the root directory:
+```
+python3 -m unittest
+```
+
 Usage
 -----
 
