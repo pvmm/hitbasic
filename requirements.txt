@@ -1,2 +1,2 @@
-Arpeggio==1.9.2
+Arpeggio==2.0.0
 mock==4.0.2
