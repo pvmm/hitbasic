@@ -1,0 +1,5 @@
+[Function | f | ( | s | As | String | ) | As | String | 
+ | f | = | " | h | e | l | l | o | , |   | w | o | r | l | d | " | 
+ | Exit | Function | 
+ | End | Function | 
+ | ]

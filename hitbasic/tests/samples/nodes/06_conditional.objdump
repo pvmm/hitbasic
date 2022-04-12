@@ -1,0 +1,1 @@
+[('@BeginProgram',),('IF',␢,'NOT',␢,'(','L$',␢,'=',␢,'"PT"',')',␢,'THEN',␢,'GOTO',␢,'@EndIf0','\n'),('PRINT',␢,'"ano"'),('@EndIf0',),('PRINT',␢,'"done"'),('@EndProgram',),('END',)]

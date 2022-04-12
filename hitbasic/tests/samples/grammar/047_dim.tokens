@@ -1,0 +1,6 @@
+[Dim | a | As | String | = | " | h | e | l | l | o | , |   | w | o | r | l | d | ! | " | , | b | As | String | = | " | h | e | l | l | o | , |   | u | s | e | r | ! | " | 
+ | Dim | b | ( | ) | = | { | " | h | e | l | l | o |   | w | o | r | l | d | " | , | " | b | l | a | h | , |   | b | l | a | h | " | } | 
+ | 
+ | a | = | " | o | v | e | r | r | i | d | d | e | n | ! | " | 
+ | b | ( | 1 | ) | = | " | y | a | d | d | a | , |   | y | a | d | d | a | " | 
+ | ]

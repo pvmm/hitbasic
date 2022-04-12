@@ -1,0 +1,6 @@
+[If | var | = | 1 | Then | 
+ | ? |  | " | v | a | r |   | i | s |   | o | n | e | " | 
+ | Else | 
+ | ? |  | " | v | a | r |   | i | s |   | n | o | t |   | o | n | e | " | 
+ | End | If | 
+ | ]

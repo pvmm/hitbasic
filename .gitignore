@@ -1,1 +1,11 @@
+build/
+.*.swp
+traceback*.txt
+*.pyc
+/dist/
+__pycache__
+/*.egg-info
+.eggs
+.venv
 *.dot
+out.asc

@@ -1,0 +1,1 @@
+[('@BeginProgram',),('@EndProgram',),('END',),('@wordYear1()',),('PRINT',␢,'1',␢,'*',␢,'2'),('IF',␢,'NOT',␢,'(','L$',␢,'=',␢,'"PT"',')',␢,'THEN',␢,'GOTO',␢,'@EndIf0','\n'),('LET',␢,'WY$',␢,'=',␢,'"ano"'),('RETURN',),('@EndIf0',),('LET',␢,'WY$',␢,'=',␢,'"year"')]

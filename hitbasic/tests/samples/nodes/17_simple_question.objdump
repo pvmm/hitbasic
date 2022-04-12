@@ -1,0 +1,1 @@
+[('@BeginProgram',),('INPUT',␢,'"WHATISYOURNAME?ANDSURNAME?"',';',␢,'K$',',',␢,'J$'),('PRINT',␢,'"Hello"',';','K$',';','""',';','J$',';','"!"'),('INPUT',␢,'#1',',',␢,'K$',',',␢,'J$'),('@EndProgram',),('END',)]

@@ -1,0 +1,1 @@
+[('@BeginProgram',),('PRINT',␢,'"hello,world!"'),('PRINT',␢,'1',␢,'=',␢,'1'),('PRINT',␢,'"Nottoday!"'),('PRINT',␢,'1',',','2',',','3'),('END',),('@EndProgram',),('END',)]
