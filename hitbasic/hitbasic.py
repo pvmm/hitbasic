@@ -67,11 +67,11 @@ def end_if_stmt():        return 'End', 'If'
 
 
 # Select rules
-def select_stmt():      return 'Select', expr, statement_sep, ZeroOrMore( select_case, new_line ), Optional( select_case_else, new_line ), 'End', 'Select'
+def select_stmt():      return 'Select', expr, statement_sep, ZeroOrMore( select_case ), Optional( select_case_else, new_line ), 'End', 'Select'
 def select_case():      return 'Case', case_exprs, statement_sep, Optional( case_block ), end_case_block #, new_line
 def select_case_else(): return 'Case', 'Else', statement_sep, Optional( case_block ), end_case_block #, new_line
 def case_block():       return Not([ ( 'End', 'Select' ), 'Case' ]), [ ( label_stmt, statement ), statement ], ZeroOrMore( statement_sep, case_block )
-def end_case_block():   return And( new_line, [ ( 'End', 'Select' ), 'Case' ] )
+def end_case_block():   return new_line, And( [ ( 'End', 'Select' ), 'Case' ] )
 #def end_case_block():   return And( [ ( 'End', 'Select' ), 'Case' ] )
 #def end_case_block():   return And( Optional( new_line ), [ ( 'End', 'Select' ), 'Case' ] )
 def case_exprs():       return [ case_comparison, case_interval, case_value ], ZeroOrMore( ',', case_exprs )
