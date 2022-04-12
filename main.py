@@ -3,16 +3,20 @@ from textx import metamodel_from_str, get_children_of_type
 #Statements: Sep? blah*=StmtTypes[/:|\n/];
 
 grammar = """
-Program: statements=Statements;
-Statements: head=FirstStmt tail*=Statement;
-FirstStmt: Sep? content=StmtTypes;
-Statement: Sep content=StmtTypes;
-StmtTypes: SelectCase | PrintStmt;
-SelectCase: 'Select' expr=Expression ':' cases*=CaseStmt 'End' 'Select' ';';
-Expression: /[^:]+/;
-CaseStmt: 'Case' expr=Expression ':' statements=Statements 'End' 'Case' ';';
-PrintStmt: 'Print' num=INT;
-Sep: ':' | "\n";
+Program:     statements=Statements EOL? ;
+Statements:  head=FirstStmt tail*=Statement;
+FirstStmt:   Sep* content=StmtTypes;
+Statement:   Sep+ content=StmtTypes;
+StmtTypes:   SelectCase | PrintStmt;
+SelectCase:  'Select' expr=Expression ':' Sep cases*=CaseStmt SlctCaseEnd;
+Expression:  /[^:]+/;
+CaseStmt:    'Case' expr=Expression ':' statements=Statements CaseStmtEnd;
+CaseStmtEnd:  Sep+ &( ( 'End' 'Select' | 'Case' ) );
+SlctCaseEnd: 'End' 'Select' &Sep;
+PrintStmt:   'Print' num=INT;
+Sep:         ':' | "\n";
+EOL:         "\n";
+Comment:     ("'" | 'Rem') !("\n") /[^\n]*/;
 """
 
 # Classes for other rules will be dynamically generated.
@@ -25,18 +29,18 @@ class Expression(object):
         return "{}".format(self.expr)
 
 # Create meta-model from the grammar.
-mm = metamodel_from_str(grammar, classes=[Expression], skipws=True, ws='\n\t ', ignore_case=True)
+mm = metamodel_from_str(grammar, classes=[Expression], skipws=True, ws='\t ', ignore_case=True, debug=True)
 
 source_code = """
-    Print 1 : Print 2 : Print 6 :
-    Print 3 :
+    Print 3 : Print 1
     Select xpto:
         Case bla:
-           : Print 7
-        End Case ;
-    End Select ; :
-    Print 4 :
-    Print 8
+           Print 7 :
+        Case bla2:
+           Print 8 : Print 9
+    End Select
+    Print 4: Print 2
+    Print 10
 """
 
 # Meta-model knows how to parse and instantiate models.
