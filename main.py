@@ -1,12 +1,8 @@
 from textx import metamodel_from_str, get_children_of_type
 
-#Statements: Sep? blah*=StmtTypes[/:|\n/];
-
 grammar = """
-Program:     statements=Statements EOL? ;
-Statements:  head=FirstStmt tail*=Statement;
-FirstStmt:   Sep* content=StmtTypes;
-Statement:   Sep+ content=StmtTypes;
+Program:     statements=Statements EOL?;
+Statements:  Sep* contents*=StmtTypes[/[:\n]*/];
 StmtTypes:   SelectCase | PrintStmt;
 SelectCase:  'Select' expr=Expression ':' Sep cases*=CaseStmt SlctCaseEnd;
 Expression:  /[^:]+/;
@@ -32,14 +28,14 @@ class Expression(object):
 mm = metamodel_from_str(grammar, classes=[Expression], skipws=True, ws='\t ', ignore_case=True, debug=True)
 
 source_code = """
-    Print 3 : Print 1
+    Print 3 ::: Print 1
     Select xpto:
         Case bla:
            Print 7 :
         Case bla2:
            Print 8 : Print 9
     End Select
-    Print 4: Print 2
+    Print 4: Print 2 :::::
     Print 10
 """
 
@@ -53,11 +49,11 @@ def cname(o):
     return o.__class__.__name__
 
 # Let's interpret the program 
-statements = [program.statements.head] + program.statements.tail;
+#statements = [program.statements.head] + program.statements.tail;
 
-for statement in statements:
-    statement = statement.content;
-    print('{}: {}.'.format(cname(statement), statement))
+for statement in program.statements.contents:
+    #statement = statement.content;
+    #print('{}: {}.'.format(cname(statement), statement))
     if cname(statement) == 'PrintStmt':
         print('Print', statement.num)
     elif cname(statement) == 'SelectCase':
