@@ -1,21 +1,63 @@
 from textx import metamodel_from_str, get_children_of_type
 
 grammar = """
-Program:     statements=Statements EOL?;
-Statements:  Sep* contents*=StmtTypes[/[:\n]*/];
-StmtTypes:   SelectCase | PrintStmt;
-SelectCase:  'Select' expr=Expression ':' Sep cases*=CaseStmt SlctCaseEnd;
-Expression:  /[^:]+/;
-CaseStmt:    'Case' expr=Expression ':' statements=Statements CaseStmtEnd;
-CaseStmtEnd:  Sep+ &( ( 'End' 'Select' | 'Case' ) );
-SlctCaseEnd: 'End' 'Select' &Sep;
-PrintStmt:   'Print' num=INT;
-Sep:         ':' | "\n";
-EOL:         "\n";
-Comment:     ("'" | 'Rem') !("\n") /[^\n]*/;
+Program:            statements=Statements EOL?;
+Statements:         Sep* contents*=StmtTypes[/[:\n]*/];
+StmtTypes:          FunctionStmt | SubStmt | DimStmt | IfThenElseStmt | SelectStmt | DoLoopStmt | CloseStmt |
+                    OpenStmt | NextStmt | ForStmt | PrintStmt | BranchStmt | ExitStmt | GraphicsStmt | LetStmt |
+                    DefStmt | InputStmt | PlayStmt | SwitcherStmt | ParamlessStmt | AttrStmt;
+
+FunctionStmt:       'Function';
+
+SubStmt:            'Sub';
+
+DimStmt:            'Dim';
+
+IfThenElseStmt:     'If';
+
+SelectStmt:         'Select' expr=Expression ':' Sep cases*=CaseStmt SelectStmtEnd;
+Expression:         /[^:]+/;
+CaseStmt:           'Case' expr=Expression ':' statements=Statements CaseStmtEnd;
+CaseStmtEnd:        Sep+ &( ( 'End' 'Select' | 'Case' ) );
+SelectStmtEnd:      'End' 'Select' &Sep;
+
+DoLoopStmt:         'Do';
+
+CloseStmt:          'Close';
+
+OpenStmt:           'Open';
+
+NextStmt:           'Next';
+
+ForStmt:            'For';
+
+PrintStmt:          'Print' num=INT;
+
+BranchStmt:         'Goto';
+
+ExitStmt:           'End';
+
+GraphicsStmt:       'Graphics';
+
+LetStmt:            'Let';
+
+DefStmt:            'Def Fn';
+
+InputStmt:          'Input';
+
+PlayStmt:           'Play';
+
+SwitcherStmt:       ;
+
+NoParamStmt:        ;
+
+AttrStmt:           ;
+
+Sep:                ':' | "\n";
+EOL:                "\n";
+Comment:            ("'" | 'Rem') !("\n") /[^\n]*/;
 """
 
-# Classes for other rules will be dynamically generated.
 class Expression(object):
     def __init__(self, parent, expr):
         self.parent = parent
@@ -24,8 +66,19 @@ class Expression(object):
     def __str__(self):
         return "{}".format(self.expr)
 
+
+class SelectStmt(object):
+    def __init__(self, parent, expr, cases):
+        self.parent = parent
+        self.expr = expr
+        self.cases = cases
+
+    def write(self, file):
+        pass
+
+
 # Create meta-model from the grammar.
-mm = metamodel_from_str(grammar, classes=[Expression], skipws=True, ws='\t ', ignore_case=True, debug=True)
+mm = metamodel_from_str(grammar, classes=[Expression, SelectStmt], skipws=True, ws='\t ', ignore_case=True, debug=True)
 
 source_code = """
     Print 3 ::: Print 1
@@ -51,12 +104,9 @@ def cname(o):
 # Let's interpret the program 
 #statements = [program.statements.head] + program.statements.tail;
 
-for statement in program.statements.contents:
-    #statement = statement.content;
-    #print('{}: {}.'.format(cname(statement), statement))
-    if cname(statement) == 'PrintStmt':
-        print('Print', statement.num)
-    elif cname(statement) == 'SelectCase':
-        print('Select', statement.expr)
-        print('Select', statement.cases)
-
+with file as open('./teste.out', w):
+    for statement in program.statements.contents:
+        if cname(statement) == 'PrintStmt':
+            print('Print', statement.num)
+        elif cname(statement) == 'SelectStmt':
+            statement.write(file)
