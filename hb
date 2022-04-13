@@ -53,21 +53,26 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
+    ' Teste
     Print 3 :: Print 1 : Print 0
+    Rem Lol
+    Print 2
+
+    Print 4 :
     Select xpto:
         Case bla:
             Print 7 :
-
+            'bla found
         Case bla2:
+            'bla2 found
             Print 8 : Print 9
     End Select
-    Print 4 : Print 2 :::::
-    Print 10
-"""
+    Print 5 : Print 6 :::::
+    Print 10"""
         mm = hitbasic.create_metamodel(debug=True)
         model = mm.model_from_str(source_code)
         for statement in model.statements:
-            print('x=',statement)
+            print('stmt =',statement)
             #statement.write(file)
         argp.exit(status=0)
 

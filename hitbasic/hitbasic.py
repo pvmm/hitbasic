@@ -1,16 +1,36 @@
 from textx import metamodel_from_str, get_children_of_type
 
 grammar = """
-Program:            statements*=Statements[/[:\n]+/] EOL?;
-Statements:         Sep*- StmtTypes;
-StmtTypes:          FunctionStmt | SubStmt | DimStmt | IfThenElseStmt | SelectStmt | DoLoopStmt | CloseStmt |
-                    OpenStmt | NextStmt | ForStmt | PrintStmt | BranchStmt | ExitStmt | GraphicsStmt | LetStmt |
-                    DefStmt | InputStmt | PlayStmt | SwitcherStmt | SimpleStmt | AttrStmt;
+Program[ws=" \t"]:
+        Sep*- statements*=AllStmtTypes[/(:|\n)+/] Sep*-;
 
-FunctionStmt:       FunctionHeader StmtSep body=FuncBody StmtSep FunctionStmtEnd;
-FunctionHeader:     'blah';
-FuncBody:           Statements &(StmtSep FunctionStmtEnd);
-FunctionStmtEnd:    'doh';
+MinStmtTypes:
+        DimStmt | IfThenElseStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt | ForStmt |
+        PrintStmt | BranchStmt | ExitStmt | GraphicsStmt | LetStmt | DefStmt | InputStmt | PlayStmt |
+        SwitcherStmt | SimpleStmt | AttrStmt; 
+
+AllStmtTypes:
+        FuncStmt | SubStmt | MinStmtTypes;
+
+FuncStmt[ws=" \t\n"]:
+        header=FuncHeads Sep*- body*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
+
+FuncHeads:          FuncHead | FuncHeadTyped;
+
+FuncHead:           'Function' name=Name '(' params*=FuncVarDecl[/(,|\n)+/] ')' return=FuncReturnType;
+
+FuncHeadTyped:      'Function' TypedName '(' params*=FuncVarDecl[/(,|\n)+/] ')';
+
+FuncVarDecl:        Name 'As' VarType | TypedName;
+
+FuncStmtTypes[ws=" \t"]:
+        !('End' 'Function')- (ReturnStmt | MinStmtTypes);
+
+ReturnStmt:         'Return' Identifier;
+
+FuncReturnType:     'As' VarType;
+
+FuncStmtEnd:        'End' 'Function';
 
 SubStmt:            'Sub';
 
@@ -18,10 +38,12 @@ DimStmt:            'Dim';
 
 IfThenElseStmt:     'If';
 
-SelectStmt:         'Select' expr=Expression ':'- Sep+ cases*=CaseStmt[/[:\n]+/] SelectStmtEnd;
-CaseStmt:           Sep*- 'Case'- expr=Expression ':'- statements*=CaseStmtStmts[/[:\n]+/] CaseStmtEnd-;
-CaseStmtStmts:      Sep*- !( 'Case' | 'End' 'Select' )- StmtTypes;
-CaseStmtEnd:        &( ( 'End' 'Select' | 'Case' ) );
+SelectStmt:         'Select' expr=Expression ':' Sep*- cases*=CaseStmtTypes[/(:|\n)+/] Sep*- SelectStmtEnd;
+
+CaseStmtTypes:      !('End' 'Select')- (CaseStmt | MinStmtTypes);
+
+CaseStmt:           'Case'- expr=Expression ':';
+
 SelectStmtEnd:      'End' 'Select' &Sep+;
 
 DoLoopStmt:         'Do';
@@ -38,7 +60,7 @@ PrintStmt:          'Print' num=INT;
 
 BranchStmt:         'Goto';
 
-ExitStmt:           'End';
+ExitStmt:           'XEnd';
 
 GraphicsStmt:       'Graphics';
 
@@ -56,11 +78,26 @@ SimpleStmt:         'y';
 
 AttrStmt:           'a';
 
+VarType:
+        'Boolean' | 'BOOL' | 'Integer' | 'INT' | 'String' | 'STR' | 'Single' | 'SNG' | 'Double' | 'DBL';
+
+Label:              '@' Name;
+
+Identifier:         TypedName | Name;
+
+TypedName:          Name TypeDescriptor;
+
+TypeDescriptor:     /[$#!%]/;
+
+Name:               /[_A-Za-z][_A-Za-z0-9]+/;
+
 Expression:         /[^:\n]+/;
 EOL:                "\n";
 Sep:                ':' | "\n";
 StmtSep:            EOL* ':' EOL*;
-Comment:            ("'" | 'Rem') (!("\n") /[^\n$]/)*;
+
+Comment[ws=" \t"]:
+        ("'" | 'Rem') (!("\n") /[^\n]/)* "\n";
 """
 
 # TODO: move these to different files.
@@ -88,5 +125,5 @@ def create_metamodel(**kwargs):
         debug_mode = kwargs['debug']
     except KeyError:
         debug_mode = False
-    return metamodel_from_str(grammar, classes=[Expression, SelectStmt], skipws=True, ws='\t ',
+    return metamodel_from_str(grammar, classes=[Expression, SelectStmt], ws=" \t", skipws=True,
                               ignore_case=True, debug=debug_mode)
