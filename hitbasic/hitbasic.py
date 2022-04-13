@@ -55,7 +55,7 @@ SimpleStmt:         'y';
 
 AttrStmt:           'a';
 
-Expression:         /[^:]+/;
+Expression:         /[^:\n]+/;
 EOL:                "\n";
 Sep:                ':' | "\n";
 StmtSep:            EOL* ':' EOL*;
