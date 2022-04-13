@@ -10,12 +10,12 @@ from contextlib import suppress
 from hitbasic import hitbasic
 
 
-class TestSource(unittest.TestCase):
+class TestSource: #(unittest.TestCase):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.method_name = args[0]
-        self.parser = hitbasic.create_parser()
+        self.metamodel = hitbasic.create_metamodel()
 
 
     def generate_source(self, filename):

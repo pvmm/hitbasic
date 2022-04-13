@@ -53,6 +53,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
+    Dim a = 1
+    CLS
+        
     ' Teste
     Print 3 :: Print 1 : Print 0
     Rem Lol

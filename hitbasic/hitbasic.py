@@ -4,9 +4,9 @@ grammar = """
 Program[ws=" \t"]:
     Sep*- statements*=AllStmtTypes[/(:|\n)+/] Sep*-;
 
-MinStmtTypes:
+MinStmtTypes[ws=" \t"]:
     DimStmt | IfThenElseStmt | IfThenStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt |
-    ForStmt | PrintStmt | BranchStmt | ExitStmt | GraphicsStmt | LetStmt | DefStmt | InputStmt | PlayStmt |
+    ForStmt | PrintStmt | BranchStmt | GraphicsStmt | LetStmt | DefStmt | InputStmt | PlayStmt |
     SwitcherStmt | SimpleStmt | AttrStmt; 
 
 AllStmtTypes:
@@ -34,7 +34,19 @@ FuncStmtEnd:        'End' 'Function';
 
 SubStmt:            'Sub';
 
-DimStmt:            'Dim';
+DimStmt[ws=' \t\n']:
+    'Dim' vars+=DimVarDecl[/,/];
+
+DimVarDecl:         DimVar 'As' VarType '=' DimAttr |
+                    DimVar 'As' VarType |
+                    DimVar '=' DimAttr |
+                    DimVar;
+
+DimVar:             name=Name ('(' ranges*=DimRangeExpr[/,/] ')')?;
+
+DimRangeExpr:       Expression 'To' Expression | Expression;
+
+DimAttr:            Expression | '{' Expression '}';
 
 IfThenElseStmt[ws=" \t\n"]:
     'If' expr=Expression 'Then' ThenClause 'Else' ElseClause EndIfStmt;
@@ -53,11 +65,12 @@ ElseClauseTypes[ws=" \t"]: !('End' 'If')- MinStmtTypes;
 EndIfStmt:          'End' 'If' &Sep+;
 
 SelectStmt:
-    'Select' expr=Expression ':' Sep*- cases*=CaseStmtTypes[/(:|\n)+/] Sep*- SelectStmtEnd;
+    'Select' expr=Expression Sep*- cases*=CaseStmtTypes[/(:|\n)+/] Sep*- SelectStmtEnd;
 
 CaseStmtTypes:      !('End' 'Select')- (CaseStmt | MinStmtTypes);
 
-CaseStmt:           'Case'- expr=Expression ':';
+CaseStmt[ws=' \t\n']:
+    'Case'- ('Else' | expr=Expression);
 
 SelectStmtEnd:      'End' 'Select' &Sep+;
 
@@ -71,7 +84,8 @@ NextStmt:           'Next';
 
 ForStmt:            'For';
 
-PrintStmt:          'Print' num=INT;
+PrintStmt[ws=' \t\n']:
+    'Print' num?=INT;
 
 BranchStmt:         'Goto';
 
@@ -89,12 +103,15 @@ PlayStmt:           'Play';
 
 SwitcherStmt:       'x';
 
-SimpleStmt:         'y';
+SimpleStmt[ws=' \t\n']:
+    keyword=KeywordStmt;
+
+KeywordStmt:        'Beep' | 'Cls' | 'End' | 'Nop';
 
 AttrStmt:           'a';
 
 VarType:
-        'Boolean' | 'BOOL' | 'Integer' | 'INT' | 'String' | 'STR' | 'Single' | 'SNG' | 'Double' | 'DBL';
+    'Boolean' | 'BOOL' | 'Integer' | 'INT' | 'String' | 'STR' | 'Single' | 'SNG' | 'Double' | 'DBL';
 
 Label:              '@' Name;
 
@@ -104,9 +121,9 @@ TypedName:          Name TypeDescriptor;
 
 TypeDescriptor:     /[$#!%]/;
 
-Name:               /[_A-Za-z][_A-Za-z0-9]+/;
+Name:               /[_A-Za-z][_A-Za-z0-9]*/;
 
-Expression:         /[^:\n]+/;
+Expression:         /[^,:\n]+/;
 EOL:                "\n";
 Sep:                ':' | "\n";
 StmtSep:            EOL* ':' EOL*;
