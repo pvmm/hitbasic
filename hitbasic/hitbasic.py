@@ -2,18 +2,18 @@ from textx import metamodel_from_str, get_children_of_type
 
 grammar = """
 Program[ws=" \t"]:
-        Sep*- statements*=AllStmtTypes[/(:|\n)+/] Sep*-;
+    Sep*- statements*=AllStmtTypes[/(:|\n)+/] Sep*-;
 
 MinStmtTypes:
-        DimStmt | IfThenElseStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt | ForStmt |
-        PrintStmt | BranchStmt | ExitStmt | GraphicsStmt | LetStmt | DefStmt | InputStmt | PlayStmt |
-        SwitcherStmt | SimpleStmt | AttrStmt; 
+    DimStmt | IfThenElseStmt | IfThenStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt |
+    ForStmt | PrintStmt | BranchStmt | ExitStmt | GraphicsStmt | LetStmt | DefStmt | InputStmt | PlayStmt |
+    SwitcherStmt | SimpleStmt | AttrStmt; 
 
 AllStmtTypes:
-        FuncStmt | SubStmt | MinStmtTypes;
+    FuncStmt | SubStmt | MinStmtTypes;
 
 FuncStmt[ws=" \t\n"]:
-        header=FuncHeads Sep*- body*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
+    header=FuncHeads Sep*- body*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
 
 FuncHeads:          FuncHead | FuncHeadTyped;
 
@@ -24,7 +24,7 @@ FuncHeadTyped:      'Function' TypedName '(' params*=FuncVarDecl[/(,|\n)+/] ')';
 FuncVarDecl:        Name 'As' VarType | TypedName;
 
 FuncStmtTypes[ws=" \t"]:
-        !('End' 'Function')- (ReturnStmt | MinStmtTypes);
+    !('End' 'Function')- (ReturnStmt | MinStmtTypes);
 
 ReturnStmt:         'Return' Identifier;
 
@@ -36,9 +36,24 @@ SubStmt:            'Sub';
 
 DimStmt:            'Dim';
 
-IfThenElseStmt:     'If';
+IfThenElseStmt[ws=" \t\n"]:
+    'If' expr=Expression 'Then' ThenClause 'Else' ElseClause EndIfStmt;
 
-SelectStmt:         'Select' expr=Expression ':' Sep*- cases*=CaseStmtTypes[/(:|\n)+/] Sep*- SelectStmtEnd;
+IfThenStmt:
+    'If' expr=Expression 'Then' ThenClause EndIfStmt;
+
+ThenClause: statements*=ThenClauseTypes[/(:|\n)+/];
+
+ThenClauseTypes[ws=" \t"]: !('End' 'If' | 'Else')- MinStmtTypes;
+
+ElseClause: statements*=ElseClauseTypes[/(:|\n)+/];
+
+ElseClauseTypes[ws=" \t"]: !('End' 'If')- MinStmtTypes;
+
+EndIfStmt:          'End' 'If' &Sep+;
+
+SelectStmt:
+    'Select' expr=Expression ':' Sep*- cases*=CaseStmtTypes[/(:|\n)+/] Sep*- SelectStmtEnd;
 
 CaseStmtTypes:      !('End' 'Select')- (CaseStmt | MinStmtTypes);
 
