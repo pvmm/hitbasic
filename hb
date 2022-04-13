@@ -53,13 +53,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
-    Print 3 : Print 1
-'   Select xpto:
-'       Case bla:
-'          Print 7 :
-'       Case bla2:
-'          Print 8 : Print 9
-'   End Select
+    Print 3 :: Print 1 : Print 0
+    Select xpto:
+        Case bla:
+            Print 7 :
+
+        Case bla2:
+            Print 8 : Print 9
+    End Select
     Print 4 : Print 2 :::::
     Print 10
 """

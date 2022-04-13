@@ -1,7 +1,7 @@
 from textx import metamodel_from_str, get_children_of_type
 
 grammar = """
-Program:            statements*=Statements[/[:\n]*/] EOL?;
+Program:            statements*=Statements[/[:\n]+/] EOL?;
 Statements:         Sep*- StmtTypes;
 StmtTypes:          FunctionStmt | SubStmt | DimStmt | IfThenElseStmt | SelectStmt | DoLoopStmt | CloseStmt |
                     OpenStmt | NextStmt | ForStmt | PrintStmt | BranchStmt | ExitStmt | GraphicsStmt | LetStmt |
@@ -18,9 +18,10 @@ DimStmt:            'Dim';
 
 IfThenElseStmt:     'If';
 
-SelectStmt:         'Select' expr=Expression ':'- Sep+ cases*=CaseStmt SelectStmtEnd;
-CaseStmt:           'Case'- expr=Expression ':'- statements*=Statements[/[:\n]*/] CaseStmtEnd-;
-CaseStmtEnd:        Sep+ &( ( 'End' 'Select' | 'Case' ) );
+SelectStmt:         'Select' expr=Expression ':'- Sep+ cases*=CaseStmt[/[:\n]+/] SelectStmtEnd;
+CaseStmt:           Sep*- 'Case'- expr=Expression ':'- statements*=CaseStmtStmts[/[:\n]+/] CaseStmtEnd-;
+CaseStmtStmts:      Sep*- !( 'Case' | 'End' 'Select' )- StmtTypes;
+CaseStmtEnd:        &( ( 'End' 'Select' | 'Case' ) );
 SelectStmtEnd:      'End' 'Select' &Sep+;
 
 DoLoopStmt:         'Do';
@@ -59,7 +60,7 @@ Expression:         /[^:\n]+/;
 EOL:                "\n";
 Sep:                ':' | "\n";
 StmtSep:            EOL* ':' EOL*;
-Comment:            ("'" | 'Rem') !("\n") /[^\n]*/;
+Comment:            ("'" | 'Rem') (!("\n") /[^\n$]/)*;
 """
 
 # TODO: move these to different files.
