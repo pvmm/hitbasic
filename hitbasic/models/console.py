@@ -1,4 +1,6 @@
 # Console, printables and related models
+import os
+
 
 class PrintParams(object):
     def __init__(self, parent, exprs, using):
@@ -15,12 +17,13 @@ class PrintParams(object):
 
 class PrintStmt(object):
     def __init__(self, parent, fileno, params):
+        self.spacing = os.getenv('HITBASIC_SPACING', ' ')
         self.parent = parent
         self.fileno = fileno
         self.params = params
 
     def __str__(self):
-        return "{} {}".format(self.fileno + ";" if self.fileno else "", self.params)
+        return f"PRINT{self.spacing}%s%s" % (f"{self.fileno};{self.spacing}" if self.fileno else '', self.params)
 
     def write(self, file):
         pass
