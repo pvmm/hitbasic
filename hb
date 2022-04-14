@@ -53,6 +53,25 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
+        Do
+            Print "x"
+        Loop While a > 0 
+        ' 1st variant
+Select a
+Case 1
+    Cls
+    Print
+Case 2
+    'Play "A"
+    Print
+End Select
+        Input j
+For i%(0) = 1 to 20
+    ? "current number: ";i%(0)
+    If i%(0) mod 1 Then Next i%(0)
+    ? "next number is even: ";i%(0)+1
+Next i%(0)
+'testing
         Fori = 1to20
     ?i
     Ifi = 1 Then?i + 1
