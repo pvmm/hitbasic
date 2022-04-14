@@ -70,3 +70,10 @@ next i
 ```
 
 The `docs` directory contains specifications of what constitutes a valid **HitBasic** program.
+
+
+TODO
+====
+
+Planned features:
+* tail recursion: allows recursive functions in MSX-BASIC;

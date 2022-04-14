@@ -67,10 +67,10 @@ ThenClause: statements*=ThenStmtTypes[/:+/ eolterm];
 EndIfClause: statements*=EndIfStmtTypes[/:+/ eolterm];
 
 IfThenElseStmt:
-    'If' expr=Expression 'Then'? Sep? ThenBlock Sep? 'Else' Sep? EndIfBlock Sep? EndIfStmt;
+    'If' expr=Expression ('Then' | Sep)? Sep* ThenBlock Sep* 'Else' Sep* EndIfBlock Sep* EndIfStmt;
 
 IfThenStmt:
-    'If' expr=Expression 'Then'? Sep? EndIfBlock Sep? EndIfStmt;
+    'If' expr=Expression ('Then' | Sep)? Sep* EndIfBlock Sep* EndIfStmt;
 
 ThenBlock: statements*=ThenStmtTypes[/(:|\n)+/];
 

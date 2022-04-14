@@ -56,11 +56,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 ' 1st variant
 If var = 1 Then
     Cls
-    ?"var = 1" : Nop
-    Else
+    ?"var = 1" : Nop :
+    : Else
     Cls
     ?"var is something else!"
-    End
+    End :
 End If : Nop
 """
         mm = hitbasic.create_metamodel(debug=True)
