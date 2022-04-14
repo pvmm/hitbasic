@@ -126,7 +126,8 @@ SimpleStmt[ws=' \t\n']:
 
 KeywordStmt:        'Beep' | 'Cls' | 'End' | 'Nop';
 
-AttrStmt:           'a=b';
+AttrStmt:           'Let'? definition=VarDefn;
+VarDefn:            var=Var '=' expr=Expression;
 
 VarType:
     'Boolean' | 'BOOL' | 'Integer' | 'INT' | 'String' | 'STR' | 'Single' | 'SNG' | 'Double' | 'DBL';
