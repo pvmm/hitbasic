@@ -53,6 +53,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
+        Do
+            Print "x"
+        Loop While a > 0 
         ' 1st variant
 Select a
 Case 1
