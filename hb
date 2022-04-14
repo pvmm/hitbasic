@@ -53,31 +53,20 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
-    If var=1 Then Nop
-    Dim a = 1
-        
-    'Print
-    ' Teste
-    Print 3 :: Print 1 : Print 0
-    Rem Lol
-    Print 2
-
-    Print 4 :
-    Select xpto:
-        Case bla:
-            Print 7 :
-            'bla found
-        Case bla2:
-            'bla2 found
-            Print 8 : Print 9
-    End Select
-    Print 5 : Print 6 :::::
-    CLS
+' 1st variant
+If var = 1 Then
+    Cls
+    ?"var = 1" : Nop
+    Else
+    Cls
+    ?"var is something else!"
+    End
+End If : Nop
 """
         mm = hitbasic.create_metamodel(debug=True)
         model = mm.model_from_str(source_code)
         for statement in model.statements:
-            print('stmt =',statement)
+            print('stmt =', statement)
             #statement.write(file)
         argp.exit(status=0)
 

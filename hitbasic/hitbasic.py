@@ -67,12 +67,12 @@ ThenClause: statements*=ThenStmtTypes[/:+/ eolterm];
 EndIfClause: statements*=EndIfStmtTypes[/:+/ eolterm];
 
 IfThenElseStmt:
-    'If' expr=IfExpressionThen 'Then'? Sep? ThenBlock Sep? 'Else' Sep? EndIfBlock EndIfStmt &Sep;
+    'If' expr=Expression 'Then'? Sep? ThenBlock Sep? 'Else' Sep? EndIfBlock Sep? EndIfStmt;
 
 IfThenStmt:
-    'If' expr=IfExpressionThen 'Then'? Sep? EndIfBlock Sep? EndIfStmt &Sep;
+    'If' expr=Expression 'Then'? Sep? EndIfBlock Sep? EndIfStmt;
 
-ThenBlock[ws=' \t\n']: statements*=ThenStmtTypes[/\n+/];
+ThenBlock: statements*=ThenStmtTypes[/(:|\n)+/];
 
 EndIfStmtTypes:     !( 'End' 'If' )- MinStmtTypes;
 
@@ -150,16 +150,275 @@ TypeDescriptor:     /[$#!%]/;
 
 Name:               /[_A-Za-z][_A-Za-z0-9]*/;
 
-Expression:         /[^, :\n]+/;
+
+Expression2:        /[^, :\n]+/;
+
+Expression:         ImpOp; // Imp: lowest precedence operator
+ImpOp:              op1=EqvOp ( 'Imp'-        op2=EqvOp )*;
+EqvOp:              op1=XorOp ( 'Eqv'-        op2=XorOp )*;
+XorOp:              op1=_OrOp ( 'Xor'-        op2=_OrOp )*;
+_OrOp:              op1=AndOp ( 'Or'-         op2=AndOp )*;
+AndOp:              op1=NotOp ( 'And'-        op2=NotOp )*;
+NotOp:             opr?='Not'                 op_=CmpOp;
+CmpOp:              op1=AddOp ( opr=CmpToken  op2=AddOp )*;
+CaseOp:             opr=CmpToken              op_=AddOp;    // select-case operation
+AddOp:              op1=ModOp ( opr=/[+-]/    op2=ModOp )*;
+ModOp:              op1=IdvOp ( 'Mod'-        op2=IdvOp )*;
+IdvOp:              op1=MulOp ( opr='~'       op2=MulOp )*; // bug: textX doesn´t  allow '\' character 
+MulOp:              op1=NegOp ( opr=/(\*|\/)/ op2=NegOp )*;
+NegOp:              opr=/[+-]*/               op_=ExpOp;
+ExpOp:              op1=_Atom ( '^'-          op2=_Atom )*;
+_Atom:              Numeral | STRING | Identifier | '(' Expression ')'; // highest
+
+Numeral:            FLOAT | INT;
+CmpToken:           '=' | '<>' | '<=' | '<' | '>=' | '>';
+Signal:             /[+-]/;
+
 EOL:                "\n";
 Sep:                ':' | "\n";
 StmtSep:            EOL* ':' EOL*;
 
 Comment[ws=" \t"]:
-        ("'" | 'Rem') (!("\n") /[^\n]/)* EOL;
+        ( "'" | 'Rem' ) ( !( "\n" ) /[^\n]/ )* EOL;
 """
 
 # TODO: move these to different files.
+class ImpOp(object):
+    def __init__(self, parent, op1, op2=None):
+        self.parent = parent
+        self.op1 = op1
+        self.op2 = op2
+
+    def __str__(self):
+        if self.op2:
+            expr = self.op1
+
+            for op2 in self.op2:
+                expr = f"({expr} Imp {op2})";
+
+            return "{}".format(expr)
+        else:
+            return "{}".format(self.op1)
+
+
+class EqvOp(object):
+    def __init__(self, parent, op1, op2=None):
+        self.parent = parent
+        self.op1 = op1
+        self.op2 = op2
+
+    def __str__(self):
+        if self.op2:
+            expr = self.op1
+
+            for op2 in self.op2:
+                expr = f"({expr} Eqv {op2})";
+
+            return "{}".format(expr)
+        else:
+            return "{}".format(self.op1)
+
+
+class XorOp(object):
+    def __init__(self, parent, op1, op2=None):
+        self.parent = parent
+        self.op1 = op1
+        self.op2 = op2
+
+    def __str__(self):
+        if self.op2:
+            expr = self.op1
+
+            for op2 in self.op2:
+                expr = f"({expr} Xor {op2})";
+
+            return "{}".format(expr)
+        else:
+            return "{}".format(self.op1)
+
+
+class _OrOp(object):
+    def __init__(self, parent, op1, op2=None):
+        self.parent = parent
+        self.op1 = op1
+        self.op2 = op2
+
+    def __str__(self):
+        if self.op2:
+            expr = self.op1
+
+            for op2 in self.op2:
+                expr = f"({expr} Or {op2})";
+
+            return "{}".format(expr)
+        else:
+            return "{}".format(self.op1)
+
+
+class AndOp(object):
+    def __init__(self, parent, op1, op2=None):
+        self.parent = parent
+        self.op1 = op1
+        self.op2 = op2
+
+    def __str__(self):
+        if self.op2:
+            expr = self.op1
+
+            for op2 in self.op2:
+                expr = f"({expr} And {op2})"
+
+            return "{}".format(expr)
+        else:
+            return "{}".format(self.op1)
+
+
+class NotOp(object):
+    def __init__(self, parent, opr, op_):
+        self.parent = parent
+        self.opr = opr
+        self.op_ = op_
+
+    def __str__(self):
+        if self.opr:
+            return "(Not {})".format(self.op_)
+        else:
+            return "{}".format(self.op_)
+
+
+class CmpOp(object):
+    def __init__(self, parent, op1, opr=None, op2=None):
+        self.parent = parent
+        self.op1 = op1
+        self.opr = opr
+        self.op2 = op2
+
+    def __str__(self):
+        if self.opr:
+            expr = self.op1
+
+            for i, op2 in enumerate(self.op2):
+                opr = self.opr[i]
+                expr = f"({expr} {opr} {op2})"
+
+            return "{}".format(expr)
+        else:
+            return "{}".format(self.op1)
+
+
+class AddOp(object):
+    def __init__(self, parent, op1, opr=None, op2=None):
+        self.parent = parent
+        self.op1 = op1
+        self.opr = opr
+        self.op2 = op2
+
+    def __str__(self):
+        if self.opr:
+            expr = self.op1
+
+            for i, op2 in enumerate(self.op2):
+                opr = self.opr[i]
+                expr = f"({expr} {opr} {op2})"
+
+            return "{}".format(expr)
+        else:
+            return "{}".format(self.op1)
+
+
+class ModOp(object):
+    def __init__(self, parent, op1, op2=None):
+        self.parent = parent
+        self.op1 = op1
+        self.op2 = op2
+
+    def __str__(self):
+        if self.op2:
+            expr = self.op1
+
+            for op2 in self.op2:
+                expr = f"({expr} Mod {op2})"
+
+            return "{}".format(expr)
+        else:
+            return "{}".format(self.op1)
+
+
+class IdvOp(object):
+    def __init__(self, parent, op1, opr, op2=None):
+        self.parent = parent
+        self.op1 = op1
+        self.opr = opr
+        self.op2 = op2
+
+    def __str__(self):
+        if self.op2:
+            expr = self.op1
+
+            for op2 in self.op2:
+                expr = f"({expr} \\ {op2})"
+
+            return "{}".format(expr)
+        else:
+            return "{}".format(self.op1)
+
+
+class MulOp(object):
+    def __init__(self, parent, op1, opr=None, op2=None):
+        self.parent = parent
+        self.op1 = op1
+        self.opr = opr
+        self.op2 = op2
+
+    def __str__(self):
+        if self.opr:
+            expr = self.op1
+
+            for i, op2 in enumerate(self.op2):
+                opr = self.opr[i]
+                expr = f"({expr} {opr} {op2})"
+
+            return "{}".format(expr)
+        else:
+            return "{}".format(self.op1)
+
+
+class NegOp(object):
+    def __init__(self, parent, opr, op_):
+        self.parent = parent
+        self.opr = opr
+        self.op_ = op_
+
+    def __str__(self):
+        if self.opr:
+            expr = self.op_
+
+            for opr in self.opr:
+                expr = f"({opr} {expr})"
+
+            return "({})".format(expr)
+        else:
+            return "{}".format(self.op_)
+
+
+class ExpOp(object):
+    def __init__(self, parent, op1, op2=None):
+        self.parent = parent
+        self.op1 = op1
+        self.op2 = op2
+
+    def __str__(self):
+        if self.op2:
+            expr = self.op1
+
+            for op2 in self.op2:
+                expr = f"({expr} ^ {op2})";
+
+            return "{}".format(expr)
+        else:
+            return "{}".format(self.op1)
+
+
 class Expression(object):
     def __init__(self, parent, expr):
         self.parent = parent
@@ -167,6 +426,29 @@ class Expression(object):
 
     def __str__(self):
         return "{}".format(self.expr)
+
+
+class PrintParams(object):
+    def __init__(self, parent, exprs, using):
+        self.exprs = exprs
+        self.using = using
+
+    def __str__(self):
+        val = ""
+        for expr in self.exprs:
+            val += f"{expr}";
+
+        return val;
+
+
+class PrintStmt(object):
+    def __init__(self, parent, fileno, params):
+        self.parent = parent
+        self.fileno = fileno
+        self.params = params
+
+    def __str__(self):
+        return "{} {}".format(self.fileno + ";" if self.fileno else "", self.params)
 
 
 class SelectStmt(object):
@@ -180,9 +462,11 @@ class SelectStmt(object):
 
 
 def create_metamodel(**kwargs):
+    classes = [SelectStmt, PrintStmt, PrintParams, ImpOp, EqvOp, XorOp, _OrOp, AndOp,
+               NotOp, CmpOp, AddOp, ModOp, IdvOp, MulOp, NegOp, ExpOp, Expression]
     try:
         debug_mode = kwargs['debug']
     except KeyError:
         debug_mode = False
-    return metamodel_from_str(grammar, classes=[Expression, SelectStmt], ws=" \t", skipws=True,
+    return metamodel_from_str(grammar, classes=classes, ws=" \t", skipws=True,
                               ignore_case=True, debug=debug_mode)
