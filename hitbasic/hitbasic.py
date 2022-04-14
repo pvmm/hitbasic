@@ -24,7 +24,7 @@ FuncHeadTyped:      'Function' TypedName '(' params*=FuncVarDecl[/(,|\n)+/] ')';
 FuncVarDecl:        Name 'As' VarType | TypedName;
 
 FuncStmtTypes[ws=" \t"]:
-    !('End' 'Function')- (ReturnStmt | MinStmtTypes);
+    !('End' 'Function')- ( ReturnStmt | MinStmtTypes );
 
 ReturnStmt:         'Return' Identifier;
 
@@ -42,7 +42,7 @@ DimVarDecl:         DimVar 'As' VarType '=' DimAttr |
                     DimVar '=' DimAttr |
                     DimVar;
 
-DimVar:             name=Name ('(' ranges*=DimRangeExpr[/,/] ')')?;
+DimVar:             name=Name ( '(' ranges*=DimRangeExpr[/,/] ')' )?;
 
 DimRangeExpr:       Expression 'To' Expression | Expression;
 
@@ -67,10 +67,10 @@ EndIfStmt:          'End' 'If' &Sep+;
 SelectStmt:
     'Select' expr=Expression Sep*- cases*=CaseStmtTypes[/(:|\n)+/] Sep*- SelectStmtEnd;
 
-CaseStmtTypes:      !('End' 'Select')- (CaseStmt | MinStmtTypes);
+CaseStmtTypes:      !( 'End' 'Select' )- ( CaseStmt | MinStmtTypes );
 
 CaseStmt[ws=' \t\n']:
-    'Case'- ('Else' | expr=Expression);
+    'Case'- ( 'Else' | expr=Expression );
 
 SelectStmtEnd:      'End' 'Select' &Sep+;
 
@@ -85,11 +85,17 @@ NextStmt:           'Next';
 ForStmt:            'For';
 
 PrintStmt[ws=' \t\n']:
-    'Print' num?=INT;
+    ('Print' | '?') fileno?=PrintFileNo params=PrintParams;
 
-BranchStmt:         'Goto';
+PrintFileNo:        '#' Expression ',';
 
-ExitStmt:           'XEnd';
+PrintParams:        exprs*=Expression[/(,|;)/] using?=PrintUsing;
+
+PrintUsing:         'Using' fmt=PrintUsingFmt ';' exprs+=Expression[/(,|;)/];
+
+PrintUsingFmt:      String | Identifier;
+
+BranchStmt:         'Goto' | 'Gosub';
 
 GraphicsStmt:       'Graphics';
 
@@ -116,6 +122,9 @@ VarType:
 Label:              '@' Name;
 
 Identifier:         TypedName | Name;
+
+String[noskipws]:
+    '"' /[^"]*/ '"';
 
 TypedName:          Name TypeDescriptor;
 

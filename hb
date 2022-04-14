@@ -56,6 +56,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     Dim a = 1
     CLS
         
+    Print
     ' Teste
     Print 3 :: Print 1 : Print 0
     Rem Lol
@@ -71,7 +72,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
             Print 8 : Print 9
     End Select
     Print 5 : Print 6 :::::
-    Print 10"""
+    Print 10
+    ' asda
+    """
         mm = hitbasic.create_metamodel(debug=True)
         model = mm.model_from_str(source_code)
         for statement in model.statements:
