@@ -1,6 +1,6 @@
 from textx import metamodel_from_str, get_children_of_type
 
-grammar = """
+grammar = r"""
 Program[ws=" \t"]:
     Sep*- statements*=AllStmtTypes[/(:|\n)+/] Sep*-;
 
@@ -164,7 +164,7 @@ CmpOp:              op1=AddOp ( opr=CmpToken  op2=AddOp )*;
 CaseOp:             opr=CmpToken              op_=AddOp;    // select-case operation
 AddOp:              op1=ModOp ( opr=/[+-]/    op2=ModOp )*;
 ModOp:              op1=IdvOp ( 'Mod'-        op2=IdvOp )*;
-IdvOp:              op1=MulOp ( opr='~'       op2=MulOp )*; // bug: textX doesn´t  allow '\' character 
+IdvOp:              op1=MulOp ( '/'           op2=MulOp )*;
 MulOp:              op1=NegOp ( opr=/(\*|\/)/ op2=NegOp )*;
 NegOp:              opr=/[+-]*/               op_=ExpOp;
 ExpOp:              op1=_Atom ( '^'-          op2=_Atom )*;
@@ -345,10 +345,9 @@ class ModOp(object):
 
 
 class IdvOp(object):
-    def __init__(self, parent, op1, opr, op2=None):
+    def __init__(self, parent, op1, op2=None):
         self.parent = parent
         self.op1 = op1
-        self.opr = opr
         self.op2 = op2
 
     def __str__(self):
@@ -356,7 +355,7 @@ class IdvOp(object):
             expr = self.op1
 
             for op2 in self.op2:
-                expr = f"({expr} \\ {op2})"
+                expr = rf"({expr} \ {op2})"
 
             return "{}".format(expr)
         else:
