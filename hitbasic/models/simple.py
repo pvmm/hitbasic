@@ -3,7 +3,7 @@
 class SimpleStmt(object):
     def __init__(self, parent, keyword):
         self.parent = parent
-        self.keyword = keyword
+        self.keyword = keyword.upper()
 
     def __str__(self):
         return "{}".format(self.keyword)

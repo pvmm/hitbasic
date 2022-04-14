@@ -2,7 +2,7 @@
 import os
 
 
-class PrintParams(object):
+class PrintExprs(object):
     def __init__(self, parent, exprs, using):
         self.exprs = exprs
         self.using = using
@@ -11,7 +11,6 @@ class PrintParams(object):
         val = ""
         for expr in self.exprs:
             val += f"{expr}";
-
         return val;
 
 
@@ -19,8 +18,8 @@ class PrintStmt(object):
     def __init__(self, parent, fileno, params):
         self.spacing = os.getenv('HITBASIC_SPACING', ' ')
         self.parent = parent
-        self.fileno = fileno
-        self.params = params
+        self.fileno = fileno.id if fileno else None
+        self.params = params.exprs if params else None
 
     def __str__(self):
         return f"PRINT{self.spacing}%s%s" % (f"{self.fileno};{self.spacing}" if self.fileno else '', self.params)
