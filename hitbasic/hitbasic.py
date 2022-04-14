@@ -125,7 +125,9 @@ LetStmt:            'Let';
 
 DefStmt:            'Def Fn';
 
-InputStmt:          'Input';
+InputStmt:          'Input' ( InputPrompt | InputFile );
+InputPrompt:        ( String ';' )? vars*=Var[/,/];
+InputFile:          '#' NumericExp ',' vars*=Var[/,/];
 
 PlayStmt:           'Play';
 
