@@ -98,7 +98,8 @@ DoCond:             ( 'While' | 'Until' ) expr=NumericExp;
 DoStmtTypes:        !( 'Loop' )- ( ExitDoStmt | MinStmtTypes );
 ExitDoStmt:         'Exit' 'Do';
 
-CloseStmt:          'Close';
+CloseStmt:          'Close' Fileno;
+Fileno:             '#' NumericExp;
 
 OpenStmt:           'Open';
 
