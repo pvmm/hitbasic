@@ -96,7 +96,7 @@ End If : Nop
         model = mm.model_from_str(source_code)
         for statement in model.statements:
             print('stmt =', statement)
-            #statement.write(file)
+            statement.write(None)
         argp.exit(status=0)
 
     if args.stdin is True:

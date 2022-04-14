@@ -1,4 +1,8 @@
+import inspect 
+import sys
+
 from textx import metamodel_from_str, get_children_of_type
+from hitbasic.models import *;
 
 grammar = r"""
 Program[ws=" \t"]:
@@ -44,15 +48,15 @@ DimRangeDecl:       NumericExp 'To' NumericExp | NumericExp;
 
 DimAttr:            NumericExp | '{' NumericExp '}';
 
-ConditionalStmt:    IfThenElseStmt | IfThenStmt | IfElseOneLiner | IfThenOneLiner;
+ConditionalStmt:    IfThenElseStmt | IfThenStmt | IfThenElseOneLiner | IfThenOneLiner;
 
 IfExpressionThen:   !( 'Then' ) Expression 'Then'-;
 
-IfElseOneLiner[ws=' \t']:
-    'If' expr=IfExpressionThen statements*=OneLinerStmtTypes[/:+/ eolterm]
-    'Else' statements*=OneLinerStmtTypes[/:+/ eolterm];
+IfThenElseOneLiner:
+    'If' expr=IfExpressionThen thenStmts*=OneLinerStmtTypes[/:+/ eolterm]
+    'Else' elseStmts*=OneLinerStmtTypes[/:+/ eolterm];
 
-IfThenOneLiner[ws=' \t']:
+IfThenOneLiner:
     'If' expr=IfExpressionThen statements*=OneLinerStmtTypes[/:+/ eolterm];
 
 OneLinerStmtTypes:  !( 'Else' )- MinStmtTypes;
@@ -63,16 +67,13 @@ ThenClause: statements*=ThenStmtTypes[/:+/ eolterm];
 EndIfClause: statements*=EndIfStmtTypes[/:+/ eolterm];
 
 IfThenElseStmt:
-    'If' expr=Expression ('Then' | Sep)? Sep* ThenBlock Sep* 'Else' Sep* EndIfBlock Sep* EndIfStmt;
+    'If' expr=Expression ('Then' | Sep)? Sep* thenStmts*=ThenStmtTypes[/(:|\n)+/] Sep*
+    'Else' Sep* elseStmts*=EndIfStmtTypes[/(:|\n)+/] Sep* EndIfStmt;
 
 IfThenStmt:
-    'If' expr=Expression ('Then' | Sep)? Sep* EndIfBlock Sep* EndIfStmt;
-
-ThenBlock: statements*=ThenStmtTypes[/(:|\n)+/];
+    'If' expr=Expression ('Then' | Sep)? Sep* statements*=EndIfStmtTypes[/(:|\n)+/]  Sep* EndIfStmt;
 
 EndIfStmtTypes:     !( 'End' 'If' )- MinStmtTypes;
-
-EndIfBlock: statements*=EndIfStmtTypes[/(:|\n)+/];
 
 ThenStmtTypes:      !( 'Else' )- MinStmtTypes;
 
@@ -118,7 +119,8 @@ LetStmt:            'Let';
 
 DefStmt:            'Def Fn';
 
-InputStmt:          'Input' ( InputPrompt | InputFile );
+InputStmt:          'Input' args=InputArgs;
+InputArgs:          InputPrompt | InputFile;
 InputPrompt:        ( String ';' )? vars*=Var[/,/];
 InputFile:          '#' NumericExp ',' vars*=Var[/,/];
 
@@ -126,8 +128,7 @@ PlayStmt:           'Play';
 
 SwitcherStmt:       'x';
 
-SimpleStmt[ws=' \t\n']:
-    keyword=KeywordStmt;
+SimpleStmt[ws=' \t']:   keyword=KeywordStmt;
 
 KeywordStmt:        'Beep' | 'Cls' | 'End' | 'Nop';
 
@@ -190,290 +191,16 @@ Comment[ws=" \t"]:
         ( "'" | 'Rem' ) ( !( "\n" ) /[^\n]/ )* EOL;
 """
 
-# TODO: move these to different files.
-class ImpOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
-    def __str__(self):
-        if self.op2:
-            expr = self.op1
-
-            for op2 in self.op2:
-                expr = f"({expr} Imp {op2})";
-
-            return "{}".format(expr)
-        else:
-            return "{}".format(self.op1)
-
-
-class EqvOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
-    def __str__(self):
-        if self.op2:
-            expr = self.op1
-
-            for op2 in self.op2:
-                expr = f"({expr} Eqv {op2})";
-
-            return "{}".format(expr)
-        else:
-            return "{}".format(self.op1)
-
-
-class XorOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
-    def __str__(self):
-        if self.op2:
-            expr = self.op1
-
-            for op2 in self.op2:
-                expr = f"({expr} Xor {op2})";
-
-            return "{}".format(expr)
-        else:
-            return "{}".format(self.op1)
-
-
-class _OrOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
-    def __str__(self):
-        if self.op2:
-            expr = self.op1
-
-            for op2 in self.op2:
-                expr = f"({expr} Or {op2})";
-
-            return "{}".format(expr)
-        else:
-            return "{}".format(self.op1)
-
-
-class AndOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
-    def __str__(self):
-        if self.op2:
-            expr = self.op1
-
-            for op2 in self.op2:
-                expr = f"({expr} And {op2})"
-
-            return "{}".format(expr)
-        else:
-            return "{}".format(self.op1)
-
-
-class NotOp(object):
-    def __init__(self, parent, opr, op_):
-        self.parent = parent
-        self.opr = opr
-        self.op_ = op_
-
-    def __str__(self):
-        if self.opr:
-            return "(Not {})".format(self.op_)
-        else:
-            return "{}".format(self.op_)
-
-
-class CmpOp(object):
-    def __init__(self, parent, op1, opr=None, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.opr = opr
-        self.op2 = op2
-
-    def __str__(self):
-        if self.opr:
-            expr = self.op1
-
-            for i, op2 in enumerate(self.op2):
-                opr = self.opr[i]
-                expr = f"({expr} {opr} {op2})"
-
-            return "{}".format(expr)
-        else:
-            return "{}".format(self.op1)
-
-
-class AddOp(object):
-    def __init__(self, parent, op1, opr=None, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.opr = opr
-        self.op2 = op2
-
-    def __str__(self):
-        if self.opr:
-            expr = self.op1
-
-            for i, op2 in enumerate(self.op2):
-                opr = self.opr[i]
-                expr = f"({expr} {opr} {op2})"
-
-            return "{}".format(expr)
-        else:
-            return "{}".format(self.op1)
-
-
-class ModOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
-    def __str__(self):
-        if self.op2:
-            expr = self.op1
-
-            for op2 in self.op2:
-                expr = f"({expr} Mod {op2})"
-
-            return "{}".format(expr)
-        else:
-            return "{}".format(self.op1)
-
-
-class IdvOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
-    def __str__(self):
-        if self.op2:
-            expr = self.op1
-
-            for op2 in self.op2:
-                expr = rf"({expr} \ {op2})"
-
-            return "{}".format(expr)
-        else:
-            return "{}".format(self.op1)
-
-
-class MulOp(object):
-    def __init__(self, parent, op1, opr=None, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.opr = opr
-        self.op2 = op2
-
-    def __str__(self):
-        if self.opr:
-            expr = self.op1
-
-            for i, op2 in enumerate(self.op2):
-                opr = self.opr[i]
-                expr = f"({expr} {opr} {op2})"
-
-            return "{}".format(expr)
-        else:
-            return "{}".format(self.op1)
-
-
-class NegOp(object):
-    def __init__(self, parent, opr, op_):
-        self.parent = parent
-        self.opr = opr
-        self.op_ = op_
-
-    def __str__(self):
-        if self.opr:
-            expr = self.op_
-
-            for opr in self.opr:
-                expr = f"({opr} {expr})"
-
-            return "({})".format(expr)
-        else:
-            return "{}".format(self.op_)
-
-
-class ExpOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
-    def __str__(self):
-        if self.op2:
-            expr = self.op1
-
-            for op2 in self.op2:
-                expr = f"({expr} ^ {op2})";
-
-            return "{}".format(expr)
-        else:
-            return "{}".format(self.op1)
-
-
-class Expression(object):
-    def __init__(self, parent, expr):
-        self.parent = parent
-        self.expr = expr
-
-    def __str__(self):
-        return "{}".format(self.expr)
-
-
-class PrintParams(object):
-    def __init__(self, parent, exprs, using):
-        self.exprs = exprs
-        self.using = using
-
-    def __str__(self):
-        val = ""
-        for expr in self.exprs:
-            val += f"{expr}";
-
-        return val;
-
-
-class PrintStmt(object):
-    def __init__(self, parent, fileno, params):
-        self.parent = parent
-        self.fileno = fileno
-        self.params = params
-
-    def __str__(self):
-        return "{} {}".format(self.fileno + ";" if self.fileno else "", self.params)
-
-
-class SelectStmt(object):
-    def __init__(self, parent, expr, cases):
-        self.parent = parent
-        self.expr = expr
-        self.cases = cases
-
-    def write(self, file):
-        pass
-
-
 def create_metamodel(**kwargs):
-    classes = [SelectStmt, PrintStmt, PrintParams, ImpOp, EqvOp, XorOp, _OrOp, AndOp,
-               NotOp, CmpOp, AddOp, ModOp, IdvOp, MulOp, NegOp, ExpOp, Expression]
+    klasses = []
+
+    for module in [globals()[name] for name in modules]:
+        for name, obj in inspect.getmembers(module):
+            if inspect.isclass(obj):
+                klasses.append(obj)
+
     try:
         debug_mode = kwargs['debug']
     except KeyError:
         debug_mode = False
-    return metamodel_from_str(grammar, classes=classes, ws=" \t", skipws=True,
-                              ignore_case=True, debug=debug_mode)
+    return metamodel_from_str(grammar, classes=klasses, ws=" \t", skipws=True, ignore_case=True, debug=debug_mode)
