@@ -26,7 +26,7 @@ FuncVarDecl:        Name 'As' VarType | TypedName;
 FuncStmtTypes[ws=" \t"]:
     !('End' 'Function')- ( ReturnStmt | MinStmtTypes );
 
-ReturnStmt:         'Return' Identifier;
+ReturnStmt:         'Return' Var;
 
 FuncReturnType:     'As' VarType;
 
@@ -103,9 +103,9 @@ Fileno:             '#' NumericExp;
 
 OpenStmt:           'Open';
 
-NextStmt:           'Next' ( vars*=Identifier[/,/] )?;
+NextStmt:           'Next' ( vars*=Var[/,/] )?;
 
-ForStmt:            'For' var=Identifier '=' range=ForRangeDecl;
+ForStmt:            'For' var=Var '=' range=ForRangeDecl;
 ForRangeDecl:       begin=NumericExp 'to'- end=NumericExp ( 'Step'- step=NumericExp )?;
 
 PrintStmt[ws=' \t\n']:
@@ -117,7 +117,7 @@ PrintParams:        exprs*=Expression[/(,|;)/] ( using=PrintUsing )?;
 
 PrintUsing:         'Using' fmt=PrintUsingFmt ';' exprs+=Expression[/(,|;)/];
 
-PrintUsingFmt:      String | Identifier;
+PrintUsingFmt:      String | Var;
 
 BranchStmt:         'Goto' | 'Gosub';
 
@@ -145,6 +145,8 @@ VarType:
 
 Label:              '@' Name;
 
+Var:                Array | Identifier;
+Array:              Identifier '(' ( subscript*=NumericExp[/,/] )? ')';
 Identifier:         TypedName | Name;
 
 String[noskipws]:
@@ -172,7 +174,7 @@ IdvOp:              op1=MulOp ( '/'           op2=MulOp )*;
 MulOp:              op1=NegOp ( opr=/(\*|\/)/ op2=NegOp )*;
 NegOp:              opr=Signal*               op_=ExpOp;
 ExpOp:              op1=_Atom ( '^'-          op2=_Atom )*;
-_Atom:              Numeral | Identifier | '(' Expression ')'; // highest
+_Atom:              Numeral | Var | '(' Expression ')'; // highest
 
 CmpToken:           '=' | '<>' | '<=' | '<' | '>=' | '>';
 Signal:             /[-+]/;
