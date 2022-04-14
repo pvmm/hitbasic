@@ -42,9 +42,9 @@ DimVarDecl:         DimVar 'As' VarType '=' DimAttr |
                     DimVar '=' DimAttr |
                     DimVar;
 
-DimVar:             name=Name ( '(' ranges*=DimRangeExpr[/,/] ')' )?;
+DimVar:             name=Name ( '(' ranges*=DimRangeDecl[/,/] ')' )?;
 
-DimRangeExpr:       Expression 'To' Expression | Expression;
+DimRangeDecl:       Expression 'To' Expression | Expression;
 
 DimAttr:            Expression | '{' Expression '}';
 
@@ -98,9 +98,10 @@ CloseStmt:          'Close';
 
 OpenStmt:           'Open';
 
-NextStmt:           'Next';
+NextStmt:           'Next' ( vars*=Identifier[/,/] )?;
 
-ForStmt:            'For';
+ForStmt:            'For' Identifier '=' ForRangeDecl;
+ForRangeDecl:       Expression 'to' Expression ( 'Step' Expression )?;
 
 PrintStmt[ws=' \t\n']:
     ('Print' | '?') ( fileno=PrintFileNo )? params=PrintParams;
