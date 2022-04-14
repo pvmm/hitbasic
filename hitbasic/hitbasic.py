@@ -96,7 +96,8 @@ DoLoopStmt:         'Do' ( 'While' | 'Until' ) StmtSep statements*=DoStmtTypes[/
 DoStmtTypes:        !( 'Exit' 'Do' )- MinStmtTypes;
 DoStmt:             'Exit' 'Do';
 
-CloseStmt:          'Close';
+CloseStmt:          'Close' Fileno;
+Fileno:             '#' NumericExp;
 
 OpenStmt:           'Open';
 
