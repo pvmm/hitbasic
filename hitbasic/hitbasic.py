@@ -5,9 +5,9 @@ Program[ws=" \t"]:
     Sep*- statements*=AllStmtTypes[/(:|\n)+/] Sep*-;
 
 MinStmtTypes[ws=" \t"]:
-    DimStmt | IfThenElseStmt | IfThenStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt |
-    ForStmt | PrintStmt | BranchStmt | GraphicsStmt | LetStmt | DefStmt | InputStmt | PlayStmt |
-    SwitcherStmt | SimpleStmt | AttrStmt; 
+    DimStmt | ConditionalStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt | ForStmt |
+    PrintStmt | BranchStmt | GraphicsStmt | LetStmt | DefStmt | InputStmt | PlayStmt | SwitcherStmt |
+    SimpleStmt | AttrStmt; 
 
 AllStmtTypes:
     FuncStmt | SubStmt | MinStmtTypes;
@@ -48,19 +48,37 @@ DimRangeExpr:       Expression 'To' Expression | Expression;
 
 DimAttr:            Expression | '{' Expression '}';
 
-IfThenElseStmt[ws=" \t\n"]:
-    'If' expr=Expression 'Then' ThenClause 'Else' ElseClause EndIfStmt;
+ConditionalStmt:    IfThenElseStmt | IfThenStmt | IfElseOneLiner | IfThenOneLiner;
+
+IfExpressionThen:   !( 'Then' ) Expression 'Then'-;
+
+IfElseOneLiner[ws=' \t']:
+    'If' expr=IfExpressionThen statements*=OneLinerStmtTypes[/:+/ eolterm]
+    'Else' statements*=OneLinerStmtTypes[/:+/ eolterm];
+
+IfThenOneLiner[ws=' \t']:
+    'If' expr=IfExpressionThen statements*=OneLinerStmtTypes[/:+/ eolterm];
+
+OneLinerStmtTypes:  !( 'Else' )- MinStmtTypes;
+//OneLinerStmtTypes:  !( EOL )- MinStmtTypes;
+
+ThenClause: statements*=ThenStmtTypes[/:+/ eolterm];
+
+EndIfClause: statements*=EndIfStmtTypes[/:+/ eolterm];
+
+IfThenElseStmt:
+    'If' expr=IfExpressionThen 'Then'? Sep? ThenBlock Sep? 'Else' Sep? EndIfBlock EndIfStmt &Sep;
 
 IfThenStmt:
-    'If' expr=Expression 'Then' ThenClause EndIfStmt;
+    'If' expr=IfExpressionThen 'Then'? Sep? EndIfBlock Sep? EndIfStmt &Sep;
 
-ThenClause: statements*=ThenClauseTypes[/(:|\n)+/];
+ThenBlock[ws=' \t\n']: statements*=ThenStmtTypes[/\n+/];
 
-ThenClauseTypes[ws=" \t"]: !('End' 'If' | 'Else')- MinStmtTypes;
+EndIfStmtTypes:     !( 'End' 'If' )- MinStmtTypes;
 
-ElseClause: statements*=ElseClauseTypes[/(:|\n)+/];
+EndIfBlock: statements*=EndIfStmtTypes[/(:|\n)+/];
 
-ElseClauseTypes[ws=" \t"]: !('End' 'If')- MinStmtTypes;
+ThenStmtTypes:      !( 'Else' )- MinStmtTypes;
 
 EndIfStmt:          'End' 'If' &Sep+;
 
@@ -85,11 +103,11 @@ NextStmt:           'Next';
 ForStmt:            'For';
 
 PrintStmt[ws=' \t\n']:
-    ('Print' | '?') fileno?=PrintFileNo params=PrintParams;
+    ('Print' | '?') ( fileno=PrintFileNo )? params=PrintParams;
 
 PrintFileNo:        '#' Expression ',';
 
-PrintParams:        exprs*=Expression[/(,|;)/] using?=PrintUsing;
+PrintParams:        exprs*=Expression[/(,|;)/] ( using=PrintUsing )?;
 
 PrintUsing:         'Using' fmt=PrintUsingFmt ';' exprs+=Expression[/(,|;)/];
 
@@ -114,7 +132,7 @@ SimpleStmt[ws=' \t\n']:
 
 KeywordStmt:        'Beep' | 'Cls' | 'End' | 'Nop';
 
-AttrStmt:           'a';
+AttrStmt:           'a=b';
 
 VarType:
     'Boolean' | 'BOOL' | 'Integer' | 'INT' | 'String' | 'STR' | 'Single' | 'SNG' | 'Double' | 'DBL';
@@ -132,13 +150,13 @@ TypeDescriptor:     /[$#!%]/;
 
 Name:               /[_A-Za-z][_A-Za-z0-9]*/;
 
-Expression:         /[^,:\n]+/;
+Expression:         /[^, :\n]+/;
 EOL:                "\n";
 Sep:                ':' | "\n";
 StmtSep:            EOL* ':' EOL*;
 
 Comment[ws=" \t"]:
-        ("'" | 'Rem') (!("\n") /[^\n]/)* "\n";
+        ("'" | 'Rem') (!("\n") /[^\n]/)* EOL;
 """
 
 # TODO: move these to different files.
