@@ -44,9 +44,9 @@ DimVarDecl:         DimVar 'As' VarType '=' DimAttr |
 
 DimVar:             name=Name ( '(' ranges*=DimRangeDecl[/,/] ')' )?;
 
-DimRangeDecl:       Expression 'To' Expression | Expression;
+DimRangeDecl:       NumericExp 'To' NumericExp | NumericExp;
 
-DimAttr:            Expression | '{' Expression '}';
+DimAttr:            NumericExp | '{' NumericExp '}';
 
 ConditionalStmt:    IfThenElseStmt | IfThenStmt | IfElseOneLiner | IfThenOneLiner;
 
@@ -100,13 +100,13 @@ OpenStmt:           'Open';
 
 NextStmt:           'Next' ( vars*=Identifier[/,/] )?;
 
-ForStmt:            'For' Identifier '=' ForRangeDecl;
-ForRangeDecl:       Expression 'to' Expression ( 'Step' Expression )?;
+ForStmt:            'For' var=Identifier '=' range=ForRangeDecl;
+ForRangeDecl:       begin=NumericExp 'to'- end=NumericExp ( 'Step'- step=NumericExp )?;
 
 PrintStmt[ws=' \t\n']:
     ('Print' | '?') ( fileno=PrintFileNo )? params=PrintParams;
 
-PrintFileNo:        '#' Expression ',';
+PrintFileNo:        '#' NumericExp ',';
 
 PrintParams:        exprs*=Expression[/(,|;)/] ( using=PrintUsing )?;
 
@@ -151,10 +151,8 @@ TypeDescriptor:     /[$#!%]/;
 
 Name:               /[_A-Za-z][_A-Za-z0-9]*/;
 
-
-Expression2:        /[^, :\n]+/;
-
-Expression:         ImpOp; // Imp: lowest precedence operator
+Expression:         NumericExp | STRING;
+NumericExp:         ImpOp; // Imp: lowest precedence operator
 ImpOp:              op1=EqvOp ( 'Imp'-        op2=EqvOp )*;
 EqvOp:              op1=XorOp ( 'Eqv'-        op2=XorOp )*;
 XorOp:              op1=_OrOp ( 'Xor'-        op2=_OrOp )*;
@@ -163,17 +161,26 @@ AndOp:              op1=NotOp ( 'And'-        op2=NotOp )*;
 NotOp:             opr?='Not'                 op_=CmpOp;
 CmpOp:              op1=AddOp ( opr=CmpToken  op2=AddOp )*;
 CaseOp:             opr=CmpToken              op_=AddOp;    // select-case operation
-AddOp:              op1=ModOp ( opr=/[+-]/    op2=ModOp )*;
+AddOp:              op1=ModOp ( opr=Signal    op2=ModOp )*;
 ModOp:              op1=IdvOp ( 'Mod'-        op2=IdvOp )*;
 IdvOp:              op1=MulOp ( '/'           op2=MulOp )*;
 MulOp:              op1=NegOp ( opr=/(\*|\/)/ op2=NegOp )*;
-NegOp:              opr=/[+-]*/               op_=ExpOp;
+NegOp:              opr=Signal*               op_=ExpOp;
 ExpOp:              op1=_Atom ( '^'-          op2=_Atom )*;
-_Atom:              Numeral | STRING | Identifier | '(' Expression ')'; // highest
+_Atom:              Numeral | Identifier | '(' Expression ')'; // highest
 
-Numeral:            FLOAT | INT;
 CmpToken:           '=' | '<>' | '<=' | '<' | '>=' | '>';
-Signal:             /[+-]/;
+Signal:             /[-+]/;
+Numeral:            Fractional | Integer;
+Digit:              !( /\D/ ) /[0-9]/;
+Fractional:         Signal* Digit* '.' Digit*;
+Integer:            Signal* Digit+ | Signal* HexPrefix HexDigit+ | Signal* OctPrefix OctDigit+ | Signal* BinPrefix BinDigit+;
+HexPrefix:          '&H';
+HexDigit:           /[0-9A-Fa-f]/;
+OctPrefix:          '&O';
+OctDigit:           /[0-7]/;
+BinPrefix:          '&B';
+BinDigit:           /[01]/;
 
 EOL:                "\n";
 Sep:                ':' | "\n";

@@ -53,6 +53,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
+        Fori = 1to20
+    ?i
+    Ifi = 1 Then?i + 1
+Next i
+
 ' 1st variant
 If var = 1 Then
     Cls
