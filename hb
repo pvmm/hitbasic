@@ -53,6 +53,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
+        ' 1st variant
+Select a
+Case 1
+    Cls
+    Print
+Case 2
+    'Play "A"
+    Print
+End Select
         Input j
 For i%(0) = 1 to 20
     ? "current number: ";i%(0)

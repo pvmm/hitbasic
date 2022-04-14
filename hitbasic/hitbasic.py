@@ -106,15 +106,10 @@ NextStmt:           'Next' ( vars*=Var[/,/] )?;
 ForStmt:            'For' var=Var '=' range=ForRangeDecl;
 ForRangeDecl:       begin=NumericExp 'to'- end=NumericExp ( 'Step'- step=NumericExp )?;
 
-PrintStmt[ws=' \t\n']:
-    ('Print' | '?') ( fileno=PrintFileNo )? params=PrintParams;
-
+PrintStmt:          ('Print' | '?') ( fileno=PrintFileNo )? params=PrintParams;
 PrintFileNo:        '#' NumericExp ',';
-
 PrintParams:        exprs*=Expression[/(,|;)/] ( using=PrintUsing )?;
-
 PrintUsing:         'Using' fmt=PrintUsingFmt ';' exprs+=Expression[/(,|;)/];
-
 PrintUsingFmt:      String | Var;
 
 BranchStmt:         'Goto' | 'Gosub';
