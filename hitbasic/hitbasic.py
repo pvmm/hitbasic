@@ -15,15 +15,20 @@ AllStmtTypes:
 FuncStmt:           header=FuncHeads Sep*- statements*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
 FuncHeads:          FuncHead | FuncHeadTyped;
 FuncHead:           'Function' name=Name '(' params*=FuncVarDecl[/(,|\n)+/] ')' return=FuncReturnType;
-FuncHeadTyped:      'Function' TypedName '(' params*=FuncVarDecl[/(,|\n)+/] ')';
+FuncHeadTyped:      'Function' name=TypedName '(' params*=FuncVarDecl[/(,|\n)+/] ')';
 FuncVarDecl:        Name 'As' VarType | TypedName;
-FuncStmtTypes:      !('End' 'Function')- ( FunctionExitStmt | ReturnStmt | MinStmtTypes );
-FunctionExitStmt:   'Exit' 'Function';
+FuncStmtTypes:      !('End' 'Function')- ( FuncExitStmt | ReturnStmt | MinStmtTypes );
+FuncExitStmt:       'Exit' 'Function';
 ReturnStmt:         'Return' ( Var | Label );
 FuncReturnType:     'As' VarType;
 FuncStmtEnd:        'End' 'Function';
 
-SubStmt:            'Sub';
+SubStmt:            header=SubHead Sep*- statements*=SubStmtTypes[/(:|\n)+/] Sep*- SubStmtEnd;
+SubHead:            'Sub' name=Name '(' params*=SubVarDecl[/(,|\n)+/] ')';
+SubVarDecl:         Name 'As' VarType | TypedName;
+SubStmtTypes:       !('End' 'Sub')- ( SubExitStmt | ReturnStmt | MinStmtTypes );
+SubExitStmt:        'Exit' 'Sub';
+SubStmtEnd:         'End' 'Sub';
 
 DimStmt[ws=' \t\n']:
     'Dim' vars+=DimVarDecl[/,/];
