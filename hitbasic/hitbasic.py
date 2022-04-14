@@ -12,24 +12,15 @@ MinStmtTypes[ws=" \t"]:
 AllStmtTypes:
     FuncStmt | SubStmt | MinStmtTypes;
 
-FuncStmt[ws=" \t\n"]:
-    header=FuncHeads Sep*- body*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
-
+FuncStmt:           header=FuncHeads Sep*- statements*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
 FuncHeads:          FuncHead | FuncHeadTyped;
-
 FuncHead:           'Function' name=Name '(' params*=FuncVarDecl[/(,|\n)+/] ')' return=FuncReturnType;
-
 FuncHeadTyped:      'Function' TypedName '(' params*=FuncVarDecl[/(,|\n)+/] ')';
-
 FuncVarDecl:        Name 'As' VarType | TypedName;
-
-FuncStmtTypes[ws=" \t"]:
-    !('End' 'Function')- ( ReturnStmt | MinStmtTypes );
-
-ReturnStmt:         'Return' Var;
-
+FuncStmtTypes:      !('End' 'Function')- ( FunctionExitStmt | ReturnStmt | MinStmtTypes );
+FunctionExitStmt:   'Exit' 'Function';
+ReturnStmt:         'Return' ( Var | Label );
 FuncReturnType:     'As' VarType;
-
 FuncStmtEnd:        'End' 'Function';
 
 SubStmt:            'Sub';
@@ -141,7 +132,6 @@ VarType:
     'Boolean' | 'BOOL' | 'Integer' | 'INT' | 'String' | 'STR' | 'Single' | 'SNG' | 'Double' | 'DBL';
 
 Label:              '@' Name;
-
 Var:                Array | Identifier;
 Array:              Identifier '(' ( subscript*=NumericExp[/,/] )? ')';
 Identifier:         TypedName | Name;
