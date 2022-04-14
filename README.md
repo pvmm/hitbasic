@@ -76,4 +76,6 @@ TODO
 ====
 
 Planned features:
+* Pascal-style multiline comment (`{ this is a comment }`);
+* Import file meta instruction (like #include);
 * tail recursion: allows recursive functions in MSX-BASIC;
