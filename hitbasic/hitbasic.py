@@ -92,7 +92,9 @@ CaseStmt[ws=' \t\n']:
 
 SelectStmtEnd:      'End' 'Select' &Sep+;
 
-DoLoopStmt:         'Do';
+DoLoopStmt:         'Do' ( 'While' | 'Until' ) StmtSep statements*=DoStmtTypes[/(:|\n)+/] StmtSep 'Loop';
+DoStmtTypes:        !( 'Exit' 'Do' )- MinStmtTypes;
+DoStmt:             'Exit' 'Do';
 
 CloseStmt:          'Close';
 
