@@ -53,6 +53,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
+        Screen 2
 Function f(s as String) as String
     f = "hello, world"
     Exit Function

@@ -10,11 +10,45 @@ Program[ws=" \t"]:
 
 MinStmtTypes[ws=" \t"]:
     DimStmt | ConditionalStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt | ForStmt |
-    PrintStmt | BranchStmt | GraphicsStmt | LetStmt | DefStmt | InputStmt | PlayStmt | SwitcherStmt |
+    PrintStmt | BranchStmt | GraphicStmts | LetStmt | DefStmt | InputStmt | PlayStmt | SwitcherStmt |
     SimpleStmt | AttrStmt; 
 
 AllStmtTypes:
     FuncStmt | SubStmt | MinStmtTypes;
+
+GraphicStmts:
+    DrawStmt | CircleStmt | ColorDefStmt | ColorStmt | CopyStmt | LineStmt | PaintStmt | PresetStmt |
+    PsetStmt | PutKanjiStmt | PutSpriteStmt | ScreenStmt | SetPageStmt;
+
+DrawStmt:           'Draw' StringExp;
+CircleStmt:         'Circle' StepPntArg CircleStmtArgs;
+CircleStmtArgs:     ',' color=NumericExp ( ',' color=NumericExp )?;
+ColorDefStmt:       'Color' '=' ( 'New' | 'Restore' | '(' Expression ',' Expression ',' Expression ',' Expression ')' );
+ColorStmt:          'Color' fg=NumericExp? ( ',' bg=NumericExp? ( ',' bd=NumericExp? )? )?;
+CopyStmt:           'Copy' CopySrcArg 'To' CopyDstArg;
+LineStmt:           'Line' StepPntArg? DstPntArg LineStmtArgs?;
+LineStmtArgs:       ',' color=NumericExp ( ',' ShapeArg? ( ',' opr=OprArg? )? )?;
+PaintStmt:          'Paint' StepPntArg PaintStmtArgs?;
+PaintStmtArgs:      ',' color=NumericExp ( ',' color=NumericExp? )?; 
+PresetStmt:         'Preset' StepPntArg PsetStmtArgs?;
+PsetStmt:           'Pset' StepPntArg PsetStmtArgs?;
+PsetStmtArgs:       ',' color=NumericExp ( ',' opr=OprArg? )?;
+PutKanjiStmt:       'Put' 'Kanji' StepPntArg ',' jis=NumericExp ( ',' color=NumericExp? ( ',' opr=OprArg? ( ',' mode=NumericExp? )? )? )?;
+PutSpriteStmt:      'Put' 'Sprite' Expression ',' StepPntArg PutSpriteStmtArgs?;
+PutSpriteStmtArgs:  ',' color=NumericExp ( ',' NumericExp );
+ScreenStmt:         'Screen' mode=NumericExp? ( ',' spriteSize=NumericExp? ( ',' clickStatus=NumericExp? ( ',' baudRate=NumericExp?
+                    ( ',' printerType=NumericExp? ( ',' interlaceMode=NumericExp? )? )? )? )? )?;
+SetPageStmt:        'Set' 'Page' displayPage=NumericExp? ( ',' activePage=NumericExp )?;  
+StepPntArg:         'Step' PntArg;
+PntArg:             '(' Expression ',' Expression ')';
+
+DstPntArg:          '-' ( 'Step' )? PntArg;
+
+CopySrcArg:         PntArg DstPntArg ( ',' page=NumericExp )? | Array ( ',' dir=NumericExp )? |
+                    filepath=STRING ( ',' dir=NumericExp )?;
+CopyDstArg:         PntArg ( ',' page=NumericExp ( ',' opr=OprArg? )? )? | filepath=STRING | Array;
+OprArg:             'And' | 'Or' | 'Preset' | 'Pset' | 'Xor' | 'Tand' | 'Tor' | 'Tpreset' | 'Tpset' | 'Txor';
+ShapeArg:           'BF' | 'B';
 
 FuncStmt:           header=FuncHeads Sep*- statements*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
 FuncHeads:          FuncHead | FuncHeadTyped;
@@ -114,8 +148,6 @@ PrintUsingFmt:      String | Var;
 
 BranchStmt:         'Goto' | 'Gosub';
 
-GraphicsStmt:       'Graphics';
-
 LetStmt:            'Let';
 
 DefStmt:            'Def Fn';
@@ -153,7 +185,10 @@ TypeDescriptor:     /[$#!%]/;
 
 Name:               /[_A-Za-z][_A-Za-z0-9]*/;
 
-Expression:         NumericExp | STRING;
+Expression:         NumericExp | StringExp;
+
+StringExp:          STRING | Var;
+
 NumericExp:         ImpOp; // Imp: lowest precedence operator
 ImpOp:              op1=EqvOp ( 'Imp'-        op2=EqvOp )*;
 EqvOp:              op1=XorOp ( 'Eqv'-        op2=XorOp )*;
