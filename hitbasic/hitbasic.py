@@ -27,7 +27,7 @@ CircleStmtArgs:     ',' color=NumericExp ( ',' color=NumericExp )?;
 ColorDefStmt:       'Color' '=' ( 'New' | 'Restore' | '(' Expression ',' Expression ',' Expression ',' Expression ')' );
 ColorStmt:          'Color' fg=NumericExp? ( ',' bg=NumericExp? ( ',' bd=NumericExp? )? )?;
 CopyStmt:           'Copy' CopySrcArg 'To' CopyDstArg;
-LineStmt:           'Line' pt=StepPtArg? DstPtArg LineStmtArgs?;
+LineStmt:           'Line' src=StepPtArg? '-' dst=StepPtArg LineStmtArgs?;
 LineStmtArgs:       ',' color=NumericExp ( ',' ShapeArg? ( ',' opr=OprArg? )? )?;
 PaintStmt:          'Paint' pt=StepPtArg PaintStmtArgs?;
 PaintStmtArgs:      ',' color=NumericExp ( ',' color=NumericExp? )?; 
@@ -40,12 +40,10 @@ PutSpriteStmtArgs:  ',' color=NumericExp ( ',' NumericExp );
 ScreenStmt:         'Screen' mode=NumericExp? ( ',' spriteSize=NumericExp? ( ',' clickStatus=NumericExp? ( ',' baudRate=NumericExp?
                     ( ',' printerType=NumericExp? ( ',' interlaceMode=NumericExp? )? )? )? )? )?;
 SetPageStmt:        'Set' 'Page' displayPage=NumericExp? ( ',' activePage=NumericExp )?;  
-StepPtArg:          step?='Step' PtArg;
+StepPtArg:          step?='Step' coor=PtArg;
 PtArg:              '(' x=NumericExp ',' y=NumericExp ')';
 
-DstPtArg:           '-' step?='Step' PtArg;
-
-CopySrcArg:         PtArg DstPtArg ( ',' page=NumericExp )? | Array ( ',' dir=NumericExp )? |
+CopySrcArg:         PtArg '-' StepPtArg ( ',' page=NumericExp )? | Array ( ',' dir=NumericExp )? |
                     filepath=STRING ( ',' dir=NumericExp )?;
 CopyDstArg:         PtArg ( ',' page=NumericExp ( ',' opr=OprArg? )? )? | filepath=STRING | Array;
 OprArg:             'And' | 'Or' | 'Preset' | 'Pset' | 'Xor' | 'Tand' | 'Tor' | 'Tpreset' | 'Tpset' | 'Txor';

@@ -26,7 +26,7 @@ class LineStmt(Node):
     keyword = 'LINE'
 
     def __str__(self):
-        return f"%s{spacing}%s" % (self.keyword, string.write_list([self.pt]))
+        return f"%s{spacing}%s-%s" % (self.keyword, self.src if self.src else '', self.dst)
 
 
 class PresetStmt(Node):
@@ -37,6 +37,7 @@ class PsetStmt(Node):
     keyword = 'PSET'
 
 
-class PtArg(Node):
+class StepPtArg(Node):
     def __str__(self):
-        return f'(%i{arg_spacing},%i)' % (self.x, self.y)
+        return f'%s(%s{arg_spacing},%s)' % ('STEP' if self.step else '', self.coor.x, self.coor.y)
+

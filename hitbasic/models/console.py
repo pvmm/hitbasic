@@ -6,10 +6,6 @@ from hitbasic.models import Node
 
 
 class PrintExprs(Node):
-    def __init__(self, parent, exprs, using):
-        self.exprs = exprs
-        self.using = using
-
     def __str__(self):
         val = ''
         for expr in self.exprs:
