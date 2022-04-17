@@ -21,4 +21,4 @@ class PrintStmt(Node):
 
 
 class InputStmt(Node):
-    pass
+    keyword = 'INPUT'

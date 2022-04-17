@@ -7,47 +7,40 @@ from hitbasic import spacing
 
 
 class IfThenOneLiner(Node):
-    def write(self, file):
-        pass
+    keyword = 'IF'
 
 
 class IfThenElseOneLiner(Node):
-    def write(self, file):
-        pass
+    keyword = 'IF'
 
 
 class IfThenStmt(Node):
-    pass
+    keyword = 'IF'
 
 
 class IfThenElseStmt(Node):
-    def write(self, file):
-        pass
+    keyword = 'IF'
 
 
 class ForStmt(Node):
-    def write(self, file):
-        pass
+    keyword = 'FOR'
 
 
 class NextStmt(Node):
+    keyword = 'NEXT'
+
     def __str__(self):
         print(f'NEXT{spacing}%s' % string.joinAll(self.vars, ','))
 
-    def write(self, file):
-        pass
-
 
 class SelectStmt(Node):
-    def write(self, file):
-        pass
+    keyword = 'SELECT'
 
 
 class DoLoopStmt(Node):
-    def write(self, file):
-        pass
+    keyword = 'DO'
 
 
 class FuncStmt(Node):
-    def write(self, file):
-        pass
+    keyword = 'FUNCTION'
+
