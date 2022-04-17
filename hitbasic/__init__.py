@@ -4,6 +4,7 @@ import os
 
 
 spacing = os.getenv('HITBASIC_SPACING', ' ')
+arg_spacing = os.getenv('HITBASIC_ARG_SPACING', '')
 
 
 def write(object):

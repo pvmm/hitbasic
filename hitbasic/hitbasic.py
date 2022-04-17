@@ -22,32 +22,32 @@ GraphicStmtTypes:
     PsetStmt | PutKanjiStmt | PutSpriteStmt | ScreenStmt | SetPageStmt;
 
 DrawStmt:           'Draw' StringExp;
-CircleStmt:         'Circle' pt=StepPntArg CircleStmtArgs;
+CircleStmt:         'Circle' pt=StepPtArg CircleStmtArgs;
 CircleStmtArgs:     ',' color=NumericExp ( ',' color=NumericExp )?;
 ColorDefStmt:       'Color' '=' ( 'New' | 'Restore' | '(' Expression ',' Expression ',' Expression ',' Expression ')' );
 ColorStmt:          'Color' fg=NumericExp? ( ',' bg=NumericExp? ( ',' bd=NumericExp? )? )?;
 CopyStmt:           'Copy' CopySrcArg 'To' CopyDstArg;
-LineStmt:           'Line' pt=StepPntArg? DstPntArg LineStmtArgs?;
+LineStmt:           'Line' pt=StepPtArg? DstPtArg LineStmtArgs?;
 LineStmtArgs:       ',' color=NumericExp ( ',' ShapeArg? ( ',' opr=OprArg? )? )?;
-PaintStmt:          'Paint' pt=StepPntArg PaintStmtArgs?;
+PaintStmt:          'Paint' pt=StepPtArg PaintStmtArgs?;
 PaintStmtArgs:      ',' color=NumericExp ( ',' color=NumericExp? )?; 
-PresetStmt:         'Preset' pt=StepPntArg PsetStmtArgs?;
-PsetStmt:           'Pset' pt=StepPntArg PsetStmtArgs?;
+PresetStmt:         'Preset' pt=StepPtArg PsetStmtArgs?;
+PsetStmt:           'Pset' pt=StepPtArg PsetStmtArgs?;
 PsetStmtArgs:       ',' color=NumericExp ( ',' opr=OprArg? )?;
-PutKanjiStmt:       'Put' 'Kanji' pt=StepPntArg ',' jis=NumericExp ( ',' color=NumericExp? ( ',' opr=OprArg? ( ',' mode=NumericExp? )? )? )?;
-PutSpriteStmt:      'Put' 'Sprite' Expression ',' pt=StepPntArg PutSpriteStmtArgs?;
+PutKanjiStmt:       'Put' 'Kanji' pt=StepPtArg ',' jis=NumericExp ( ',' color=NumericExp? ( ',' opr=OprArg? ( ',' mode=NumericExp? )? )? )?;
+PutSpriteStmt:      'Put' 'Sprite' Expression ',' pt=StepPtArg PutSpriteStmtArgs?;
 PutSpriteStmtArgs:  ',' color=NumericExp ( ',' NumericExp );
 ScreenStmt:         'Screen' mode=NumericExp? ( ',' spriteSize=NumericExp? ( ',' clickStatus=NumericExp? ( ',' baudRate=NumericExp?
                     ( ',' printerType=NumericExp? ( ',' interlaceMode=NumericExp? )? )? )? )? )?;
 SetPageStmt:        'Set' 'Page' displayPage=NumericExp? ( ',' activePage=NumericExp )?;  
-StepPntArg:         step?='Step' PntArg;
-PntArg:             '(' x=NumericExp ',' y=NumericExp ')';
+StepPtArg:          step?='Step' PtArg;
+PtArg:              '(' x=NumericExp ',' y=NumericExp ')';
 
-DstPntArg:          '-' step?='Step' PntArg;
+DstPtArg:           '-' step?='Step' PtArg;
 
-CopySrcArg:         PntArg DstPntArg ( ',' page=NumericExp )? | Array ( ',' dir=NumericExp )? |
+CopySrcArg:         PtArg DstPtArg ( ',' page=NumericExp )? | Array ( ',' dir=NumericExp )? |
                     filepath=STRING ( ',' dir=NumericExp )?;
-CopyDstArg:         PntArg ( ',' page=NumericExp ( ',' opr=OprArg? )? )? | filepath=STRING | Array;
+CopyDstArg:         PtArg ( ',' page=NumericExp ( ',' opr=OprArg? )? )? | filepath=STRING | Array;
 OprArg:             'And' | 'Or' | 'Preset' | 'Pset' | 'Xor' | 'Tand' | 'Tor' | 'Tpreset' | 'Tpset' | 'Txor';
 ShapeArg:           'BF' | 'B';
 
