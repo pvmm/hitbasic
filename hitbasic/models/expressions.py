@@ -1,11 +1,15 @@
 # Expressions related models
 
-class ImpOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
+from hitbasic.helpers import string
+from hitbasic.models import Node
 
+class Array(Node):
+    def __str__(self):
+        print('sb=', self.subscripts)
+        return f'{self.identifier}({string.joinAll(self.subscripts)})'
+
+
+class ImpOp(Node):
     def __str__(self):
         if self.op2:
             expr = self.op1
@@ -18,12 +22,7 @@ class ImpOp(object):
             return "{}".format(self.op1)
 
 
-class EqvOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
+class EqvOp(Node):
     def __str__(self):
         if self.op2:
             expr = self.op1
@@ -36,12 +35,7 @@ class EqvOp(object):
             return "{}".format(self.op1)
 
 
-class XorOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
+class XorOp(Node):
     def __str__(self):
         if self.op2:
             expr = self.op1
@@ -54,12 +48,7 @@ class XorOp(object):
             return "{}".format(self.op1)
 
 
-class _OrOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
+class _OrOp(Node):
     def __str__(self):
         if self.op2:
             expr = self.op1
@@ -72,12 +61,7 @@ class _OrOp(object):
             return "{}".format(self.op1)
 
 
-class AndOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
+class AndOp(Node):
     def __str__(self):
         if self.op2:
             expr = self.op1
@@ -90,12 +74,7 @@ class AndOp(object):
             return "{}".format(self.op1)
 
 
-class NotOp(object):
-    def __init__(self, parent, opr, op_):
-        self.parent = parent
-        self.opr = opr
-        self.op_ = op_
-
+class NotOp(Node):
     def __str__(self):
         if self.opr:
             return "(Not {})".format(self.op_)
@@ -103,13 +82,7 @@ class NotOp(object):
             return "{}".format(self.op_)
 
 
-class CmpOp(object):
-    def __init__(self, parent, op1, opr=None, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.opr = opr
-        self.op2 = op2
-
+class CmpOp(Node):
     def __str__(self):
         if self.opr:
             expr = self.op1
@@ -123,13 +96,7 @@ class CmpOp(object):
             return "{}".format(self.op1)
 
 
-class AddOp(object):
-    def __init__(self, parent, op1, opr=None, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.opr = opr
-        self.op2 = op2
-
+class AddOp(Node):
     def __str__(self):
         if self.opr:
             expr = self.op1
@@ -143,12 +110,7 @@ class AddOp(object):
             return "{}".format(self.op1)
 
 
-class ModOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
+class ModOp(Node):
     def __str__(self):
         if self.op2:
             expr = self.op1
@@ -161,12 +123,7 @@ class ModOp(object):
             return "{}".format(self.op1)
 
 
-class IdvOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
+class IdvOp(Node):
     def __str__(self):
         if self.op2:
             expr = self.op1
@@ -179,13 +136,7 @@ class IdvOp(object):
             return "{}".format(self.op1)
 
 
-class MulOp(object):
-    def __init__(self, parent, op1, opr=None, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.opr = opr
-        self.op2 = op2
-
+class MulOp(Node):
     def __str__(self):
         if self.opr:
             expr = self.op1
@@ -199,12 +150,7 @@ class MulOp(object):
             return "{}".format(self.op1)
 
 
-class NegOp(object):
-    def __init__(self, parent, opr, op_):
-        self.parent = parent
-        self.opr = opr
-        self.op_ = op_
-
+class NegOp(Node):
     def __str__(self):
         if self.opr:
             expr = self.op_
@@ -217,12 +163,7 @@ class NegOp(object):
             return "{}".format(self.op_)
 
 
-class ExpOp(object):
-    def __init__(self, parent, op1, op2=None):
-        self.parent = parent
-        self.op1 = op1
-        self.op2 = op2
-
+class ExpOp(Node):
     def __str__(self):
         if self.op2:
             expr = self.op1
@@ -235,10 +176,6 @@ class ExpOp(object):
             return "{}".format(self.op1)
 
 
-class Expression(object):
-    def __init__(self, parent, expr):
-        self.parent = parent
-        self.expr = expr
-
+class Expression(Node):
     def __str__(self):
         return "{}".format(self.expr)

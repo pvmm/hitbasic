@@ -4,45 +4,46 @@ import sys
 from textx import metamodel_from_str, get_children_of_type
 from hitbasic.models import *;
 
+
 grammar = r"""
 Program[ws=" \t"]:
     Sep*- statements*=AllStmtTypes[/(:|\n)+/] Sep*-;
 
 MinStmtTypes[ws=" \t"]:
     DimStmt | ConditionalStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt | ForStmt |
-    PrintStmt | BranchStmt | GraphicStmts | LetStmt | DefStmt | InputStmt | PlayStmt | SwitcherStmt |
+    PrintStmt | BranchStmt | GraphicStmtTypes | LetStmt | DefStmt | InputStmt | PlayStmt | SwitcherStmt |
     SimpleStmt | AttrStmt; 
 
 AllStmtTypes:
     FuncStmt | SubStmt | MinStmtTypes;
 
-GraphicStmts:
+GraphicStmtTypes:
     DrawStmt | CircleStmt | ColorDefStmt | ColorStmt | CopyStmt | LineStmt | PaintStmt | PresetStmt |
     PsetStmt | PutKanjiStmt | PutSpriteStmt | ScreenStmt | SetPageStmt;
 
 DrawStmt:           'Draw' StringExp;
-CircleStmt:         'Circle' StepPntArg CircleStmtArgs;
+CircleStmt:         'Circle' pt=StepPntArg CircleStmtArgs;
 CircleStmtArgs:     ',' color=NumericExp ( ',' color=NumericExp )?;
 ColorDefStmt:       'Color' '=' ( 'New' | 'Restore' | '(' Expression ',' Expression ',' Expression ',' Expression ')' );
 ColorStmt:          'Color' fg=NumericExp? ( ',' bg=NumericExp? ( ',' bd=NumericExp? )? )?;
 CopyStmt:           'Copy' CopySrcArg 'To' CopyDstArg;
-LineStmt:           'Line' StepPntArg? DstPntArg LineStmtArgs?;
+LineStmt:           'Line' pt=StepPntArg? DstPntArg LineStmtArgs?;
 LineStmtArgs:       ',' color=NumericExp ( ',' ShapeArg? ( ',' opr=OprArg? )? )?;
-PaintStmt:          'Paint' StepPntArg PaintStmtArgs?;
+PaintStmt:          'Paint' pt=StepPntArg PaintStmtArgs?;
 PaintStmtArgs:      ',' color=NumericExp ( ',' color=NumericExp? )?; 
-PresetStmt:         'Preset' StepPntArg PsetStmtArgs?;
-PsetStmt:           'Pset' StepPntArg PsetStmtArgs?;
+PresetStmt:         'Preset' pt=StepPntArg PsetStmtArgs?;
+PsetStmt:           'Pset' pt=StepPntArg PsetStmtArgs?;
 PsetStmtArgs:       ',' color=NumericExp ( ',' opr=OprArg? )?;
-PutKanjiStmt:       'Put' 'Kanji' StepPntArg ',' jis=NumericExp ( ',' color=NumericExp? ( ',' opr=OprArg? ( ',' mode=NumericExp? )? )? )?;
-PutSpriteStmt:      'Put' 'Sprite' Expression ',' StepPntArg PutSpriteStmtArgs?;
+PutKanjiStmt:       'Put' 'Kanji' pt=StepPntArg ',' jis=NumericExp ( ',' color=NumericExp? ( ',' opr=OprArg? ( ',' mode=NumericExp? )? )? )?;
+PutSpriteStmt:      'Put' 'Sprite' Expression ',' pt=StepPntArg PutSpriteStmtArgs?;
 PutSpriteStmtArgs:  ',' color=NumericExp ( ',' NumericExp );
 ScreenStmt:         'Screen' mode=NumericExp? ( ',' spriteSize=NumericExp? ( ',' clickStatus=NumericExp? ( ',' baudRate=NumericExp?
                     ( ',' printerType=NumericExp? ( ',' interlaceMode=NumericExp? )? )? )? )? )?;
 SetPageStmt:        'Set' 'Page' displayPage=NumericExp? ( ',' activePage=NumericExp )?;  
-StepPntArg:         'Step' PntArg;
-PntArg:             '(' Expression ',' Expression ')';
+StepPntArg:         step?='Step' PntArg;
+PntArg:             '(' x=NumericExp ',' y=NumericExp ')';
 
-DstPntArg:          '-' ( 'Step' )? PntArg;
+DstPntArg:          '-' step?='Step' PntArg;
 
 CopySrcArg:         PntArg DstPntArg ( ',' page=NumericExp )? | Array ( ',' dir=NumericExp )? |
                     filepath=STRING ( ',' dir=NumericExp )?;
@@ -173,7 +174,7 @@ VarType:
 
 Label:              '@' Name;
 Var:                Array | Identifier;
-Array:              Identifier '(' ( subscript*=NumericExp[/,/] )? ')';
+Array:              identifier=Identifier '(' ( subscripts*=NumericExp[/,/] )? ')';
 Identifier:         TypedName | Name;
 
 String[noskipws]:
@@ -227,16 +228,24 @@ Comment[ws=" \t"]:
         ( "'" | 'Rem' ) ( !( "\n" ) /[^\n]/ )* EOL;
 """
 
+# Read all classes in models
+classes = {}
+
+for module in [globals()[name] for name in modules]:
+    for name, obj in inspect.getmembers(module):
+        if inspect.isclass(obj):
+            classes[name] = obj
+
+
 def create_metamodel(**kwargs):
-    klasses = []
-
-    for module in [globals()[name] for name in modules]:
-        for name, obj in inspect.getmembers(module):
-            if inspect.isclass(obj):
-                klasses.append(obj)
-
     try:
         debug_mode = kwargs['debug']
     except KeyError:
         debug_mode = False
-    return metamodel_from_str(grammar, classes=klasses, ws=" \t", skipws=True, ignore_case=True, debug=debug_mode)
+    return metamodel_from_str(grammar, classes=class_provider, ws=" \t", skipws=True, ignore_case=True, debug=debug_mode)
+
+
+def class_provider(name):
+    global classes
+    if name == 'ScreenStmt': print(name, classes.get(name))
+    return classes.get(name)

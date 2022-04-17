@@ -53,45 +53,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
-        Screen 2
-Function f(s as String) as String
-    f = "hello, world"
-    Exit Function
-End Function
+Screen 2,,,,,1
 
-        Do
-            Print "x"
-        Loop While a > 0 
-        ' 1st variant
-Select a
-Case 1
-    Cls
-    Print
-Case 2
-    'Play "A"
-    Print
-End Select
-        Input j
-For i%(0) = 1 to 20
-    ? "current number: ";i%(0)
-    If i%(0) mod 1 Then Next i%(0)
-    ? "next number is even: ";i%(0)+1
-Next i%(0)
-'testing
-        Fori = 1to20
-    ?i
-    Ifi = 1 Then?i + 1
-Next i
+Color 15,1,1
 
-' 1st variant
-If var = 1 Then
-    Cls
-    ?"var = 1" : Nop :
-    : Else
-    Cls
-    ?"var is something else!"
-    End :
-End If : Nop
+Line (0,0)-Step(100,100),4,bf
+Line Step(50, 50)-(100, 100)
+Line-(105,105),1
+Preset(1,1),1,preset
+
 """
         mm = hitbasic.create_metamodel(debug=True)
         model = mm.model_from_str(source_code)

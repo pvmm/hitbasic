@@ -1,12 +1,9 @@
 # Statements without parameters
 
-class SimpleStmt(object):
-    def __init__(self, parent, keyword):
-        self.parent = parent
-        self.keyword = keyword.upper()
+from hitbasic.models import Node
+from hitbasic import spacing
 
+
+class SimpleStmt(Node):
     def __str__(self):
-        return "{}".format(self.keyword)
-
-    def write(self, file):
-        pass
+        return self.keyword

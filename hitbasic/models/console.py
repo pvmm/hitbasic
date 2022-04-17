@@ -1,37 +1,28 @@
 # Console, printables and related models
-import os
 
 
-class PrintExprs(object):
+from hitbasic import spacing
+from hitbasic.models import Node
+
+
+class PrintExprs(Node):
     def __init__(self, parent, exprs, using):
         self.exprs = exprs
         self.using = using
 
     def __str__(self):
-        val = ""
+        val = ''
         for expr in self.exprs:
-            val += f"{expr}";
+            val += f'{expr}';
         return val;
 
 
-class PrintStmt(object):
-    def __init__(self, parent, fileno, params):
-        self.spacing = os.getenv('HITBASIC_SPACING', ' ')
-        self.parent = parent
-        self.fileno = fileno.id if fileno else None
-        self.params = params.exprs if params else None
-
+class PrintStmt(Node):
     def __str__(self):
-        return f"PRINT{self.spacing}%s%s" % (f"{self.fileno};{self.spacing}" if self.fileno else '', self.params)
+        return f'PRINT{spacing}%s%s' % (
+               f'{self.fileno};{spacing}' if self.fileno else '',
+               self.params if self.params else '')
 
-    def write(self, file):
-        pass
 
-
-class InputStmt(object):
-    def __init__(self, parent, args):
-        self.parent = parent
-        self.args = args
-
-    def write(self, file):
-        pass
+class InputStmt(Node):
+    pass
