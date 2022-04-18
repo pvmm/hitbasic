@@ -6,6 +6,11 @@ from hitbasic.models import Node
 from hitbasic import spacing
 
 
+class BranchStmt(Node):
+    def __str__(self):
+        return f'%s{spacing}%s' % (self.type.upper(), self.adr)
+
+
 class IfThenOneLiner(Node):
     keyword = 'IF'
 

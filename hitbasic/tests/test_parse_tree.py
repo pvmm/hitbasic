@@ -8,7 +8,7 @@ from os import path
 from glob import glob
 from contextlib import suppress
 #from arpeggio import visit_parse_tree
-from hitbasic import hitbasic
+from .. import hitbasic
 
 
 class TestParseTree: #(unittest.TestCase):

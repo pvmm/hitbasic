@@ -7,7 +7,7 @@ import unittest.mock
 from os import path
 from glob import glob
 from contextlib import suppress
-from hitbasic import hitbasic
+from .. import hitbasic
 
 
 class TestSource: #(unittest.TestCase):

@@ -8,7 +8,7 @@ from contextlib import suppress
 from os import path
 from glob import glob
 
-from hitbasic import hitbasic
+from .. import hitbasic
 
 
 class TestGrammar(unittest.TestCase):

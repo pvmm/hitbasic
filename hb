@@ -53,6 +53,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
+' 1st variant
+Let A$ = Val("Bla123" + "456")
+Goto @bla
+Select a
+Case 1
+    Cls
+    Print
+Case 2
+    'Play "A"
+    Print
+End Select
+
 Screen 2,,,,,1
 
 Color 15,1,1
@@ -68,7 +80,6 @@ Pset(2,2),2,preset
         model = mm.model_from_str(source_code)
         for statement in model.statements:
             print('stmt =', statement)
-            statement.write(None)
         argp.exit(status=0)
 
     if args.stdin is True:
@@ -83,11 +94,11 @@ Pset(2,2),2,preset
     mm = hitbasic.create_metamodel(debug=args.graphviz)
 
     if args.stdin == True:
-        source = ''
+        sources = ''
         for file in args.c:
-            source += args.c[0].read()
+            sources += args.c[0].read()
         try:
-            model = mm.model_from_str(source)
+            model = mm.model_from_str(sources)
         except Exception as e:
             print('* %s error: %s' % (e.__class__.__name__, str(e)))
             if hasattr(args, 'debug') and args.debug:
@@ -104,7 +115,7 @@ Pset(2,2),2,preset
             argp.exit(status=-1)
 
     # Run output tree through the node visitor
-    with open('./teste.out', w) as file:
-        for statement in program.statements.contents:
-            statement.write(file)
+    with open('./teste.out', 'w') as file:
+        for statement in model.statements:
+            print(statement, file=file)
 

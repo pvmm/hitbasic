@@ -9,10 +9,10 @@ grammar = r"""
 Program[ws=" \t"]:
     Sep*- statements*=AllStmtTypes[/(:|\n)+/] Sep*-;
 
-MinStmtTypes[ws=" \t"]:
-    DimStmt | ConditionalStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt | ForStmt |
-    PrintStmt | BranchStmt | GraphicStmtTypes | LetStmt | DefStmt | InputStmt | PlayStmt | SwitcherStmt |
-    SimpleStmt | AttrStmt; 
+MinStmtTypes:
+    LabelStmt | ConstStmt | DimStmt | ConditionalStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt | ForStmt |
+    PrintStmt | BranchStmt | GraphicStmtTypes | LetStmt | DefStmt | InputStmt | DataStmt | ReadStmt | PlayStmt | SwitcherStmt |
+    SimpleStmt | AttrStmt;
 
 AllStmtTypes:
     FuncStmt | SubStmt | MinStmtTypes;
@@ -49,6 +49,8 @@ CopyDstArg:         PtArg ( ',' page=NumericExp ( ',' opr=OprArg? )? )? | filepa
 OprArg:             'And' | 'Or' | 'Preset' | 'Pset' | 'Xor' | 'Tand' | 'Tor' | 'Tpreset' | 'Tpset' | 'Txor';
 ShapeArg:           'BF' | 'B';
 
+LabelStmt:          label=Label ':'?;
+
 FuncStmt:           header=FuncHeads Sep*- statements*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
 FuncHeads:          FuncHead | FuncHeadTyped;
 FuncHead:           'Function' name=Name '(' params*=FuncVarDecl[/(,|\n)+/] ')' return=FuncReturnType;
@@ -67,19 +69,21 @@ SubStmtTypes:       !('End' 'Sub')- ( SubExitStmt | ReturnStmt | MinStmtTypes );
 SubExitStmt:        'Exit' 'Sub';
 SubStmtEnd:         'End' 'Sub';
 
+ConstStmt:          'Const' vars+=ConstVarDecl[/,/];
+ConstVarDecl:       ( id=TypedName | id=Name 'As' VarType ) '=' expr=Expression |
+                    ( id=TypedName | id=Name ) '=' expr=Expression;
+
 DimStmt[ws=' \t\n']:
     'Dim' vars+=DimVarDecl[/,/];
 
-DimVarDecl:         DimVar 'As' VarType '=' DimAttr |
-                    DimVar 'As' VarType |
-                    DimVar '=' DimAttr |
-                    DimVar;
+DimVarDecl:         ( id=TypedName | id=DimVar 'As' type=VarType ) '=' expr=Expression |
+                    ( id=TypedName | id=DimVar 'As' type=VarType ) |
+                    ( id=TypedName | id=DimVar ) '=' expr=Expression |
+                    ( id=TypedName | id=DimVar );
 
 DimVar:             name=Name ( '(' ranges*=DimRangeDecl[/,/] ')' )?;
 
 DimRangeDecl:       NumericExp 'To' NumericExp | NumericExp;
-
-DimAttr:            NumericExp | '{' NumericExp '}';
 
 ConditionalStmt:    IfThenElseStmt | IfThenStmt | IfThenElseOneLiner | IfThenOneLiner;
 
@@ -145,22 +149,31 @@ PrintExprs:         Expression | /(;|,)/;
 PrintUsing:         'Using' fmt=PrintUsingFmt ';' exprs+=Expression[/(,|;)/];
 PrintUsingFmt:      String | Var;
 
-BranchStmt:         'Goto' | 'Gosub';
+BranchStmt:         type=BranchType adr=Address;
+BranchType:         'Goto' | 'Gosub' | 'Restore';
+Address:            Label | Integer;
 
-LetStmt:            'Let';
+LetStmt:            'Let' vars+=LetVarDecl[/,/];
+LetVarDecl:         ( id=TypedName | id=Name 'As' VarType ) '=' expr=Expression |
+                    ( id=TypedName | id=Name ) '=' expr=Expression;
 
 DefStmt:            'Def Fn';
 
 InputStmt:          'Input' args=InputArgs;
 InputArgs:          InputPrompt | InputFile;
-InputPrompt:        ( String ';' )? vars*=Var[/,/];
+InputPrompt:        ( String ';' )? vars+=Var[/,/];
 InputFile:          '#' NumericExp ',' vars*=Var[/,/];
+
+DataStmt:           'Data' ctnt*=DataContent[/,/];
+DataContent:        String | Numeral;
+
+ReadStmt:           'Read' vars+=Var[/,/];
 
 PlayStmt:           'Play';
 
 SwitcherStmt:       'x';
 
-SimpleStmt[ws=' \t']:   keyword=KeywordStmt;
+SimpleStmt:         keyword=KeywordStmt;
 
 KeywordStmt:        'Beep' | 'Cls' | 'End' | 'Nop';
 
@@ -170,10 +183,11 @@ VarDefn:            var=Var '=' expr=Expression;
 VarType:
     'Boolean' | 'BOOL' | 'Integer' | 'INT' | 'String' | 'STR' | 'Single' | 'SNG' | 'Double' | 'DBL';
 
-Label:              '@' Name;
+RValue:             Identifier '(' ( args*=Expression[/,/] )? ')' | Array | Identifier;
 Var:                Array | Identifier;
 Array:              identifier=Identifier '(' ( subscripts*=NumericExp[/,/] )? ')';
 Identifier:         TypedName | Name;
+Label:              '@' Name;
 
 String[noskipws]:
     '"' /[^"]*/ '"';
@@ -186,7 +200,7 @@ Name:               /[_A-Za-z][_A-Za-z0-9]*/;
 
 Expression:         NumericExp | StringExp;
 
-StringExp:          STRING | Var;
+StringExp:          ( Var | STRING ) '+' ( Var | STRING ) | Var | STRING;
 
 NumericExp:         ImpOp; // Imp: lowest precedence operator
 ImpOp:              op1=EqvOp ( 'Imp'-        op2=EqvOp )*;
@@ -203,7 +217,7 @@ IdvOp:              op1=MulOp ( '/'           op2=MulOp )*;
 MulOp:              op1=NegOp ( opr=/(\*|\/)/ op2=NegOp )*;
 NegOp:              opr=Signal*               op_=ExpOp;
 ExpOp:              op1=_Atom ( '^'-          op2=_Atom )*;
-_Atom:              Numeral | Var | '(' Expression ')'; // highest
+_Atom:              RValue | '(' Expression ')' | Numeral; // highest
 
 CmpToken:           '=' | '<>' | '<=' | '<' | '>=' | '>';
 Signal:             /[-+]/;
