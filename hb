@@ -54,8 +54,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
     if args.x:
         source_code = """
 ' 1st variant
-Let A$ = Val("Bla123" + "456")
-Goto @bla
+1 Let A$ = Val("Bla123" + "456")
+2 Goto @bla
 Select a
 Case 1
     Cls
@@ -65,7 +65,7 @@ Case 2
     Print
 End Select
 
-Screen 2,,,,,1
+@bla Screen 2,,,,,1
 
 Color 15,1,1
 

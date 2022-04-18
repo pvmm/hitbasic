@@ -7,15 +7,18 @@ from hitbasic.models import *;
 
 grammar = r"""
 Program[ws=" \t"]:
-    Sep*- statements*=AllStmtTypes[/(:|\n)+/] Sep*-;
+    Sep*- statements*=Statements[/(:|\n)+/] Sep*-;
 
-MinStmtTypes:
-    LabelStmt | ConstStmt | DimStmt | ConditionalStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt | ForStmt |
-    PrintStmt | BranchStmt | GraphicStmtTypes | LetStmt | DefStmt | InputStmt | DataStmt | ReadStmt | PlayStmt | SwitcherStmt |
-    SimpleStmt | AttrStmt;
+Statements:
+    Sep? ( ( LabelMark Sep? AllStmtTypes ) | AllStmtTypes | LabelMark ) ( &Sep Statements )*;
 
 AllStmtTypes:
     FuncStmt | SubStmt | MinStmtTypes;
+
+MinStmtTypes:
+    ConstStmt | DimStmt | ConditionalStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt | ForStmt |
+    PrintStmt | BranchStmt | GraphicStmtTypes | LetStmt | DefStmt | InputStmt | DataStmt | ReadStmt | PlayStmt | SwitcherStmt |
+    SimpleStmt | AttrStmt;
 
 GraphicStmtTypes:
     DrawStmt | CircleStmt | ColorDefStmt | ColorStmt | CopyStmt | LineStmt | PaintStmt | PresetStmt |
@@ -49,7 +52,7 @@ CopyDstArg:         PtArg ( ',' page=NumericExp ( ',' opr=OprArg? )? )? | filepa
 OprArg:             'And' | 'Or' | 'Preset' | 'Pset' | 'Xor' | 'Tand' | 'Tor' | 'Tpreset' | 'Tpset' | 'Txor';
 ShapeArg:           'BF' | 'B';
 
-LabelStmt:          label=Label ':'?;
+LabelMark:          &( /^[0-9@]/ ) adr=Address;
 
 FuncStmt:           header=FuncHeads Sep*- statements*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
 FuncHeads:          FuncHead | FuncHeadTyped;
