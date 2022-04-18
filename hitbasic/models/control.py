@@ -3,16 +3,19 @@
 
 from hitbasic.helpers import string
 from hitbasic.models import Node
-from hitbasic import spacing
+from hitbasic import cfg
 
 
 class BranchStmt(Node):
     def __str__(self):
-        return f'%s{spacing}%s' % (self.type.upper(), self.adr)
+        return f'%s{cfg.spacing}%s' % (self.type.upper(), self.adr)
 
 
 class IfThenOneLiner(Node):
     keyword = 'IF'
+
+    def __str__(self):
+        return f'%s{cfg.spacing}%s THEN' % (self.keyword, self.expr)
 
 
 class IfThenElseOneLiner(Node):
@@ -35,7 +38,7 @@ class NextStmt(Node):
     keyword = 'NEXT'
 
     def __str__(self):
-        print(f'NEXT{spacing}%s' % string.joinAll(self.vars, ','))
+        print(f'NEXT{cfg.spacing}%s' % string.joinAll(self.vars, ','))
 
 
 class SelectStmt(Node):

@@ -1,7 +1,7 @@
 # Console, printables and related models
 
 
-from hitbasic import spacing
+from hitbasic import cfg
 from hitbasic.models import Node
 
 
@@ -15,8 +15,8 @@ class PrintExprs(Node):
 
 class PrintStmt(Node):
     def __str__(self):
-        return f'PRINT{spacing}%s%s' % (
-               f'{self.fileno};{spacing}' if self.fileno else '',
+        return f'PRINT{cfg.spacing}%s%s' % (
+               f'{self.fileno};{cfg.spacing}' if self.fileno else '',
                self.params if self.params else '')
 
 

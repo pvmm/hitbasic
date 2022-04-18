@@ -1,7 +1,10 @@
 # Expressions related models
 
+
+from hitbasic import cfg
 from hitbasic.helpers import string
 from hitbasic.models import Node
+
 
 class Array(Node):
     def __str__(self):
