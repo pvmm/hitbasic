@@ -1,4 +1,4 @@
-class Builder:
+class GenericBuilder:
     def __init__(self, identifier, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -6,13 +6,13 @@ class Builder:
         self.identifier = identifier
 
 
-class Function(Builder):
+class Function(GenericBuilder):
     pass
 
 
-class Array(Builder):
+class Array(GenericBuilder):
     pass
 
 
-class Scalar(Builder):
+class Scalar(GenericBuilder):
     pass

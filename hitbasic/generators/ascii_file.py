@@ -9,7 +9,7 @@ from hitbasic.symbol_table import SymbolTable
 LabelMark = label.LabelMark
 
 
-class Generator:
+class AsciiFileGenerator:
     line_start = cfg.line_start
     line_inc = cfg.line_inc
     line_len = cfg.line_length
@@ -41,11 +41,11 @@ class Generator:
 
             for pos, text in stmt.gen_line(available):
                 if buffer:
-                    buffer.write(text)
+                    buffer.write(bytes(text, 'utf-8'))
                     buffer.write("\r\n")
                 line_num += self.line_inc
         elif stmt.fits(available):
-            line = bytes(stmt)
+            line = bytes(str(stmt), 'utf-8')
             if buffer: buffer.write(line)
             return line_num + self.line_inc, len(line)
 
@@ -72,4 +72,9 @@ class Generator:
                 item.label = current_label
 
             self.process_stmt(0, item, line_num, buffer)
+
+        return buffer
+
+
+Generator = AsciiFileGenerator
 

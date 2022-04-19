@@ -52,9 +52,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
+        Screen 2,,1
 ' 1st variant
 1 Let A$ = Val("Bla123" + "456")
-2 Goto @bla
+2 B$ = Val("Bla123" + "456")
+3 Goto @bla
 Select a
 Case 1
     Cls
@@ -65,6 +67,7 @@ Case 2
 End Select
 
 @bla Screen 2,,,,,1
+Screen 2,,,,,1
 
 Color 15,1,1
 
@@ -78,8 +81,9 @@ Pset(2,2),2,preset
         mm = hitbasic.create_metamodel(debug=True)
         model = mm.model_from_str(source_code)
         generator = ascii_file.Generator()
-        print(dir(model))
-        generator.process(model.statements)
+        output = generator.process(model.statements)
+        print('-----------')
+        print(output.getvalue().decode('utf-8'))
         argp.exit(status=0)
 
     if args.stdin is True:

@@ -38,7 +38,7 @@ class NextStmt(Node):
     keyword = 'NEXT'
 
     def __str__(self):
-        print(f'NEXT{cfg.spacing}%s' % string.joinAll(self.vars, ','))
+        return f'NEXT{cfg.spacing}%s' % string.joinAll(self.vars, ',')
 
 
 class SelectStmt(Node):

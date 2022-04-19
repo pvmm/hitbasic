@@ -30,4 +30,16 @@ class ASCIINode(object):
         pass
 
 
+class ASCIINodeList(ASCIINode):
+    def __init__(self, **kwargs):
+        self.parent = kwargs['parent']
+        del kwargs['parent']
+
+        self.args = []
+        for key, value in kwargs.items():
+            self.args.append(value)
+        self.init()
+
+
 Node = ASCIINode
+NodeList = ASCIINodeList

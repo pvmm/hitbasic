@@ -31,7 +31,7 @@ ColorDefStmt:       'Color' '=' ( 'New' | 'Restore' | '(' Expression ',' Express
 ColorStmt:          'Color' fg=NumericExp? ( ',' bg=NumericExp? ( ',' bd=NumericExp? )? )?;
 CopyStmt:           'Copy' CopySrcArg 'To' CopyDstArg;
 LineStmt:           'Line' src=StepPtArg? '-' dst=StepPtArg args=LineStmtArgs?;
-LineStmtArgs:       ',' color=NumericExp ( ',' ShapeArg? ( ',' opr=OprArg? )? )?;
+LineStmtArgs:       ',' color=NumericExp? ( ',' shape=ShapeArg? ( ',' opr=OprArg? )? )?;
 PaintStmt:          'Paint' pt=StepPtArg args=PaintStmtArgs?;
 PaintStmtArgs:      ',' color=NumericExp ( ',' color=NumericExp? )?; 
 PresetStmt:         'Preset' pt=StepPtArg args=PsetStmtArgs?;
