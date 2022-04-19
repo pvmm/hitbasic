@@ -52,7 +52,7 @@ CopyDstArg:         PtArg ( ',' page=NumericExp ( ',' opr=OprArg? )? )? | filepa
 OprArg:             'And' | 'Or' | 'Preset' | 'Pset' | 'Xor' | 'Tand' | 'Tor' | 'Tpreset' | 'Tpset' | 'Txor';
 ShapeArg:           'BF' | 'B';
 
-LabelMark:          &( /^[0-9@]/ ) adr=Address;
+LabelMark:          &( /^[0-9@]/ ) identifier=Label? line_num=Integer?;
 
 FuncStmt:           header=FuncHeads Sep*- statements*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
 FuncHeads:          FuncHead | FuncHeadTyped;
@@ -152,7 +152,7 @@ PrintExprs:         Expression | /(;|,)/;
 PrintUsing:         'Using' fmt=PrintUsingFmt ';' exprs+=Expression[/(,|;)/];
 PrintUsingFmt:      String | Var;
 
-BranchStmt:         type=BranchType adr=Address;
+BranchStmt:         stmt=BranchType param=Address;
 BranchType:         'Goto' | 'Gosub' | 'Restore';
 Address:            Label | Integer;
 

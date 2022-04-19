@@ -6,26 +6,28 @@ modules = list(__all__)
 __all__ += [ 'modules' ]
 
 
-NO_LABEL = 0
-NUMERIC = 1
-PLACEHOLDER = 2
-
-
-class Node(object):
+class ASCIINode(object):
     multiline = False
     compound = False
     dirty = True
-    label_type = NO_LABEL
+    label_type = None
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
+        self.init()
 
-    def need_break(self, line_len):
-        return len(str(self)) > line_len
+    def init(self):
+        pass
 
-    def __str__(self):
+    def fits(self, available):
+        return len(str(self)) < available
+
+    def __bytes__(self):
         return self.keyword.upper()
 
     def write(self, file):
         pass
+
+
+Node = ASCIINode

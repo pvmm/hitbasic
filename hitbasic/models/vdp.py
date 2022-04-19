@@ -10,38 +10,38 @@ from hitbasic import cfg
 class ScreenStmt(Node):
     keyword = 'SCREEN'
 
-    def __str__(self):
-        return f"%s{cfg.spacing}%s" % (self.keyword, string.write_list([self.mode, self.spriteSize,
-                self.clickStatus, self.baudRate, self.printerType, self.interlaceMode]))
+    def __bytes__(self):
+        return bytes(f"%s{cfg.spacing}%s" % (self.keyword, string.write_list([self.mode, self.spriteSize,
+                self.clickStatus, self.baudRate, self.printerType, self.interlaceMode])), 'utf-8')
 
 
 class ColorStmt(Node):
     keyword = 'COLOR'
 
-    def __str__(self):
-        return f"%s{cfg.spacing}%s" % (self.keyword, string.write_list([self.fg, self.bg, self.bd]))
+    def __bytes__(self):
+        return bytes(f"%s{cfg.spacing}%s" % (self.keyword, string.write_list([self.fg, self.bg, self.bd])), 'utf-8')
 
 
 class LineStmt(Node):
     keyword = 'LINE'
 
-    def __str__(self):
-        return f"%s{cfg.spacing}%s-%s%s" % (self.keyword, self.src if self.src else '', self.dst,
-                self.args if self.args else '')
+    def __bytes__(self):
+        return bytes(f"%s{cfg.spacing}%s-%s%s" % (self.keyword, self.src if self.src else '', self.dst,
+                self.args if self.args else ''), 'utf-8')
 
 
 class PaintStmt(Node):
     keyword = 'PAINT'
 
-    def __str__(self):
-        return f"%s{cfg.spacing}%s%s" % (self.keyword, self.pt, self.args)
+    def __bytes__(self):
+        return bytes(f"%s{cfg.spacing}%s%s" % (self.keyword, self.pt, self.args), 'utf-8')
 
 
 class PresetStmt(Node):
     keyword = 'PRESET'
 
-    def __str__(self):
-        return f"%s{cfg.spacing}%s%s" % (self.keyword, self.pt, self.args)
+    def __bytes__(self):
+        return bytes(f"%s{cfg.spacing}%s%s" % (self.keyword, self.pt, self.args), 'utf-8')
 
 
 class PsetStmt(PresetStmt):
@@ -49,6 +49,6 @@ class PsetStmt(PresetStmt):
 
 
 class StepPtArg(Node):
-    def __str__(self):
-        return f'%s(%s{cfg.arg_spacing},%s)' % ('STEP' if self.step else '', self.coor.x, self.coor.y)
+    def __bytes__(self):
+        return bytes(f'%s(%s{cfg.arg_spacing},%s)' % ('STEP' if self.step else '', self.coor.x, self.coor.y), 'utf-8')
 

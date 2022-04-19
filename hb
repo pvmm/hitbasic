@@ -6,8 +6,7 @@ import textwrap
 import shutil
 
 from hitbasic import hitbasic
-
-from pprint import pprint
+from hitbasic.generators import ascii_file
 
 
 if __name__ == '__main__':
@@ -78,8 +77,9 @@ Pset(2,2),2,preset
 """
         mm = hitbasic.create_metamodel(debug=True)
         model = mm.model_from_str(source_code)
-        for statement in model.statements:
-            print('stmt =', statement)
+        generator = ascii_file.Generator()
+        print(dir(model))
+        generator.process(model.statements)
         argp.exit(status=0)
 
     if args.stdin is True:
