@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import sys
 import argparse
 import textwrap
@@ -7,6 +8,18 @@ import shutil
 
 from hitbasic import hitbasic
 from hitbasic.generators import ascii_file
+
+
+def create_model(metamodel, source, graphviz=False):
+    model = mm.model_from_str(source)
+
+    if graphviz:
+        os.system('dot -Tpdf Model_parse_tree.dot -o Model_parse_tree.pdf')
+        #os.system('dot -Tpdf Program_parser_model.dot -o Program_parser_model.pdf')
+        #os.system('dot -Tpdf textx_model_parser_model.dot -o textx_model_parser_model.pdf')
+        #os.system('dot -Tpdf textx_model_parse_tree.dot -o textx_model_parse_tree.pdf')
+
+    return model
 
 
 if __name__ == '__main__':
@@ -102,7 +115,7 @@ Pset(2,2),2,preset
         for file in args.c:
             sources += args.c[0].read()
         try:
-            model = mm.model_from_str(sources)
+            model = create_model(mm, sources, args.graphviz)
         except Exception as e:
             print('* %s error: %s' % (e.__class__.__name__, str(e)))
             if hasattr(args, 'debug') and args.debug:

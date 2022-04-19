@@ -7,10 +7,11 @@ from hitbasic.models import *;
 
 grammar = r"""
 Program[ws=" \t"]:
-    Sep*- statements*=Statements[/(:|\n)+/] Sep*-;
+    Sep* statements*=Statements[/(:|\n)+/] Sep*;
 
 Statements:
-    Sep? ( ( LabelMark Sep? AllStmtTypes ) | AllStmtTypes | LabelMark ) ( &Sep Statements )*;
+    Sep?- ( ( LabelMark Sep?- AllStmtTypes ) | AllStmtTypes | LabelMark )*;
+    //Sep?- ( ( LabelMark Sep?- AllStmtTypes ) | AllStmtTypes | LabelMark ) ( &Sep- Statements )*;
 
 AllStmtTypes:
     FuncStmt | SubStmt | MinStmtTypes;
@@ -52,7 +53,7 @@ CopyDstArg:         PtArg ( ',' page=NumericExp ( ',' opr=OprArg? )? )? | filepa
 OprArg:             'And' | 'Or' | 'Preset' | 'Pset' | 'Xor' | 'Tand' | 'Tor' | 'Tpreset' | 'Tpset' | 'Txor';
 ShapeArg:           'BF' | 'B';
 
-LabelMark:          &( /^[0-9@]/ ) identifier=Label? line_num=Integer?;
+LabelMark:          &( /^[0-9@]/ ) ( identifier=Label? | line_num=Integer? );
 
 FuncStmt:           header=FuncHeads Sep*- statements*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
 FuncHeads:          FuncHead | FuncHeadTyped;

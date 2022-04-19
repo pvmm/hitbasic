@@ -8,7 +8,7 @@ from hitbasic import cfg
 
 class BranchStmt(Node):
     def __str__(self):
-        return f'%s{cfg.spacing}%s' % (self.type.upper(), self.adr)
+        return f'%s{cfg.spacing}%s' % (self.stmt.upper(), self.param)
 
 
 class IfThenOneLiner(Node):

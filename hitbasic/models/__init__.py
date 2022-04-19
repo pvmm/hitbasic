@@ -20,6 +20,9 @@ class ASCIINode(object):
     def init(self):
         pass
 
+    def debug(self):
+        print(self.__dict__)
+
     def fits(self, available):
         return len(str(self)) < available
 
