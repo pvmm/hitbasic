@@ -65,11 +65,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
-        Screen 2,,1
+                Screen 2,,1
 ' 1st variant
-1 Let A$ = Val("Bla123" + "456")
-2 B$ = Val("Bla123" + "456")
-3 Goto @bla
+10 Let A$ = Val("Bla123" + "456")
+12 B$ = Val("Bla123" + "456")
+13 Goto @bla
 Select a
 Case 1
     Cls
@@ -92,10 +92,13 @@ Pset(2,2),2,preset
 
 """
         mm = hitbasic.create_metamodel(debug=True)
-        model = mm.model_from_str(source_code)
+        model = create_model(mm, source_code, args.graphviz)
+        print('==============')
+        for stmt in model.statements:
+            print(stmt.debug())
+        print('-------------')
         generator = ascii_file.Generator()
         output = generator.process(model.statements)
-        print('-----------')
         print(output.getvalue().decode('utf-8'))
         argp.exit(status=0)
 
@@ -135,4 +138,3 @@ Pset(2,2),2,preset
     with open('./teste.out', 'w') as file:
         for statement in model.statements:
             print(statement, file=file)
-

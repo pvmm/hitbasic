@@ -20,8 +20,7 @@ class AsciiFileGenerator:
 
     def process_stmt(self, available, stmt, line_num, buffer = None):
         if available == 0:
-            if buffer:
-                buffer.write(b"\r\n")
+            if buffer: buffer.write(b"\r\n")
             available = self.line_len
             linemark = f'{line_num} '
             available -= len(linemark)
@@ -44,14 +43,20 @@ class AsciiFileGenerator:
                     buffer.write(bytes(text, 'utf-8'))
                     buffer.write("\r\n")
                 line_num += self.line_inc
-        elif stmt.fits(available):
-            line = bytes(str(stmt), 'utf-8')
+        elif stmt.fits(available - 1):
+            line = bytes(f'{stmt}:', 'utf-8')
             if buffer: buffer.write(line)
             return line_num + self.line_inc, len(line)
+
+        line_num += self.line_inc
+        if buffer: buffer.write(b"\r\n")
+        return self.process_stmt(0, stmt, line_num, buffer)
 
 
     def process(self, program, line_start = 10):
         buffer = BytesIO()
+
+        line_len = 0
         current_label = None
         old_line_num = line_num = line_start
         old_stmt_line_num = 0
@@ -61,9 +66,10 @@ class AsciiFileGenerator:
                 item.line_num = line_num
 
                 if item.type == NUMERIC:
-                    if item.line_num <= old_stmt_line_num:
-                        raise InvalidLineNumber(item, item._tx_position)
+                    if item.line_num < old_stmt_line_num:
+                        raise InvalidLineNumber(old_stmt_line_num, item.line_num, item._tx_position)
                     old_stmt_line_num = item.line_num
+                    print(f"{old_stmt_line_num=}")
 
                 self.symbol_table.store_label(item)
                 current_label = item
@@ -71,7 +77,7 @@ class AsciiFileGenerator:
             else:
                 item.label = current_label
 
-            self.process_stmt(0, item, line_num, buffer)
+            line_num, line_len = self.process_stmt(line_len, item, line_num, buffer)
 
         return buffer
 
