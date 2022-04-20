@@ -9,7 +9,6 @@ from hitbasic import cfg
 
 class LineStmtArgs(NodeList):
     def __str__(self):
-        print(self.args)
         return ',%s' % string.write_list(self.args)
     
 
@@ -53,6 +52,11 @@ class PresetStmt(Node):
 
     def __str__(self):
         return f"%s{cfg.spacing}%s%s" % (self.keyword, self.pt, self.args)
+
+
+class PsetStmtArgs(NodeList):
+    def __str__(self):
+        return ',%s' % string.write_list(self.args)
 
 
 class PsetStmt(PresetStmt):

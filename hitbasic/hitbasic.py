@@ -7,7 +7,7 @@ from hitbasic.models import *;
 
 grammar = r"""
 Program[ws=" \t"]:
-    Sep* statements*=Statements[/(:|\n)+/] Sep*;
+    Sep*- statements*=Statements[/(:|\n)+/] Sep*-;
 
 Statements:
     Sep?- ( ( LabelMark Sep?- AllStmtTypes ) | AllStmtTypes | LabelMark )*;
@@ -240,7 +240,11 @@ EOL:                "\n";
 Sep:                ':' | "\n";
 StmtSep:            EOL* ':' EOL*;
 
-Comment[ws=" \t"]:
+
+Comment: MultilineComments | LineComments;
+MultilineComments[ws=" \t\n"]:
+        '/*' ( !('*/') /./ )* '*/';
+LineComments[ws=" \t"]:
         ( "'" | 'Rem' ) ( !( "\n" ) /[^\n]/ )* EOL;
 """
 
