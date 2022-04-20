@@ -9,12 +9,16 @@ import shutil
 from hitbasic import hitbasic
 from hitbasic.generators import ascii_file
 
+import subprocess
+from subprocess import DEVNULL, STDOUT, check_call
+
 
 def create_model(metamodel, source, graphviz=False):
     model = mm.model_from_str(source)
 
     if graphviz:
-        os.system('dot -Tpdf Model_parse_tree.dot -o Model_parse_tree.pdf')
+        check_call(['dot', '-Tpdf', 'Model_parse_tree.dot', '-o', 'Model_parse_tree.pdf'], stdout=DEVNULL, stderr=STDOUT)
+        #os.system('dot -Tpdf Model_parse_tree.dot -o Model_parse_tree.pdf')
         #os.system('dot -Tpdf Program_parser_model.dot -o Program_parser_model.pdf')
         #os.system('dot -Tpdf textx_model_parser_model.dot -o textx_model_parser_model.pdf')
         #os.system('dot -Tpdf textx_model_parse_tree.dot -o textx_model_parse_tree.pdf')
@@ -87,7 +91,10 @@ Color 15,1,1
 Line (0,0)-Step(100,100),4,bf
 """
         mm = hitbasic.create_metamodel(debug=True)
-        model = create_model(mm, source_code, args.graphviz)
+        try:
+            model = create_model(mm, source_code, args.graphviz)
+        except:
+            argp.exit(status=-1)
         print('==============')
         for stmt in model.statements:
             print(stmt.debug())
