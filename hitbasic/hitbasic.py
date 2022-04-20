@@ -11,7 +11,6 @@ Program[ws=" \t"]:
 
 Statements:
     Sep?- ( ( LabelMark Sep?- AllStmtTypes ) | AllStmtTypes | LabelMark )*;
-    //Sep?- ( ( LabelMark Sep?- AllStmtTypes ) | AllStmtTypes | LabelMark ) ( &Sep- Statements )*;
 
 AllStmtTypes:
     FuncStmt | SubStmt | MinStmtTypes;
@@ -108,17 +107,17 @@ ThenClause: statements*=ThenStmtTypes[/:+/ eolterm];
 EndIfClause: statements*=EndIfStmtTypes[/:+/ eolterm];
 
 IfThenElseStmt:
-    'If' expr=Expression ('Then' | Sep)? Sep* thenStmts*=ThenStmtTypes[/(:|\n)+/] Sep*
-    'Else' Sep* elseStmts*=EndIfStmtTypes[/(:|\n)+/] Sep* EndIfStmt;
+    'If' expr=Expression ('Then' | Sep)? Sep* thenStmts*=ThenStmtTypes[/(:|\n)+/] Sep*-
+    'Else' Sep*- elseStmts*=EndIfStmtTypes[/(:|\n)+/] Sep*- EndIfStmt;
 
 IfThenStmt:
-    'If' expr=Expression ('Then' | Sep)? Sep* statements*=EndIfStmtTypes[/(:|\n)+/]  Sep* EndIfStmt;
+    'If' expr=Expression ('Then' | Sep)? Sep*- statements*=EndIfStmtTypes[/(:|\n)+/] Sep*- EndIfStmt;
 
 EndIfStmtTypes:     !( 'End' 'If' )- MinStmtTypes;
 
 ThenStmtTypes:      !( 'Else' )- MinStmtTypes;
 
-EndIfStmt:          'End' 'If' &Sep+;
+EndIfStmt:          'End' 'If' &Sep+-;
 
 SelectStmt:
     'Select' expr=Expression Sep*- cases*=CaseStmtTypes[/(:|\n)+/] Sep*- SelectStmtEnd;
@@ -128,10 +127,10 @@ CaseStmtTypes:      !( 'End' 'Select' )- ( CaseStmt | MinStmtTypes );
 CaseStmt[ws=' \t\n']:
     'Case'- ( 'Else' | expr=Expression );
 
-SelectStmtEnd:      'End' 'Select' &Sep+;
+SelectStmtEnd:      'End' 'Select' &Sep+-;
 
-DoLoopStmt:         'Do' condition=DoCond Sep+ statements*=DoStmtTypes[/(:|\n)+/] Sep* 'Loop' |
-                    'Do' Sep+ statements*=DoStmtTypes[/(:|\n)+/] Sep* 'Loop' condition=DoCond;
+DoLoopStmt:         'Do' condition=DoCond Sep+- statements*=DoStmtTypes[/(:|\n)+/] Sep*- 'Loop' |
+                    'Do' Sep+- statements*=DoStmtTypes[/(:|\n)+/] Sep*- 'Loop' condition=DoCond;
 DoCond:             ( 'While' | 'Until' ) expr=NumericExp;
 DoStmtTypes:        !( 'Loop' )- ( ExitDoStmt | MinStmtTypes );
 ExitDoStmt:         'Exit' 'Do';

@@ -19,7 +19,7 @@ class AsciiFileGenerator:
 
 
     def process_stmt(self, available, stmt, line_num, buffer = None):
-        if available == 0:
+        if available <= 0:
             if buffer: buffer.write(b"\r\n")
             available = self.line_len
             linemark = f'{line_num} '
@@ -29,8 +29,8 @@ class AsciiFileGenerator:
             if not stmt.fits(available):
                 raise LineTooShort(line_num = line_num)
         else:
-            available -= 1 if cfg.compact else 3
-            if available < 0:
+            if cfg.compact: available -= 1
+            if available <= 0:
                 return self.process_stmt(0, stmt, line_num + self.line_inc, buffer)
 
         if stmt.multiline:
@@ -43,10 +43,11 @@ class AsciiFileGenerator:
                     buffer.write(bytes(text, 'utf-8'))
                     buffer.write("\r\n")
                 line_num += self.line_inc
-        elif stmt.fits(available - 1):
-            line = bytes(f'{stmt}:', 'utf-8')
+        elif stmt.fits(available - (1 if self.first_stmt else 0)):
+            line = bytes(str(stmt) if self.first_stmt else f':{stmt}', 'utf-8')
+            self.first_stmt = False
             if buffer: buffer.write(line)
-            return line_num + self.line_inc, len(line)
+            return line_num, available - len(line)
 
         line_num += self.line_inc
         if buffer: buffer.write(b"\r\n")
@@ -56,7 +57,8 @@ class AsciiFileGenerator:
     def process(self, program, line_start = 10):
         buffer = BytesIO()
 
-        line_len = 0
+        self.first_stmt = True
+        line_len = self.line_len
         current_label = None
         old_line_num = line_num = line_start
         old_stmt_line_num = 0
@@ -69,7 +71,6 @@ class AsciiFileGenerator:
                     if item.line_num < old_stmt_line_num:
                         raise InvalidLineNumber(old_stmt_line_num, item.line_num, item._tx_position)
                     old_stmt_line_num = item.line_num
-                    print(f"{old_stmt_line_num=}")
 
                 self.symbol_table.store_label(item)
                 current_label = item

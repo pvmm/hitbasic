@@ -85,11 +85,6 @@ Screen 2,,,,,1
 Color 15,1,1
 
 Line (0,0)-Step(100,100),4,bf
-Line Step(50, 50)-(100, 100)
-Line-(105,105),1
-Preset(1,1),1,preset
-Pset(2,2),2,preset
-
 """
         mm = hitbasic.create_metamodel(debug=True)
         model = create_model(mm, source_code, args.graphviz)

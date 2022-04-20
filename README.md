@@ -76,7 +76,7 @@ TODO
 ====
 
 Planned features:
-* Pascal-style multiline comment (`{ this is a comment }`);
+* ~C-style multiline comment (`/* this is a comment */`);~
 * Import file meta instruction (like #include);
 * Python-like string interpolation;
 * Tail recursion: allows recursive functions in MSX-BASIC;
