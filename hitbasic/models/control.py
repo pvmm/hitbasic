@@ -41,10 +41,6 @@ class NextStmt(Node):
         return f'NEXT{cfg.spacing}%s' % string.joinAll(self.vars, ',')
 
 
-class SelectStmt(Node):
-    keyword = 'SELECT'
-
-
 class DoLoopStmt(Node):
     keyword = 'DO'
 

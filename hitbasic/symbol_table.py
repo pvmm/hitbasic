@@ -4,7 +4,7 @@ from contextlib import suppress
 
 from hitbasic.msx import types, builtins 
 
-#from .helper import *
+from hitbasic.helpers import *
 
 
 class SymbolTable(dict):

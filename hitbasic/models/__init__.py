@@ -6,6 +6,12 @@ modules = list(__all__)
 __all__ += [ 'modules' ]
 
 
+def create_processors(symbol_table):
+    return {
+            'SelectStmt': lambda select_stmt: select_case.processor(select_stmt, symbol_table)
+    }
+
+
 class ASCIINode(object):
     multiline = False
     compound = False

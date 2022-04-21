@@ -2,7 +2,10 @@ import inspect
 import sys
 
 from textx import metamodel_from_str, get_children_of_type
-from hitbasic.models import *;
+
+from hitbasic.models import *
+from hitbasic.symbol_table import SymbolTable
+from hitbasic.models import create_processors
 
 
 grammar = r"""
@@ -261,7 +264,11 @@ def create_metamodel(**kwargs):
         debug_mode = kwargs['debug']
     except KeyError:
         debug_mode = False
-    return metamodel_from_str(grammar, classes=class_provider, ws=" \t", skipws=True, ignore_case=True, debug=debug_mode)
+
+    symbol_table = SymbolTable()
+    mm = metamodel_from_str(grammar, classes=class_provider, ws=" \t", skipws=True, ignore_case=True, debug=debug_mode)
+    mm.register_obj_processors(create_processors(symbol_table))
+    return mm
 
 
 def class_provider(name):
