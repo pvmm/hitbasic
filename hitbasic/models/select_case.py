@@ -8,9 +8,40 @@ from hitbasic import cfg
 
 def processor(select_stmt, symbol_table):
     print("select_case.processor called")
-    #symbol_table.create_label(prefix='bla')
-    return select_stmt
+    if select_stmt.expr.is_lvalue():
+        # If expression is already a variable, just use that.
+        select_var = select_stmt.expr
+    else:
+        # Otherwise, define a new one.
+        select_var = symbol_table.create_hitbasic_var(type = find_type(select_stmt.expr))
 
+    if_stmts = []
+    else_clause = False
 
-class SelectStmt(Node):
-    keyword = 'SELECT'
+    for case_clause in select_stmt.cases:
+        # format: Case Is <operator> <expr>
+        if case_clause.is_clause:
+            # Operation with least priority in the expression
+            cmp_op = case_clause.expr.comparator
+            operator = case_clause.expr.operator
+            # 'Is' is a placeholder for select_var and will be replaced in code generation
+            expr = cmp_op(select_var, operator)
+            if_stmt = IfStmt(expr, case_clause.statements)
+        # format: Case Else
+        elif case_clause.else_clause:
+            if else_clause:
+                raise ElseClauseError('else-clause already defined')
+            else_clause = True
+            cmp_op = case_clause.expr.comparator
+            # Comparators can be used as expressions
+            expr = cmp_op(case_clause.expr.op1, case_clause.expr.op2)
+            if_stmt = IfStmt(expr, case_clause.statements)
+        # default: Case <expression>
+        else:
+            # Operation with least priority in the expression
+            expr = case_clause.expr
+            if_stmt = IfStmt(expr, case_clause.statements)
+
+        if_stmts.append(if_stmt)
+
+    return CodeBlock(if_stmts)

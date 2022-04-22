@@ -123,13 +123,12 @@ ThenStmtTypes:      !( 'Else' )- MinStmtTypes;
 EndIfStmt:          'End' 'If' &Sep+-;
 
 SelectStmt:
-    'Select' expr=Expression Sep*- cases*=CaseStmtTypes[/(:|\n)+/] Sep*- SelectStmtEnd;
+    'Select' expr=Expression Sep*- cases*=CaseClause[/(:|\n)+/] Sep*- SelectStmtEnd;
 
-CaseStmtTypes:      !( 'End' 'Select' )- ( CaseStmt | MinStmtTypes );
-
-CaseStmt[ws=' \t\n']:
-    'Case'- ( 'Else' | expr=Expression );
-
+CaseClause:         'Case' CaseExpr Sep+- statements*=CaseStmtTypes[/(:|\n)+/] CaseClauseEnd;
+CaseExpr:           is_else?='Else' | 'Is' is_expr=CaseCmpExpr | expr=Expression;
+CaseClauseEnd:      ( 'End' 'Case' | &( 'End' 'Select' ));
+CaseStmtTypes:      !( 'End' 'Select' )- MinStmtTypes;
 SelectStmtEnd:      'End' 'Select' &Sep+-;
 
 DoLoopStmt:         'Do' condition=DoCond Sep+- statements*=DoStmtTypes[/(:|\n)+/] Sep*- 'Loop' |

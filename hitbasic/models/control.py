@@ -11,25 +11,6 @@ class BranchStmt(Node):
         return f'%s{cfg.spacing}%s' % (self.stmt.upper(), self.param)
 
 
-class IfThenOneLiner(Node):
-    keyword = 'IF'
-
-    def __str__(self):
-        return f'%s{cfg.spacing}%s THEN' % (self.keyword, self.expr)
-
-
-class IfThenElseOneLiner(Node):
-    keyword = 'IF'
-
-
-class IfThenStmt(Node):
-    keyword = 'IF'
-
-
-class IfThenElseStmt(Node):
-    keyword = 'IF'
-
-
 class ForStmt(Node):
     keyword = 'FOR'
 
