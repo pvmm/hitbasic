@@ -126,7 +126,7 @@ SelectStmt:
     'Select' expr=Expression Sep*- cases*=CaseClause[/(:|\n)+/] Sep*- SelectStmtEnd;
 
 CaseClause:         'Case' CaseExpr Sep+- statements*=CaseStmtTypes[/(:|\n)+/] CaseClauseEnd;
-CaseExpr:           is_else?='Else' | 'Is' is_expr=CaseCmpExpr | expr=Expression;
+CaseExpr:           is_else?='Else' | 'Is' is_expr=CaseCmpOp | expr=Expression;
 CaseClauseEnd:      ( 'End' 'Case' | &( 'End' 'Select' ));
 CaseStmtTypes:      !( 'End' 'Select' )- MinStmtTypes;
 SelectStmtEnd:      'End' 'Select' &Sep+-;
@@ -188,7 +188,7 @@ VarDefn:            var=Var '=' expr=Expression;
 VarType:
     'Boolean' | 'BOOL' | 'Integer' | 'INT' | 'String' | 'STR' | 'Single' | 'SNG' | 'Double' | 'DBL';
 
-RValue:             Identifier '(' ( args*=Expression[/,/] )? ')' | Array | Identifier;
+LValue:             Identifier '(' ( args*=Expression[/,/] )? ')' | Array | Identifier;
 Var:                Array | Identifier;
 Array:              identifier=Identifier '(' ( subscripts*=NumericExp[/,/] )? ')';
 Identifier:         TypedName | Name;
@@ -207,7 +207,7 @@ Expression:         NumericExp | StringExp;
 
 StringExp:          ( Var | STRING ) '+' ( Var | STRING ) | Var | STRING;
 
-NumericExp:         ImpOp; // Imp: lowest precedence operator
+NumericExp:         &( is_lvalue?=LValue ) expr=ImpOp; // Imp: lowest precedence operator
 ImpOp:              op1=EqvOp ( 'Imp'-        op2=EqvOp )*;
 EqvOp:              op1=XorOp ( 'Eqv'-        op2=XorOp )*;
 XorOp:              op1=_OrOp ( 'Xor'-        op2=_OrOp )*;
@@ -215,14 +215,14 @@ _OrOp:              op1=AndOp ( 'Or'-         op2=AndOp )*;
 AndOp:              op1=NotOp ( 'And'-        op2=NotOp )*;
 NotOp:             opr?='Not'                 op_=CmpOp;
 CmpOp:              op1=AddOp ( opr=CmpToken  op2=AddOp )*;
-CaseOp:             opr=CmpToken              op_=AddOp;    // select-case operation
+CaseCmpOp:          opr=CmpToken              op_=AddOp;    // select-case operation
 AddOp:              op1=ModOp ( opr=Signal    op2=ModOp )*;
 ModOp:              op1=IdvOp ( 'Mod'-        op2=IdvOp )*;
 IdvOp:              op1=MulOp ( '/'           op2=MulOp )*;
 MulOp:              op1=NegOp ( opr=/(\*|\/)/ op2=NegOp )*;
 NegOp:              opr=Signal*               op_=ExpOp;
 ExpOp:              op1=_Atom ( '^'-          op2=_Atom )*;
-_Atom:              RValue | '(' Expression ')' | Numeral; // highest
+_Atom:              &( is_lvalue?=LValue ) lvalue=LValue | '(' expr=Expression ')' | num=Numeral; // highest
 
 CmpToken:           '=' | '<>' | '<=' | '<' | '>=' | '>';
 Signal:             /[-+]/;

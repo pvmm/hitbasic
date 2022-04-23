@@ -8,9 +8,9 @@ from hitbasic import cfg
 
 def processor(select_stmt, symbol_table):
     print("select_case.processor called")
-    if select_stmt.expr.is_lvalue():
+    if select_stmt.expr.is_lvalue:
         # If expression is already a variable, just use that.
-        select_var = select_stmt.expr
+        select_var = find_terminal(select_stmt.expr)
     else:
         # Otherwise, define a new one.
         select_var = symbol_table.create_hitbasic_var(type = find_type(select_stmt.expr))
