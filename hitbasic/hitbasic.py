@@ -123,13 +123,14 @@ ThenStmtTypes:      !( 'Else' )- MinStmtTypes;
 EndIfStmt:          'End' 'If' &Sep+-;
 
 SelectStmt:
-    'Select' expr=Expression Sep*- cases*=CaseClause[/(:|\n)+/] Sep*- SelectStmtEnd;
+    'Select' expr=Expression Sep+- ( cases+=CaseClause | Sep+- )? SelectStmtEnd;
 
-CaseClause:         'Case' CaseExpr Sep+- statements*=CaseStmtTypes[/(:|\n)+/] CaseClauseEnd;
-CaseExpr:           is_else?='Else' | 'Is' is_expr=CaseCmpOp | expr=Expression;
-CaseClauseEnd:      ( 'End' 'Case' | &( 'End' 'Select' ));
+CaseClause:         'Case' CaseExpr Sep+- statements*=CaseStmtTypes[/(:|\n)+/] Sep+- CaseClauseEnd;
+CaseExpr:           else?='Else' | 'Is' is_expr=CaseCmpOp | expr=Expression;
+//CaseStmtTypes:      !( 'End' 'Select' )- ( CaseClause | MinStmtTypes );
 CaseStmtTypes:      !( 'End' 'Select' )- MinStmtTypes;
-SelectStmtEnd:      'End' 'Select' &Sep+-;
+CaseClauseEnd:      &( 'End' 'Select' | 'Case' );
+SelectStmtEnd:      'End' 'Select';
 
 DoLoopStmt:         'Do' condition=DoCond Sep+- statements*=DoStmtTypes[/(:|\n)+/] Sep*- 'Loop' |
                     'Do' Sep+- statements*=DoStmtTypes[/(:|\n)+/] Sep*- 'Loop' condition=DoCond;
@@ -258,7 +259,7 @@ for module in [globals()[name] for name in modules]:
             classes[name] = obj
 
 
-def create_metamodel(**kwargs):
+def create_metamodel(use_processor = True, **kwargs):
     try:
         debug_mode = kwargs['debug']
     except KeyError:
@@ -266,7 +267,8 @@ def create_metamodel(**kwargs):
 
     symbol_table = SymbolTable()
     mm = metamodel_from_str(grammar, classes=class_provider, ws=" \t", skipws=True, ignore_case=True, debug=debug_mode)
-    mm.register_obj_processors(create_processors(symbol_table))
+    if not use_processor:
+        mm.register_obj_processors(create_processors(symbol_table))
     return mm
 
 

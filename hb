@@ -9,6 +9,7 @@ import shutil
 from hitbasic import hitbasic
 from hitbasic.generators import ascii_file
 
+import traceback
 import subprocess
 from subprocess import DEVNULL, STDOUT, check_call
 
@@ -94,6 +95,7 @@ Line (0,0)-Step(100,100),4,bf
         try:
             model = create_model(mm, source_code, args.graphviz)
         except:
+            traceback.print_exc()
             argp.exit(status=-1)
         print('==============')
         for stmt in model.statements:
