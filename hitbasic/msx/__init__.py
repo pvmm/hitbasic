@@ -1,15 +1,6 @@
 from hitbasic.language_support import Function, Array, Scalar
 
 
-class types:
-    Integer = 0
-    String = 1
-    Single = 2
-    Double = 3
-    Any = 4
-    OptInteger = 5
-
-
 class attr:
     DEFAULT = 0
     READ_ONLY = 1

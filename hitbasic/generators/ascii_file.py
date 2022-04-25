@@ -18,6 +18,10 @@ class AsciiFileGenerator:
         self.symbol_table = SymbolTable()
 
 
+    def fits_in_line(self, stmt, available_space):
+        return len(str(stmt).split("\n")[0]) <= available_space
+
+
     def process_stmt(self, available, stmt, line_num, buffer = None):
         if available <= 0:
             if buffer: buffer.write(b"\r\n")
@@ -26,7 +30,8 @@ class AsciiFileGenerator:
             available -= len(linemark)
             if available <= 0:
                 raise LineTooShort(stmt = stmt)
-            if not stmt.fits(available):
+
+            if not self.fits_in_line(stmt, available):
                 raise LineTooShort(line_num = line_num)
         else:
             if cfg.compact: available -= 1
@@ -34,19 +39,19 @@ class AsciiFileGenerator:
                 return self.process_stmt(0, stmt, line_num + self.line_inc, buffer)
 
         if stmt.multiline:
-            if not stmt.fits(available):
+            if not self.fits_in_line(stmt, available):
                 # try again on an fresh new line
                 return self.process_stmt(0, stmt, line_num + self.line_inc, buffer)
 
-            for pos, text in stmt.gen_line(available):
+            for text in str(stmt).split("\n"):
                 if buffer:
-                    buffer.write(bytes(text, 'utf-8'))
-                    buffer.write("\r\n")
+                    buffer.write(bytes(f"{text}\r\n", 'utf-8'))
                 line_num += self.line_inc
-        elif stmt.fits(available - (1 if self.first_stmt else 0)):
-            line = bytes(str(stmt) if self.first_stmt else f':{stmt}', 'utf-8')
+
+        elif self.fits_in_line(stmt, available - (1 if self.first_stmt else 0)):
+            line = str(stmt) if self.first_stmt else f':{stmt}'
             self.first_stmt = False
-            if buffer: buffer.write(line)
+            if buffer: buffer.write(bytes(line, 'utf-8'))
             return line_num, available - len(line)
 
         line_num += self.line_inc

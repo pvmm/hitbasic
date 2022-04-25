@@ -14,6 +14,9 @@ import subprocess
 from subprocess import DEVNULL, STDOUT, check_call
 
 
+sys.setrecursionlimit(2000)
+
+
 def create_model(metamodel, source, graphviz=False):
     model = mm.model_from_str(source)
 
@@ -70,26 +73,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
-                Screen 2,,1
-' 1st variant
-10 Let A$ = Val("Bla123" + "456")
-12 B$ = Val("Bla123" + "456")
-13 Goto @bla
 Select a
 Case 1
     Cls
-    Print
+    Print 1
 Case 2
     'Play "A"
-    Print
+    Print 2
+    Cls
+    Print 3
 End Select
-
-@bla Screen 2,,,,,1
-Screen 2,,,,,1
-
-Color 15,1,1
-
-Line (0,0)-Step(100,100),4,bf
 """
         mm = hitbasic.create_metamodel(debug=True)
         try:
@@ -97,12 +90,13 @@ Line (0,0)-Step(100,100),4,bf
         except:
             traceback.print_exc()
             argp.exit(status=-1)
-        print('==============')
-        for stmt in model.statements:
-            print(stmt.debug())
-        print('-------------')
+        #print('==============')
+        #for stmt in model.statements:
+        #    print(stmt)
+        #print('-------------')
         generator = ascii_file.Generator()
         output = generator.process(model.statements)
+        print('-------------')
         print(output.getvalue().decode('utf-8'))
         argp.exit(status=0)
 

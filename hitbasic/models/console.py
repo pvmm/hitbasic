@@ -1,24 +1,33 @@
 # Console, printables and related models
 
+from io import StringIO
 
 from hitbasic import cfg
-from hitbasic.models import Node
+from hitbasic.models import Node, CmdNode
 
 
-class PrintExprs(Node):
+class PrintParams(Node):
     def __str__(self):
-        val = ''
+        val = StringIO()
+
         for expr in self.exprs:
-            val += f'{expr}';
-        return val;
+            val.write(f'{expr}');
+
+        if self.using:
+            val.write(f'USING{cfg.arg_spacing}{using.fmt};{cfg.arg_spacing}');
+            val.write(';'.join(self.using.exprs))
+
+        return val.getvalue();
 
 
-class PrintStmt(Node):
+class PrintStmt(CmdNode):
+    keyword = 'PRINT'
+
     def __str__(self):
-        return f'PRINT{cfg.spacing}%s%s' % (
+        return f'{self.keyword}{cfg.spacing}%s%s' % (
                f'{self.fileno};{cfg.spacing}' if self.fileno else '',
                self.params if self.params else '')
 
 
-class InputStmt(Node):
+class InputStmt(CmdNode):
     keyword = 'INPUT'

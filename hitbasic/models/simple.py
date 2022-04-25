@@ -2,8 +2,7 @@
 
 
 from hitbasic import cfg
-from hitbasic.models import Node
+from hitbasic.models import CmdNode
 
 
-class SimpleStmt(Node):
-    pass
+class SimpleStmt(CmdNode): pass

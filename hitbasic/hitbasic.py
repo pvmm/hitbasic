@@ -113,8 +113,7 @@ IfThenElseStmt:
     'If' expr=Expression ('Then' | Sep)? Sep* thenStmts*=ThenStmtTypes[/(:|\n)+/] Sep*-
     'Else' Sep*- elseStmts*=EndIfStmtTypes[/(:|\n)+/] Sep*- EndIfStmt;
 
-IfThenStmt:
-    'If' expr=Expression ('Then' | Sep)? Sep*- statements*=EndIfStmtTypes[/(:|\n)+/] Sep*- EndIfStmt;
+IfThenStmt:         'If' expr=Expression ('Then' | Sep)? Sep*- statements*=EndIfStmtTypes[/(:|\n)+/] Sep*- EndIfStmt;
 
 EndIfStmtTypes:     !( 'End' 'If' )- MinStmtTypes;
 
@@ -125,8 +124,8 @@ EndIfStmt:          'End' 'If' &Sep+-;
 SelectStmt:
     'Select' expr=Expression Sep+- ( cases+=CaseClause | Sep+- )? SelectStmtEnd;
 
-CaseClause:         'Case' CaseExpr Sep+- statements*=CaseStmtTypes[/(:|\n)+/] Sep+- CaseClauseEnd;
-CaseExpr:           else?='Else' | 'Is' is_expr=CaseCmpOp | expr=Expression;
+CaseClause:         'Case' expr=CaseExpr Sep+- statements*=CaseStmtTypes[/(:|\n)+/] Sep+- CaseClauseEnd;
+CaseExpr:           else_clause?='Else' | 'Is' is_clause=CaseCmpOp | Expression;
 //CaseStmtTypes:      !( 'End' 'Select' )- ( CaseClause | MinStmtTypes );
 CaseStmtTypes:      !( 'End' 'Select' )- MinStmtTypes;
 CaseClauseEnd:      &( 'End' 'Select' | 'Case' );
@@ -150,8 +149,8 @@ ForRangeDecl:       begin=NumericExp 'to'- end=NumericExp ( 'Step'- step=Numeric
 
 PrintStmt:          ( 'Print' | '?' ) ( fileno=PrintFileNo )? params=PrintParams;
 PrintFileNo:        '#' id=NumericExp ',';
-PrintParams:        exprs*=PrintExprs ( using=PrintUsing )?;
-PrintExprs:         Expression | /(;|,)/;
+PrintParams:        exprs*=PrintExpr ( using=PrintUsing )?;
+PrintExpr:          Expression | /(;|,)/;
 PrintUsing:         'Using' fmt=PrintUsingFmt ';' exprs+=Expression[/(,|;)/];
 PrintUsingFmt:      String | Var;
 
@@ -206,7 +205,8 @@ Name:               /[_A-Za-z][_A-Za-z0-9]*/;
 
 Expression:         NumericExp | StringExp;
 
-StringExp:          ( Var | STRING ) '+' ( Var | STRING ) | Var | STRING;
+StringExp:          op1=String concat?='+' op2=String | op1=String opr=CmpOp op2=String | expr=Var | expr=STRING;
+String:             Var | STRING;
 
 NumericExp:         &( is_lvalue?=LValue ) expr=ImpOp; // Imp: lowest precedence operator
 ImpOp:              op1=EqvOp ( 'Imp'-        op2=EqvOp )*;
@@ -214,16 +214,16 @@ EqvOp:              op1=XorOp ( 'Eqv'-        op2=XorOp )*;
 XorOp:              op1=_OrOp ( 'Xor'-        op2=_OrOp )*;
 _OrOp:              op1=AndOp ( 'Or'-         op2=AndOp )*;
 AndOp:              op1=NotOp ( 'And'-        op2=NotOp )*;
-NotOp:             opr?='Not'                 op_=CmpOp;
+NotOp:             opr?='Not'                 op1=CmpOp;
 CmpOp:              op1=AddOp ( opr=CmpToken  op2=AddOp )*;
-CaseCmpOp:          opr=CmpToken              op_=AddOp;    // select-case operation
+CaseCmpOp:          opr=CmpToken              op1=AddOp;    // select-case operation
 AddOp:              op1=ModOp ( opr=Signal    op2=ModOp )*;
 ModOp:              op1=IdvOp ( 'Mod'-        op2=IdvOp )*;
 IdvOp:              op1=MulOp ( '/'           op2=MulOp )*;
 MulOp:              op1=NegOp ( opr=/(\*|\/)/ op2=NegOp )*;
-NegOp:              opr=Signal*               op_=ExpOp;
+NegOp:              opr=Signal*               op1=ExpOp;
 ExpOp:              op1=_Atom ( '^'-          op2=_Atom )*;
-_Atom:              &( is_lvalue?=LValue ) lvalue=LValue | '(' expr=Expression ')' | num=Numeral; // highest
+_Atom:              lvalue=LValue | '(' expr=Expression ')' | num=Numeral; // highest
 
 CmpToken:           '=' | '<>' | '<=' | '<' | '>=' | '>';
 Signal:             /[-+]/;
@@ -267,12 +267,11 @@ def create_metamodel(use_processor = True, **kwargs):
 
     symbol_table = SymbolTable()
     mm = metamodel_from_str(grammar, classes=class_provider, ws=" \t", skipws=True, ignore_case=True, debug=debug_mode)
-    if not use_processor:
+    if use_processor:
         mm.register_obj_processors(create_processors(symbol_table))
     return mm
 
 
 def class_provider(name):
     global classes
-    if name == 'ScreenStmt': print(name, classes.get(name))
     return classes.get(name)

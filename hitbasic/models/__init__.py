@@ -1,15 +1,12 @@
 import os, pkgutil
 
-from .. import msx
+from hitbasic import msx
+from hitbasic.exceptions import LineTooShort
 
 modules = __all__ = list(module for _, module, _ in pkgutil.iter_modules([os.path.dirname(__file__)]))
 modules = list(__all__)
 
 __all__ += [ 'modules' ]
-
-
-def find_type(expr):
-    return msx.types.Integer
 
 
 def create_processors(symbol_table):
@@ -19,42 +16,40 @@ def create_processors(symbol_table):
 
 
 class ASCIINode(object):
-    multiline = False
-    compound = False
+    group = False
     dirty = True
-    label_type = None
 
     def __init__(self, **kwargs):
         for key, value in kwargs.items():
             setattr(self, key, value)
         self.init()
 
+
     def init(self):
+        'later initialisation'
         pass
+
 
     def debug(self):
         print(self.__dict__)
 
-    def fits(self, available):
-        return len(str(self)) < available
 
-    def __bytes__(self):
-        return self.keyword.upper()
+class ASCIICmdNode(ASCIINode):
+    multiline = False
+    label_type = None
 
-    def write(self, file):
-        pass
+    def __str__(self):
+        return self.keyword
 
 
 class ASCIINodeList(ASCIINode):
     def __init__(self, **kwargs):
         self.parent = kwargs['parent']
         del kwargs['parent']
-
-        self.args = []
-        for key, value in kwargs.items():
-            self.args.append(value)
+        self.args = list(kwargs.values())
         self.init()
 
 
 Node = ASCIINode
+CmdNode = ASCIICmdNode
 NodeList = ASCIINodeList
