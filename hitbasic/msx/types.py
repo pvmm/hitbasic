@@ -8,12 +8,15 @@ Single = 2
 Double = 3
 Any = 4
 OptInteger = 5
-DEFAULT_TYPE = Integer
+
+default_type = Integer
+current_default_type_name = 'String'
+
 TYPEDES_CHARS = [ '$', '%', '#', '!' ]
 TYPEDES2NAME_MAPPING = { '$' : 'String', '%' : 'Integer', '#' : 'Double', '!' : 'Single' }
 NAME2TYPEDES_MAPPING = { 'String' : '$', 'Integer' : '%', 'Double' : '#', 'Single' : '!' }
-NUM2TYPEDES_MAPPING  = {  String  : '$',  Integer  : '%',  Double  : '#',  Single  : '!' }
-current_default_type = 'String'
+NUM2TYPEDES_MAPPING = { String : '$', Integer : '%', Double : '#', Single : '!' }
+TYPEDES2NUM_MAPPING = { '$' : String, '%' : Integer, '#' : Double, '!' : Single }
 
 
 def get_basic_typedes_char(type_):
@@ -35,14 +38,12 @@ def get_type_from_id(identifier):
     assert type(identifier) == str
     if identifier.endswith('()'):
         if identifier[-3] in TYPEDES2NAME_MAPPING:
-            type_name = TYPEDES2NAME_MAPPING[identifier[-3]]
-            return globals()[type_name]
+            return TYPEDES2NUM_MAPPING[identifier[-3]]
 
     if identifier[-1] in TYPEDES2NAME_MAPPING:
-        type_name = TYPEDES2NAME_MAPPING[identifier[-1]]
-        return globals()[type_name]
+        return TYPEDES2NUM_MAPPING[identifier[-1]]
 
-    return DEFAULT_TYPE
+    return default_type
 
 
 #
@@ -87,12 +88,16 @@ class Function(Callee):
 
 class BASICVar(Callee):
     'Reference to previously declared variable in AST'
-    def __init__(self, identifier, reference=None, ranges=(), type=None, init_value=None):
+    def __init__(self, identifier, reference=None, ranges=(), type_=None, init_value=None):
         self.identifier = identifier
         self.reference = reference
         self.ranges = make_tuple(ranges)
         self.init_value = init_value
-        self.type = type
+        self.type = type_
+
+
+    def __str__(self):
+        return self.identifier
 
 
     def __repr__(self):

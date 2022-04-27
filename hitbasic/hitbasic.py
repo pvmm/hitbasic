@@ -64,7 +64,7 @@ FuncHeadTyped:      'Function' name=TypedName '(' params*=FuncVarDecl[/(,|\n)+/]
 FuncVarDecl:        Name 'As' VarType | TypedName;
 FuncStmtTypes:      !('End' 'Function')- ( FuncExitStmt | ReturnStmt | MinStmtTypes );
 FuncExitStmt:       'Exit' 'Function';
-ReturnStmt:         'Return' ( Var | Label );
+ReturnStmt:         'Return' ( Expression | Label );
 FuncReturnType:     'As' VarType;
 FuncStmtEnd:        'End' 'Function';
 
@@ -79,17 +79,17 @@ ConstStmt:          'Const' vars+=ConstVarDecl[/,/];
 ConstVarDecl:       ( id=TypedName | id=Name 'As' VarType ) '=' expr=Expression |
                     ( id=TypedName | id=Name ) '=' expr=Expression;
 
-DimStmt[ws=' \t\n']:
-    'Dim' vars+=DimVarDecl[/,/];
+DimStmt[ws=' \t\n']: 'Dim' declarations+=DimVarDecl[/,/];
 
-DimVarDecl:         ( id=TypedName | id=DimVar 'As' type=VarType ) '=' expr=Expression |
-                    ( id=TypedName | id=DimVar 'As' type=VarType ) |
-                    ( id=TypedName | id=DimVar ) '=' expr=Expression |
-                    ( id=TypedName | id=DimVar );
+DimVarDecl:         ( var=DimScalar | var=DimArray 'As' type=VarType ) '=' expr=Expression |
+                    ( var=DimScalar | var=DimArray 'As' type=VarType ) |
+                    ( var=DimScalar | var=DimArray ) '=' expr=Expression |
+                    ( var=DimScalar | var=DimArray );
 
-DimVar:             name=Name ( '(' ranges*=DimRangeDecl[/,/] ')' )?;
+DimScalar:          name=TypedName;
+DimArray:           name=Name ( '(' ranges*=DimRangeDecl[/,/] ')' )?;
 
-DimRangeDecl:       NumericExp 'To' NumericExp | NumericExp;
+DimRangeDecl:       begin=NumericExp 'To' end=NumericExp | end=NumericExp;
 
 ConditionalStmt:    IfThenElseStmt | IfThenStmt | IfThenElseOneLiner | IfThenOneLiner;
 
@@ -125,7 +125,7 @@ SelectStmt:
     'Select' expr=Expression Sep+- ( cases+=CaseClause | Sep+- )? SelectStmtEnd;
 
 CaseClause:         'Case' expr=CaseExpr Sep+- statements*=CaseStmtTypes[/(:|\n)+/] Sep+- CaseClauseEnd;
-CaseExpr:           else_clause?='Else' | 'Is' is_clause=CaseCmpOp | Expression;
+CaseExpr:           else_clause?='Else' | 'Is' is_clause=CaseCmpOp | expr=Expression;
 //CaseStmtTypes:      !( 'End' 'Select' )- ( CaseClause | MinStmtTypes );
 CaseStmtTypes:      !( 'End' 'Select' )- MinStmtTypes;
 CaseClauseEnd:      &( 'End' 'Select' | 'Case' );
@@ -188,9 +188,10 @@ VarDefn:            var=Var '=' expr=Expression;
 VarType:
     'Boolean' | 'BOOL' | 'Integer' | 'INT' | 'String' | 'STR' | 'Single' | 'SNG' | 'Double' | 'DBL';
 
-LValue:             Identifier '(' ( args*=Expression[/,/] )? ')' | Array | Identifier;
-Var:                Array | Identifier;
-Array:              identifier=Identifier '(' ( subscripts*=NumericExp[/,/] )? ')';
+LValue:             Var;
+Var:                Array | Scalar;
+Array:              identifier=Identifier '(' ( args*=Expression[/,/] )? ')';
+Scalar:             identifier=Identifier;
 Identifier:         TypedName | Name;
 Label:              '@' Name;
 
@@ -208,7 +209,7 @@ Expression:         NumericExp | StringExp;
 StringExp:          op1=String concat?='+' op2=String | op1=String opr=CmpOp op2=String | expr=Var | expr=STRING;
 String:             Var | STRING;
 
-NumericExp:         &( is_lvalue?=LValue ) expr=ImpOp; // Imp: lowest precedence operator
+NumericExp:         expr=ImpOp; // Imp: lowest precedence operator
 ImpOp:              op1=EqvOp ( 'Imp'-        op2=EqvOp )*;
 EqvOp:              op1=XorOp ( 'Eqv'-        op2=XorOp )*;
 XorOp:              op1=_OrOp ( 'Xor'-        op2=_OrOp )*;

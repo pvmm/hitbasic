@@ -11,7 +11,9 @@ __all__ += [ 'modules' ]
 
 def create_processors(symbol_table):
     return {
-            'SelectStmt': lambda select_stmt: select_case.processor(select_stmt, symbol_table)
+            'SelectStmt': lambda select_stmt: select_case.processor(select_stmt, symbol_table),
+            'DimStmt': lambda dim_stmt: declarations.processor(dim_stmt, symbol_table)
+            'FunctionStmt': lambda func_stmt: functions.processor(func_stmt, symbol_table)
     }
 
 
@@ -26,7 +28,7 @@ class ASCIINode(object):
 
 
     def init(self):
-        'later initialisation'
+        'late, extra initialisation'
         pass
 
 
@@ -40,6 +42,12 @@ class ASCIICmdNode(ASCIINode):
 
     def __str__(self):
         return self.keyword
+
+
+    def printables(self, append_to=None):
+        append_to = append_to or []
+        append_to.append(self.keyword.upper())
+        return append_to
 
 
 class ASCIINodeList(ASCIINode):

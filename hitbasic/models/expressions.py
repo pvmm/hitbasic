@@ -7,6 +7,69 @@ from hitbasic.helpers import debug, string
 from hitbasic.models import Node
 
 
+def find_terminal(expr):
+    'detect if node leads to terminal node and return it, otherwise return None'
+    if type(expr) == NumericExp:
+        return find_terminal(expr.expr)
+    if type(expr) == ImpOp and expr.op2:
+        return None
+    if type(expr) == EqvOp and expr.op2:
+        return None
+    if type(expr) == XorOp and expr.op2:
+        return None
+    if type(expr) == _OrOp and expr.op2:
+        return None
+    if type(expr) == AndOp and expr.op2:
+        return None
+    if type(expr) == NotOp and expr.opr:
+        return find_terminal(expr.op1)
+    if type(expr) == CmpOp and expr.op2:
+        return None
+    if type(expr) == AddOp and expr.op2:
+        return None
+    if type(expr) == IdvOp and expr.op2:
+        return None
+    if type(expr) == MulOp and expr.op2:
+        return None
+    if type(expr) == NegOp and expr.opr:
+        return find_terminal(expr.op1)
+    if type(expr) == _Atom and expr.expr:
+        return find_terminal(expr.expr)
+    if type(expr) == _Atom and expr.num:
+        return expr
+    if type(expr) == _Atom and expr.lvalue:
+        return expr
+
+    if type(expr) == StringExp:
+        if expr.concat:
+            return None
+        if expr.opr:
+            return None
+        return expr
+
+    return find_terminal(expr.op1)
+
+
+def is_terminal(expr):
+    'detect expression resulting type'
+    if type(expr) == NumericExp:
+        return is_terminal(expr.expr)
+    if type(expr) == _Atom and expr.expr:
+        return find_type(expr.expr)
+    if type(expr) == _Atom and expr.num:
+        return True
+    if type(expr) == _Atom and expr.lvalue:
+        return True
+
+    if type(expr) == StringExp:
+        if expr.concat:
+            return False
+        if expr.opr:
+            return False
+        return True
+
+    return is_terminal(expr.op1)
+
 def find_type(expr):
     'detect expression resulting type'
     if type(expr) == NumericExp:
@@ -51,8 +114,12 @@ def find_type(expr):
     return find_type(expr.op1)
 
 
-class StringExp(Node):
-    pass
+class Scalar(Node):
+    def __str__(self):
+        return self.identifier
+
+
+class StringExp(Node): pass
 
 
 class NumericExp(Node):
@@ -143,14 +210,9 @@ class CmpOp(Node):
     def __str__(self):
         if self.opr:
             expr = self.op1
-
-            for i, op2 in enumerate(self.op2):
-                opr = self.opr[i]
-                expr = f"({expr} {opr} {op2})"
-
-            return "{}".format(expr)
+            return f'({expr} {self.opr} {self.op2})'
         else:
-            return "{}".format(self.op1)
+            return f'{self.op1}'
 
 
 class AddOp(Node):
@@ -245,4 +307,4 @@ class _Atom(Node):
 
 class Expression(Node):
     def __str__(self):
-        return "{}".format(self.expr)
+        return f'{self.expr}'

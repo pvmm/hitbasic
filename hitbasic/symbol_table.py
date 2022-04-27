@@ -1,10 +1,9 @@
 import random
-
 from contextlib import suppress
 
 from hitbasic.msx import types, builtins 
-
 from hitbasic.helpers import *
+from hitbasic.exceptions import *
 
 
 class SymbolTable(dict):
@@ -58,7 +57,7 @@ class SymbolTable(dict):
         return self[context]['_builtins'].get(identifier.title())
 
 
-    def register_function(self, identifier, params=(), type=None, context='_global'):
+    def register_function(self, identifier, params=(), type_=None, context='_global'):
         if self[context]['_functions'].get(identifier):
             raise NameRedefined(identifier)
         if type == None: print("* warning: function '%s' return type is undefined." % identifier)
@@ -77,16 +76,16 @@ class SymbolTable(dict):
             raise NameNotDeclared(printable_id)
 
 
-    def check_hitbasic_var(self, identifier, params=None, no_exception=True, context='_global'):
-        assert type(identifier) == str
+    def check_hitbasic_var(self, atom, params=None, throw_exception=True, context='_global'):
+        identifier = atom if type(atom) == str else str(atom)
         try:
             var = self[context]['_hitbasic_vars'][identifier]
             if params != None: var.check_boundaries(params)
             return var
         except KeyError:
-            if no_exception: return None
-            printable_id = types.strip_attrs_from_id(identifier)
-            raise NameNotDeclared(printable_id)
+            if not throw_exception: return
+        printable_id = types.strip_attrs_from_id(identifier)
+        raise NameNotDeclared(printable_id)
 
 
     def get_hitbasic_var(self, identifier, params=None, context='_global'):
@@ -101,25 +100,25 @@ class SymbolTable(dict):
             raise NameNotDeclared(printable_id)
 
 
-    def check_basic_var(self, identifier, params=None, type=None, context='_global'):
+    def check_basic_var(self, identifier, params=None, type_=None, context='_global'):
         'check if basic var exists'
         assert __builtins__['type'](identifier) == str
-        type = types.get_type_from_id(identifier) or type
+        type_ = types.get_type_from_id(identifier) or type_
         with suppress(KeyError):
-            var = self[context]['_basic_vars'][type].get(identifier.upper())
+            var = self[context]['_basic_vars'][type_].get(identifier.upper())
             if params != None: var.check_boundaries(params)
             return var
-        return self[context]['_basic_vars'][type].get(identifier.upper())
+        return self[context]['_basic_vars'][type_].get(identifier.upper())
 
 
-    def check_id(self, identifier, params=(), type=None, context='_global'):
+    def check_id(self, identifier, params=(), type_=None, context='_global'):
         'find anything that matches'
         assert __builtins__['type'](identifier) == str
         if (result := self.check_builtin(identifier, context=context)):
             return result
         if (result := self.check_hitbasic_var(identifier, params=params, context=context)):
             return result
-        if (result := self.check_basic_var(identifier, params=params, type=type, context=context)):
+        if (result := self.check_basic_var(identifier, params=params, type_=type_, context=context)):
             return result
         if (result := self.check_function(identifier, params=params, context=context)):
             return result
@@ -132,22 +131,24 @@ class SymbolTable(dict):
             numerals).lstrip(numerals[0]) + numerals[num % base])
 
 
-    def register_variable(self, hb_id=None, basic_id=None, ranges=(), init_value=None, type=None, node=None, context='_global'):
+    def register_variable(self, hb_id=None, basic_id=None, ranges=(), init_value=None, type_=None, node=None, context='_global'):
         'Register a HitBasic long named variable in the symbol table.'
         if hb_id == None:
             value = random.randint(10, 960)
             if value > 35 and value < 360: value += 360
             hb_id = self.base36(value)
-            if type == None:
-                type = types.DEFAULT_TYPE
-        elif hb_id[-1] in types.TYPE_CHARS:
+            if type_ == None:
+                type_ = types.DEFAULT_TYPE
+        elif hb_id[-1] in types.TYPEDES_CHARS:
             # detect type descriptor in hitbasic var if it exists.
-            if type != None and types.get_type_from_id(hb_id) != type:
-                raise TypeMismatch(types.printable(type), types.printable(types.get_type_from_id(hb_id)))
-            type = types.get_type_from_id(hb_id)
-        elif type == None:
-            type = types.current_default_type
-        type_char = types.get_basic_typedes_char(type)
+            if type_ != None and types.get_type_from_id(hb_id) != type_:
+                raise TypeMismatch(types.printable(type_), types.printable(types.get_type_from_id(hb_id)))
+            type_ = types.get_type_from_id(hb_id)
+        elif type(type_) == str:
+            type_ = types.NAME2NUM_MAPPING[type_]
+        elif type_ == None:
+            type_ = types.default_type
+        type_char = types.get_basic_typedes_char(type_)
 
         # Create basic_id if it didn't exist.
         if basic_id == None:
@@ -160,11 +161,11 @@ class SymbolTable(dict):
         v = (basic_id + type_char + suffix).upper()
         hb_id = hb_id + suffix if hb_id else None
 
-        if hb_id and self.check_hitbasic_var(hb_id, params=None, context=context) == None \
-                and self.check_basic_var(v, params=None, type=type, context=context) == None:
-            var = types.BASICVar(v, reference=hb_id, ranges=ranges, type=type, init_value=init_value)
+        if (hb_id and self.check_hitbasic_var(hb_id, params=None, throw_exception=False, context=context) == None
+                and self.check_basic_var(v, params=None, type_=type_, context=context)) == None:
+            var = types.BASICVar(v, reference=hb_id, ranges=ranges, type_=type_, init_value=init_value)
             if hb_id: self[context]['_hitbasic_vars'][hb_id] = var
-            self[context]['_basic_vars'][type][v] = var
+            self[context]['_basic_vars'][type_][v] = var
             return var
 
         # Slow and stupid method of getting next available MSX BASIC var name.
@@ -183,38 +184,38 @@ class SymbolTable(dict):
 
             if vr in double_length:
                 v = (self.base36(vr) + type_char + suffix).upper()
-                if hb_id and self.check_hitbasic_var(hb_id, params=None, context=context) == None \
-                        and self.check_basic_var(v, params=None, type=type, context=context) == None:
-                    var = types.BASICVar(v, reference=hb_id, ranges=ranges, type=type, init_value=init_value)
+                if (hb_id and self.check_hitbasic_var(hb_id, params=None, context=context) == None
+                        and self.check_basic_var(v, params=None, type_=type_, context=context) == None):
+                    var = types.BASICVar(v, reference=hb_id, ranges=ranges, type_=type_, init_value=init_value)
                     if hb_id: self[context]['_hitbasic_vars'][hb_id] = var
-                    self[context]['_basic_vars'][type][v] = var
+                    self[context]['_basic_vars'][type_][v] = var
                     return var
             elif vr in single_length:
                 v = (self.base36(vr) + type_char + suffix).upper()
-                if hb_id and self.check_hitbasic_var(hb_id, params=None, context=context) == None \
-                        and self.check_basic_var(v, type=type, params=None, context=context) == None:
-                    var = types.BASICVar(v, reference=hb_id, ranges=ranges, type=type, init_value=init_value)
+                if (hb_id and self.check_hitbasic_var(hb_id, params=None, context=context) == None
+                        and self.check_basic_var(v, type_=type_, params=None, context=context) == None):
+                    var = types.BASICVar(v, reference=hb_id, ranges=ranges, type_=type_, init_value=init_value)
                     if hb_id: self[context]['_hitbasic_vars'][hb_id] = var
-                    self[context]['_basic_vars'][type][v] = var
+                    self[context]['_basic_vars'][type_][v] = var
                     return var
             elif vl in double_length:
                 v = (self.base36(vl) + type_char + suffix).upper()
-                if hb_id and self.check_hitbasic_var(hb_id, params=None, context=context) == None \
-                        and self.check_basic_var(v, type=type, params=None, context=context) == None:
-                    var = types.BASICVar(v, reference=hb_id, ranges=ranges, type=type, init_value=init_value)
+                if (hb_id and self.check_hitbasic_var(hb_id, params=None, context=context) == None 
+                        and self.check_basic_var(v, type_=type_, params=None, context=context) == None):
+                    var = types.BASICVar(v, reference=hb_id, ranges=ranges, type_=type_, init_value=init_value)
                     if hb_id: self[context]['_hitbasic_vars'][hb_id] = var
-                    self[context]['_basic_vars'][type][v] = var
+                    self[context]['_basic_vars'][type_][v] = var
                     return var
             elif vl in single_length:
                 v = (self.base36(vl) + type_char + suffix).upper()
-                if hb_id and self.check_hitbasic_var(hb_id, params=None, context=context) == None \
-                        and self.check_basic_var(v, type=type, params=None, context=context) == None:
-                    var = types.BASICVar(v, reference=hb_id, ranges=ranges, type=type, init_value=init_value)
+                if (hb_id and self.check_hitbasic_var(hb_id, params=None, context=context) == None
+                        and self.check_basic_var(v, type_=type_, params=None, context=context) == None):
+                    var = types.BASICVar(v, reference=hb_id, ranges=ranges, type_=type_, init_value=init_value)
                     if hb_id: self[context]['_hitbasic_vars'][hb_id] = var
-                    self[context]['_basic_vars'][type][v] = var
+                    self[context]['_basic_vars'][type_][v] = var
                     return var
             else:
-                if len(self[context]['_basic_vars'][type]) > 950:
+                if len(self[context]['_basic_vars'][type_]) > 950:
                     raise NamespaceExausted()
 
 
@@ -234,14 +235,14 @@ class SymbolTable(dict):
             return name
 
 
-    def create_hitbasic_var(self, hb_id=None, ranges=(), type=None, init_value=None, node=None, context='_global'):
-        if hb_id and self.check_hitbasic_var(hb_id):
+    def create_hitbasic_var(self, hb_id=None, ranges=(), type_=None, init_value=None, node=None, context='_global', **kwargs):
+        if hb_id and self.check_hitbasic_var(hb_id, throw_exception=False):
             raise NameRedefined(hb_id)
         if hb_id:
             basic_id = self.generate_basic_var_id(hb_id)
-            var = self.register_variable(hb_id, basic_id, ranges=ranges, type=type, init_value=init_value, node=node)
+            var = self.register_variable(hb_id, basic_id, ranges=ranges, type_=type_, init_value=init_value, node=node)
         else:
-            var = self.register_variable(ranges=ranges, type=type, init_value=init_value, node=node)
+            var = self.register_variable(ranges=ranges, type_=type_, init_value=init_value, node=node)
         return var
 
 

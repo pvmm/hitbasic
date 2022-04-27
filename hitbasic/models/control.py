@@ -2,7 +2,7 @@
 
 
 from hitbasic.helpers import string
-from hitbasic.models import Node
+from hitbasic.models import Node, CmdNode
 from hitbasic import cfg
 
 
@@ -24,8 +24,3 @@ class NextStmt(Node):
 
 class DoLoopStmt(Node):
     keyword = 'DO'
-
-
-class FuncStmt(Node):
-    keyword = 'FUNCTION'
-

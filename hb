@@ -6,7 +6,7 @@ import argparse
 import textwrap
 import shutil
 
-from hitbasic import hitbasic
+from hitbasic import hitbasic, cfg
 from hitbasic.generators import ascii_file
 
 import traceback
@@ -71,18 +71,14 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
         print("%s\n\n%s\n\n%s\n" % (title, copyright, disclaimer))
         argp.exit(status=0)
 
+    # scalar declaration not required
+    cfg.no_decl = True if args.no_decl else False
+
     if args.x:
         source_code = """
-Select a
-Case 1
-    Cls
-    Print 1
-Case 2
-    'Play "A"
-    Print 2
-    Cls
-    Print 3
-End Select
+function teste(a%) as Integer
+    return 10
+end function
 """
         mm = hitbasic.create_metamodel(debug=True)
         try:

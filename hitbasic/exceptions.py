@@ -13,3 +13,12 @@ class InvalidLineNumber(Exception):
     def __init__(self, old_line_num, new_line_num, pos):
         message = 'Line number %s smaller than previous line number %s' % (new_line_num, old_line_num)
         super().__init__(message)
+
+
+class NameNotDeclared(Exception):
+    def __init__(self, identifier, line_num = None):
+        if line_num:
+            message = 'Identifier %s not declared in line number %s' % (identifier, line_num)
+        else:
+            message = 'Identifier "%s" used but not declared' % identifier
+        super().__init__(message)

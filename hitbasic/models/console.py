@@ -8,25 +8,27 @@ from hitbasic.models import Node, CmdNode
 
 class PrintParams(Node):
     def __str__(self):
-        val = StringIO()
+        buffer = StringIO()
 
         for expr in self.exprs:
-            val.write(f'{expr}');
+            buffer.write(f'{expr}');
 
         if self.using:
-            val.write(f'USING{cfg.arg_spacing}{using.fmt};{cfg.arg_spacing}');
-            val.write(';'.join(self.using.exprs))
+            buffer.write(f'USING{cfg.arg_spacing}{using.fmt};{cfg.arg_spacing}');
+            buffer.write(';'.join(self.using.exprs))
 
-        return val.getvalue();
+        return buffer.getvalue();
 
 
 class PrintStmt(CmdNode):
     keyword = 'PRINT'
 
-    def __str__(self):
-        return f'{self.keyword}{cfg.spacing}%s%s' % (
-               f'{self.fileno};{cfg.spacing}' if self.fileno else '',
-               self.params if self.params else '')
+    def printables(self, append_to=None):
+        append_to = append_to or []
+        append_to.append(
+                f'{self.keyword}{cfg.spacing}%s%s' % (f'{self.fileno};{cfg.spacing}' if self.fileno else '',
+                self.params if self.params else ''))
+        return append_to
 
 
 class InputStmt(CmdNode):
