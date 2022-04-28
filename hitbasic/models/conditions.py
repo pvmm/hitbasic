@@ -20,6 +20,7 @@ class EndIfClause(CmdNode):
 
 class IfThenStmt(CmdNode):
     keyword = 'IF'
+
     def __init__(self, expr, statements):
         self.expr = expr
         self.statements = statements
@@ -35,6 +36,7 @@ class IfThenStmt(CmdNode):
 
 class IfThenElseStmt(IfThenStmt):
     keyword = 'IF'
+
     def __init__(self, expr, then_stmts, else_stmts):
         self.expr = expr
         self.statements = []

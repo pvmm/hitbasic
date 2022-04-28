@@ -3,7 +3,7 @@
 
 from hitbasic.helpers import string
 from hitbasic.models import Node, CmdNode
-from hitbasic.models.label import LabelMark
+from hitbasic.models.labels import LabelMark
 from hitbasic.models.expressions import find_type, is_terminal, find_terminal, CmpOp
 from hitbasic.models.conditions import IfThenStmt
 from hitbasic.models.default import AttrStmt, Group
@@ -61,6 +61,8 @@ def processor(select_stmt, symbol_table):
 
 class CaseClause(CmdNode):
     keyword = 'CASE'
+    group = True
+
     def init(self):
         # Detect label inside code block
         for stmt in self.statements:

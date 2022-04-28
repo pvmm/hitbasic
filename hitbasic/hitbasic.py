@@ -59,13 +59,13 @@ LabelMark:          &( /^[0-9@]/ ) ( identifier=Label? | line_num=Integer? );
 
 FuncStmt:           header=FuncHeads Sep*- statements*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
 FuncHeads:          FuncHead | FuncHeadTyped;
-FuncHead:           'Function' name=Name '(' params*=FuncVarDecl[/(,|\n)+/] ')' return=FuncReturnType;
+FuncHead:           'Function' name=Name '(' params*=FuncVarDecl[/(,|\n)+/] ')' ret=FuncReturnType;
 FuncHeadTyped:      'Function' name=TypedName '(' params*=FuncVarDecl[/(,|\n)+/] ')';
 FuncVarDecl:        Name 'As' VarType | TypedName;
 FuncStmtTypes:      !('End' 'Function')- ( FuncExitStmt | ReturnStmt | MinStmtTypes );
 FuncExitStmt:       'Exit' 'Function';
-ReturnStmt:         'Return' ( Expression | Label );
-FuncReturnType:     'As' VarType;
+ReturnStmt:         'Return' ( target=Expression | target=Label );
+FuncReturnType:     'As'- type=VarType;
 FuncStmtEnd:        'End' 'Function';
 
 SubStmt:            header=SubHead Sep*- statements*=SubStmtTypes[/(:|\n)+/] Sep*- SubStmtEnd;

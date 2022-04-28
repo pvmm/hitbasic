@@ -31,6 +31,10 @@ class Group(CmdNode):
         self.statements = statements
 
 
+    def __iter__(self):
+        return iter(self.statements)
+
+
     def printables(self, append_to=None):
         append_to = append_to or []
         append_to.extend(flatten([stmt.printables() for stmt in self.statements]))

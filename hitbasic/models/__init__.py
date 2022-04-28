@@ -12,8 +12,8 @@ __all__ += [ 'modules' ]
 def create_processors(symbol_table):
     return {
             'SelectStmt': lambda select_stmt: select_case.processor(select_stmt, symbol_table),
-            'DimStmt': lambda dim_stmt: declarations.processor(dim_stmt, symbol_table)
-            'FunctionStmt': lambda func_stmt: functions.processor(func_stmt, symbol_table)
+            'DimStmt': lambda dim_stmt: declarations.processor(dim_stmt, symbol_table),
+            'FuncStmt': lambda func_stmt: functions.processor(func_stmt, symbol_table),
     }
 
 

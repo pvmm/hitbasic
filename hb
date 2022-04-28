@@ -91,7 +91,7 @@ end function
         #    print(stmt)
         #print('-------------')
         generator = ascii_file.Generator()
-        output = generator.process(model.statements)
+        output = generator.process(model.statements)[0]
         print('-------------')
         print(output.getvalue().decode('utf-8'))
         argp.exit(status=0)

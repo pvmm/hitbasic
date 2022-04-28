@@ -2,19 +2,19 @@ import sys
 from io import BytesIO
 
 from hitbasic.models import *
-from hitbasic.models.label import NUMERIC, PLACEHOLDER
+from hitbasic.models.labels import NUMERIC, PLACEHOLDER
 from hitbasic.exceptions import *
 from hitbasic import cfg
 from hitbasic.symbol_table import SymbolTable
 
 
-LabelMark = label.LabelMark
+LabelMark = labels.LabelMark
 
 
 class AsciiFileGenerator:
     line_start = cfg.line_start
     line_inc = cfg.line_inc
-    line_len = cfg.line_length
+    max_len = cfg.line_length
 
     def __init__(self):
         self.symbol_table = SymbolTable()
@@ -30,50 +30,38 @@ class AsciiFileGenerator:
             raise e
 
 
-    def process_stmt(self, available, stmt, line_num, buffer = None):
-        if available <= 0:
-            if buffer: buffer.write(b"\r\n")
-            available = self.line_len
-            linemark = f'{line_num} '
-            available -= len(linemark)
-            if available <= 0:
-                raise LineTooShort(stmt = stmt)
+    def process_stmt(self, stmt, first_stmt, line_len, line_num, buffer):
+        if stmt.group:
+            return self.process(iter(stmt), first_stmt, line_len, line_num, buffer)[1:]
 
-            if not self.fits_inline(stmt, available):
-                raise LineTooShort(line_num = line_num)
-        else:
-            if cfg.compact: available -= 1
-            if available <= 0:
-                return self.process_stmt(0, stmt, line_num + self.line_inc, buffer)
+        it = iter(stmt.printables())
+        s = next(it)
 
-        if stmt.multiline:
-            if not self.fits_inline(stmt, available):
-                # try again on an fresh new line
-                return self.process_stmt(0, stmt, line_num + self.line_inc, buffer)
+        while True:
+            line = f'{line_num} {s}' if first_stmt else f':{cfg.arg_spacing}{s}'
+            llen = len(line)
 
-            for text in str(stmt).split("\n"):
-                if buffer:
-                    buffer.write(bytes(f"{text}\r\n", 'utf-8'))
+            if llen < self.max_len:
+                buffer.write(bytes(line, 'utf-8'))
+                try:
+                    s = next(it)
+                except(StopIteration):
+                    break
+            else:
+                nl = f"\r\n{line_num} "
+                buffer.write(bytes(nl, 'utf-8'))
+                line_len = len(nl) - 2
                 line_num += self.line_inc
+                first_stmt = True
 
-        elif self.fits_inline(stmt, available - (1 if self.first_stmt else 0)):
-            line = str(stmt) if self.first_stmt else f':{stmt}'
-            self.first_stmt = False
-            if buffer: buffer.write(bytes(line, 'utf-8'))
-            return line_num, available - len(line)
-
-        line_num += self.line_inc
-        if buffer: buffer.write(b"\r\n")
-        return self.process_stmt(0, stmt, line_num, buffer)
+        return first_stmt, line_len, line_num
 
 
-    def process(self, program, line_start = 10):
-        buffer = BytesIO()
+    def process(self, program, first_stmt = True, line_len = 0, line_start = 10, buffer = None):
+        buffer = buffer or BytesIO()
 
-        self.first_stmt = True
-        line_len = self.line_len
-        current_label = None
-        old_line_num = line_num = line_start
+        curr_label = None
+        line_num = line_start
         old_stmt_line_num = 0
 
         for item in program:
@@ -82,19 +70,18 @@ class AsciiFileGenerator:
 
                 if item.type == NUMERIC:
                     if item.line_num < old_stmt_line_num:
-                        raise InvalidLineNumber(old_stmt_line_num, item.line_num, item._tx_position)
-                    old_stmt_line_num = item.line_num
+                        raise InvalidLineNumber(old_stmt_line_num, item.line_num, item.get_linecol())
+                    old_stmt_line_num = line_num
 
                 self.symbol_table.store_label(item)
-                current_label = item
+                curr_label = item
                 continue
             else:
-                item.label = current_label
+                item.label = curr_label
 
-            line_num, line_len = self.process_stmt(line_len, item, line_num, buffer)
+            first_stmt, line_len, line_num = self.process_stmt(item, first_stmt, line_len, line_num, buffer)
 
-        return buffer
-
+        return buffer, first_stmt, line_len, line_num
 
 Generator = AsciiFileGenerator
 

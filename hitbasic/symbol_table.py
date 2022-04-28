@@ -4,6 +4,7 @@ from contextlib import suppress
 from hitbasic.msx import types, builtins 
 from hitbasic.helpers import *
 from hitbasic.exceptions import *
+from hitbasic.models import Node
 
 
 class SymbolTable(dict):
@@ -46,23 +47,28 @@ class SymbolTable(dict):
             return prefix + str(self[context]['_prefix_counters'][prefix])
 
 
-    def store_label(self, label, context='_global'):
-        assert(label.keyword != None)
-        if self[context]['_labels'].get(label.keyword):
-            raise NameRedefined(label.keyword)
-        self[context]['_labels'][label.keyword] = label.line_num
+    def store_label(self, label, pos=None, context='_global'):
+        if type(label) != str: label = label.identifier
+        if self[context]['_labels'].get(label):
+            raise NameRedefined(label)
+        self[context]['_labels'][label] = pos
 
 
     def check_builtin(self, identifier, context='_global'):
         return self[context]['_builtins'].get(identifier.title())
 
 
-    def register_function(self, identifier, params=(), type_=None, context='_global'):
+    def register_function(self, func_stmt, pos=None, params=(), type_=None, context='_global'):
+        if isinstance(func_stmt, Node):
+            pos, _ = func_stmt.get_positions()
+            identifier = func_stmt.get_identifier()
+        else:
+            identifier = func_stmt
         if self[context]['_functions'].get(identifier):
             raise NameRedefined(identifier)
         if type == None: print("* warning: function '%s' return type is undefined." % identifier)
         self[context]['_functions'][identifier] = types.Function(identifier, params, type)
-        self.store_label(identifier) # every function has a label with the same name
+        self.store_label(identifier, ) # every function has a label with the same name
 
 
     def check_function(self, identifier, params=None, no_exception=True, context='_global'):
