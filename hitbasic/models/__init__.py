@@ -1,4 +1,5 @@
 import os, pkgutil
+import textx
 
 from hitbasic import msx
 from hitbasic.exceptions import LineTooShort
@@ -25,6 +26,14 @@ class ASCIINode(object):
         for key, value in kwargs.items():
             setattr(self, key, value)
         self.init()
+
+
+    def get_linecol(self):
+        return textx.get_model(self)._tx_parser.pos_to_linecol(self._tx_position)
+
+
+    def get_positions(self):
+        return self._tx_position, self._tx_position_end
 
 
     def init(self):
