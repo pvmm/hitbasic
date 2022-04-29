@@ -10,7 +10,8 @@ class VarDefn(Node): pass
 
 
 class AttrStmt(CmdNode):
-    def __init__(self, definition, value=None):
+    def __init__(self, definition, value=None, **kwargs):
+        super().__init__(**kwargs)
         if type(definition) == VarDefn:
             self.var = definition.var
             self.value = definition.expr

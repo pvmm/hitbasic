@@ -76,9 +76,17 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
-function teste(a%) as Integer
-    return 10
-end function
+year=2000
+If isLeapYear(year) Then
+	Print year; " is a leap year"
+Else
+	Print year; " is NOT a leap year"
+End If
+End
+
+Function isLeapYear(myYear As Integer) As Boolean
+	Return (year Mod 4) = 0
+End Function
 """
         mm = hitbasic.create_metamodel(debug=True)
         try:

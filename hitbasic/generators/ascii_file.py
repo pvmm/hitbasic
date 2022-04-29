@@ -34,25 +34,26 @@ class AsciiFileGenerator:
         if stmt.group:
             return self.process(iter(stmt), first_stmt, line_len, line_num, buffer)[1:]
 
+        nl = '\r\n' if buffer.getvalue() else ''
         it = iter(stmt.printables())
         s = next(it)
 
         while True:
-            line = f'{line_num} {s}' if first_stmt else f':{cfg.arg_spacing}{s}'
-            llen = len(line)
+            line = f'{nl}{line_num} {s}' if first_stmt else f':{cfg.arg_spacing}{s}'
+            llen = len(line) - 1 if nl else 0
 
             if llen < self.max_len:
                 buffer.write(bytes(line, 'utf-8'))
+                first_stmt = False
                 try:
                     s = next(it)
                 except(StopIteration):
                     break
             else:
-                nl = f"\r\n{line_num} "
-                buffer.write(bytes(nl, 'utf-8'))
-                line_len = len(nl) - 2
+                line_len = 0
                 line_num += self.line_inc
                 first_stmt = True
+                nl = '\r\n'
 
         return first_stmt, line_len, line_num
 

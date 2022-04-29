@@ -96,8 +96,8 @@ ConditionalStmt:    IfThenElseStmt | IfThenStmt | IfThenElseOneLiner | IfThenOne
 IfExpressionThen:   !( 'Then' ) Expression 'Then'-;
 
 IfThenElseOneLiner:
-    'If' expr=IfExpressionThen thenStmts*=OneLinerStmtTypes[/:+/ eolterm]
-    'Else' elseStmts*=OneLinerStmtTypes[/:+/ eolterm];
+    'If' expr=IfExpressionThen then_stmts*=OneLinerStmtTypes[/:+/ eolterm]
+    'Else' else_stmts*=OneLinerStmtTypes[/:+/ eolterm];
 
 IfThenOneLiner:
     'If' expr=IfExpressionThen statements*=OneLinerStmtTypes[/:+/ eolterm];
@@ -110,8 +110,8 @@ ThenClause: statements*=ThenStmtTypes[/:+/ eolterm];
 EndIfClause: statements*=EndIfStmtTypes[/:+/ eolterm];
 
 IfThenElseStmt:
-    'If' expr=Expression ('Then' | Sep)? Sep* thenStmts*=ThenStmtTypes[/(:|\n)+/] Sep*-
-    'Else' Sep*- elseStmts*=EndIfStmtTypes[/(:|\n)+/] Sep*- EndIfStmt;
+    'If' expr=Expression ('Then' | Sep)? Sep* then_stmts*=ThenStmtTypes[/(:|\n)+/] Sep*-
+    'Else' Sep*- else_stmts*=EndIfStmtTypes[/(:|\n)+/] Sep*- EndIfStmt;
 
 IfThenStmt:         'If' expr=Expression ('Then' | Sep)? Sep*- statements*=EndIfStmtTypes[/(:|\n)+/] Sep*- EndIfStmt;
 

@@ -21,7 +21,8 @@ class EndIfClause(CmdNode):
 class IfThenStmt(CmdNode):
     keyword = 'IF'
 
-    def __init__(self, expr, statements):
+    def __init__(self, expr, statements, **kwargs):
+        super().__init__(**kwargs)
         self.expr = expr
         self.statements = statements
 
@@ -34,10 +35,11 @@ class IfThenStmt(CmdNode):
         return append_to
 
 
-class IfThenElseStmt(IfThenStmt):
+class IfThenElseStmt(CmdNode):
     keyword = 'IF'
 
-    def __init__(self, expr, then_stmts, else_stmts):
+    def __init__(self, expr, then_stmts, else_stmts, **kwargs):
+        super().__init__(**kwargs)
         self.expr = expr
         self.statements = []
         self.statements.extend(then_stmts)
@@ -45,6 +47,16 @@ class IfThenElseStmt(IfThenStmt):
         self.statements.extend(else_stmts)
         self.statements.append(EndIfClause())
 
+    def printables(self, append_to=None):
+        append_to = append_to or []
+        append_to.append(f'{self.keyword}{cfg.spacing}{self.expr}{cfg.spacing}THEN')
+        append_to.extend([stmt.printables() for stmt in self.statements])
+        append_to.append(EndIfClause())
+        return append_to
+
+
+class IfThenElseStmt(CmdNode):
+    keyword = 'IF'
 
 class IfThenOneLiner(IfThenStmt):
     def printables(self, append_to=None):
