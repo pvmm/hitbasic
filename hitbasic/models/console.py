@@ -6,16 +6,24 @@ from hitbasic import cfg
 from hitbasic.models import Node, CmdNode
 
 
+class PrintExpr(Node):
+    def __str__(self):
+        if self.expr:
+            return f'{self.expr}'
+        else:
+            return f'{self.sep}'
+
+
 class PrintParams(Node):
     def __str__(self):
         buffer = StringIO()
 
-        for expr in self.exprs:
+        for expr in self.expressions:
             buffer.write(f'{expr}');
 
         if self.using:
             buffer.write(f'USING{cfg.arg_spacing}{using.fmt};{cfg.arg_spacing}');
-            buffer.write(';'.join(self.using.exprs))
+            buffer.write(';'.join(self.using.expressions))
 
         return buffer.getvalue();
 

@@ -19,6 +19,11 @@ class ThenClause(Group):
 class ElseClause(Group):
     keyword = 'ELSE'
 
+    def printables(self, append_to=None):
+        append_to = append_to or []
+        append_to.extend([self.keyword] + flatten([stmt.printables() for stmt in self.statements]))
+        return append_to
+
 
 class EndIfClause(CmdNode):
     keyword = 'ENDIF'

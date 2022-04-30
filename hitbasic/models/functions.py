@@ -31,7 +31,7 @@ class ReturnStmt(CmdNode):
     keyword = 'RETURN'
 
 
-class FuncStmt(CmdNode):
+class FuncStmt(Group):
     multiline = True
 
     def get_identifier(self):

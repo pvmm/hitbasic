@@ -1,6 +1,7 @@
 import sys
 from io import BytesIO
 
+from hitbasic.models import MetaNode
 from hitbasic.models import *
 from hitbasic.models.labels import NUMERIC, PLACEHOLDER
 from hitbasic.models.default import EOL
@@ -19,6 +20,7 @@ class AsciiFileGenerator:
 
     def __init__(self):
         self.symbol_table = SymbolTable()
+        self.buffer = BytesIO()
 
 
     def fits_inline(self, stmt, available_space):
@@ -31,11 +33,11 @@ class AsciiFileGenerator:
             raise e
 
 
-    def process_stmt(self, stmt, first_stmt, line_len, line_num, buffer):
+    def process_stmt(self, stmt, first_stmt, line_len, line_num, curr_label):
         if stmt.group:
-            return self.process(iter(stmt), first_stmt, line_len, line_num, buffer)[1:]
+            return self.process(iter(stmt), first_stmt, line_len, line_num, curr_label)[1:]
 
-        nl = '\r\n' if buffer.getvalue() else ''
+        nl = '\r\n' if self.buffer.getvalue() else ''
         it = iter(stmt.printables())
         s = next(it)
 
@@ -52,7 +54,7 @@ class AsciiFileGenerator:
             llen = len(line) - 1 if nl else 0
 
             if llen < self.max_len:
-                buffer.write(bytes(line, 'utf-8'))
+                self.buffer.write(bytes(line, 'utf-8'))
                 first_stmt = False
                 try:
                     s = next(it)
@@ -67,21 +69,18 @@ class AsciiFileGenerator:
         return first_stmt, line_len, line_num
 
 
-    def process(self, program, first_stmt = True, line_len = 0, line_start = 10, buffer = None):
-        buffer = buffer or BytesIO()
-
-        curr_label = None
+    def process(self, node, first_stmt = True, line_len = 0, line_start = 10, curr_label = None):
         line_num = line_start
-        old_stmt_line_num = 0
+        prev_line_num = 0
 
-        for item in program:
+        for item in node:
             if type(item) == LabelMark:
                 item.line_num = line_num
 
                 if item.type == NUMERIC:
-                    if item.line_num < old_stmt_line_num:
-                        raise InvalidLineNumber(old_stmt_line_num, item.line_num, item.get_linecol())
-                    old_stmt_line_num = line_num
+                    if item.line_num < prev_line_num:
+                        raise InvalidLineNumber(prev_line_num, item.line_num, item.get_linecol())
+                    prev_line_num = line_num
 
                 self.symbol_table.store_label(item)
                 curr_label = item
@@ -89,9 +88,9 @@ class AsciiFileGenerator:
             else:
                 item.label = curr_label
 
-            first_stmt, line_len, line_num = self.process_stmt(item, first_stmt, line_len, line_num, buffer)
+            first_stmt, line_len, line_num = self.process_stmt(item, first_stmt, line_len, line_num, curr_label)
 
-        return buffer, first_stmt, line_len, line_num
+        return self.buffer, first_stmt, line_len, line_num
 
 Generator = AsciiFileGenerator
 

@@ -76,7 +76,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
-year=2000
+year=2000 Imp 3 + 2
 If isLeapYear(year) Then
 	Print year; " is a leap year" + "bla"
 Else

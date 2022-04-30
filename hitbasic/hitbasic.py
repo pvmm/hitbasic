@@ -27,31 +27,31 @@ GraphicStmtTypes:
     DrawStmt | CircleStmt | ColorDefStmt | ColorStmt | CopyStmt | LineStmt | PaintStmt | PresetStmt |
     PsetStmt | PutKanjiStmt | PutSpriteStmt | ScreenStmt | SetPageStmt;
 
-DrawStmt:           'Draw' StringExp;
+DrawStmt:           'Draw' Expression;
 CircleStmt:         'Circle' pt=StepPtArg CircleStmtArgs;
-CircleStmtArgs:     ',' color=NumericExp ( ',' color=NumericExp )?;
+CircleStmtArgs:     ',' color=Expression ( ',' color=Expression )?;
 ColorDefStmt:       'Color' '=' ( 'New' | 'Restore' | '(' Expression ',' Expression ',' Expression ',' Expression ')' );
-ColorStmt:          'Color' fg=NumericExp? ( ',' bg=NumericExp? ( ',' bd=NumericExp? )? )?;
+ColorStmt:          'Color' fg=Expression? ( ',' bg=Expression? ( ',' bd=Expression? )? )?;
 CopyStmt:           'Copy' CopySrcArg 'To' CopyDstArg;
 LineStmt:           'Line' src=StepPtArg? '-' dst=StepPtArg args=LineStmtArgs?;
-LineStmtArgs:       ',' color=NumericExp? ( ',' shape=ShapeArg? ( ',' opr=OprArg? )? )?;
+LineStmtArgs:       ',' color=Expression? ( ',' shape=ShapeArg? ( ',' opr=OprArg? )? )?;
 PaintStmt:          'Paint' pt=StepPtArg args=PaintStmtArgs?;
-PaintStmtArgs:      ',' color=NumericExp ( ',' color=NumericExp? )?; 
+PaintStmtArgs:      ',' color=Expression ( ',' color=Expression? )?; 
 PresetStmt:         'Preset' pt=StepPtArg args=PsetStmtArgs?;
 PsetStmt:           'Pset' pt=StepPtArg args=PsetStmtArgs?;
-PsetStmtArgs:       ',' color=NumericExp ( ',' opr=OprArg? )?;
-PutKanjiStmt:       'Put' 'Kanji' pt=StepPtArg ',' jis=NumericExp ( ',' color=NumericExp? ( ',' opr=OprArg? ( ',' mode=NumericExp? )? )? )?;
+PsetStmtArgs:       ',' color=Expression ( ',' opr=OprArg? )?;
+PutKanjiStmt:       'Put' 'Kanji' pt=StepPtArg ',' jis=Expression ( ',' color=Expression? ( ',' opr=OprArg? ( ',' mode=Expression? )? )? )?;
 PutSpriteStmt:      'Put' 'Sprite' Expression ',' pt=StepPtArg args=PutSpriteStmtArgs?;
-PutSpriteStmtArgs:  ',' color=NumericExp ( ',' NumericExp );
-ScreenStmt:         'Screen' mode=NumericExp? ( ',' spriteSize=NumericExp? ( ',' clickStatus=NumericExp? ( ',' baudRate=NumericExp?
-                    ( ',' printerType=NumericExp? ( ',' interlaceMode=NumericExp? )? )? )? )? )?;
-SetPageStmt:        'Set' 'Page' displayPage=NumericExp? ( ',' activePage=NumericExp )?;  
+PutSpriteStmtArgs:  ',' color=Expression ( ',' Expression );
+ScreenStmt:         'Screen' mode=Expression? ( ',' spriteSize=Expression? ( ',' clickStatus=Expression? ( ',' baudRate=Expression?
+                    ( ',' printerType=Expression? ( ',' interlaceMode=Expression? )? )? )? )? )?;
+SetPageStmt:        'Set' 'Page' displayPage=Expression? ( ',' activePage=Expression )?;  
 StepPtArg:          step?='Step' coor=PtArg;
-PtArg:              '(' x=NumericExp ',' y=NumericExp ')';
+PtArg:              '(' x=Expression ',' y=Expression ')';
 
-CopySrcArg:         PtArg '-' StepPtArg ( ',' page=NumericExp )? | Array ( ',' dir=NumericExp )? |
-                    filepath=STRING ( ',' dir=NumericExp )?;
-CopyDstArg:         PtArg ( ',' page=NumericExp ( ',' opr=OprArg? )? )? | filepath=STRING | Array;
+CopySrcArg:         PtArg '-' StepPtArg ( ',' page=Expression )? | Array ( ',' dir=Expression )? |
+                    filepath=STRING ( ',' dir=Expression )?;
+CopyDstArg:         PtArg ( ',' page=Expression ( ',' opr=OprArg? )? )? | filepath=STRING | Array;
 OprArg:             'And' | 'Or' | 'Preset' | 'Pset' | 'Xor' | 'Tand' | 'Tor' | 'Tpreset' | 'Tpset' | 'Txor';
 ShapeArg:           'BF' | 'B';
 
@@ -89,7 +89,7 @@ DimVarDecl:         ( var=DimScalar | var=DimArray 'As' type=VarType ) '=' expr=
 DimScalar:          name=TypedName;
 DimArray:           name=Name ( '(' ranges*=DimRangeDecl[/,/] ')' )?;
 
-DimRangeDecl:       begin=NumericExp 'To' end=NumericExp | end=NumericExp;
+DimRangeDecl:       begin=Expression 'To' end=Expression | end=Expression;
 
 ConditionalStmt:    IfThenElseStmt | IfThenStmt | IfThenElseOneLiner | IfThenOneLiner;
 
@@ -131,26 +131,26 @@ SelectStmtEnd:      'End' 'Select';
 
 DoLoopStmt:         'Do' condition=DoCond Sep+- statements*=DoStmtTypes[/(:|\n)+/] Sep*- 'Loop' |
                     'Do' Sep+- statements*=DoStmtTypes[/(:|\n)+/] Sep*- 'Loop' condition=DoCond;
-DoCond:             ( 'While' | 'Until' ) expr=NumericExp;
+DoCond:             ( 'While' | 'Until' ) expr=Expression;
 DoStmtTypes:        !( 'Loop' )- ( ExitDoStmt | MinStmtTypes );
 ExitDoStmt:         'Exit' 'Do';
 
 CloseStmt:          'Close' Fileno;
-Fileno:             '#' NumericExp;
+Fileno:             '#' Expression;
 
 OpenStmt:           'Open';
 
 NextStmt:           'Next' ( vars*=Var[/,/] )?;
 
 ForStmt:            'For' var=Var '=' range=ForRangeDecl;
-ForRangeDecl:       begin=NumericExp 'to'- end=NumericExp ( 'Step'- step=NumericExp )?;
+ForRangeDecl:       begin=Expression 'to'- end=Expression ( 'Step'- step=Expression )?;
 
 PrintStmt:          ( 'Print' | '?' ) ( fileno=PrintFileNo )? params=PrintParams;
-PrintFileNo:        '#' id=NumericExp ',';
-PrintParams:        exprs*=PrintExpr ( using=PrintUsing )?;
-PrintExpr:          Expression | /(;|,)/;
-PrintUsing:         'Using' fmt=PrintUsingFmt ';' exprs+=Expression[/(,|;)/];
-PrintUsingFmt:      String | Var;
+PrintFileNo:        '#' id=Expression ',';
+PrintParams:        expressions*=PrintExpr ( using=PrintUsing )?;
+PrintExpr:          expr=Expression | sep=/[;,]/;
+PrintUsing:         'Using' fmt=PrintUsingFmt ';' expressions+=Expression[/(,|;)/];
+PrintUsingFmt:      String | LValue;
 
 BranchStmt:         stmt=BranchType param=Address;
 BranchType:         'Goto' | 'Gosub' | 'Restore';
@@ -165,7 +165,7 @@ DefStmt:            'Def' 'Fn';
 InputStmt:          'Input' args=InputArgs;
 InputArgs:          InputPrompt | InputFile;
 InputPrompt:        ( String ';' )? vars+=Var[/,/];
-InputFile:          '#' NumericExp ',' vars*=Var[/,/];
+InputFile:          '#' Expression ',' vars*=Var[/,/];
 
 DataStmt:           'Data' ctnt*=DataContent[/,/];
 DataContent:        String | Numeral;
@@ -192,7 +192,7 @@ Scalar:             identifier=Identifier;
 Identifier:         TypedName | Name;
 Label:              '@' Name;
 
-String[noskipws]:   '"' /[^"]*/ '"';
+String[noskipws]:   ' '*- '"'- /[^"]/* '"'-;
 
 TypedName:          Name TypeDescriptor;
 
@@ -200,27 +200,22 @@ TypeDescriptor:     /[$#!%]/;
 
 Name:               /[_A-Za-z][_A-Za-z0-9]*/;
 
-Expression:         NumericExp | StringExp;
-
-StringExp:          op1=String concat?='+' op2=String | op1=String opr=CmpToken op2=String | expr=Var | expr=STRING;
-String:             Var | STRING;
-
-NumericExp:         expr=ImpOp; // Imp: lowest precedence operator
-ImpOp:              op1=EqvOp ( 'Imp'-        op2=EqvOp )*;
-EqvOp:              op1=XorOp ( 'Eqv'-        op2=XorOp )*;
-XorOp:              op1=_OrOp ( 'Xor'-        op2=_OrOp )*;
-_OrOp:              op1=AndOp ( 'Or'-         op2=AndOp )*;
-AndOp:              op1=NotOp ( 'And'-        op2=NotOp )*;
-NotOp:             opr?='Not'                 op1=CmpOp;
+Expression:         expr=ImpOp; // Imp: lowest precedence operator
+ImpOp:              op1=EqvOp ( opr='Imp'     op2=EqvOp )*;
+EqvOp:              op1=XorOp ( opr='Eqv'     op2=XorOp )*;
+XorOp:              op1=_OrOp ( opr='Xor'     op2=_OrOp )*;
+_OrOp:              op1=AndOp ( opr='Or'      op2=AndOp )*;
+AndOp:              op1=NotOp ( opr='And'     op2=NotOp )*;
+NotOp:              opr='Not'*                op1=CmpOp;
 CmpOp:              op1=AddOp ( opr=CmpToken  op2=AddOp )*;
 CaseCmpOp:          opr=CmpToken              op1=AddOp;    // select-case operation
 AddOp:              op1=ModOp ( opr=Signal    op2=ModOp )*;
-ModOp:              op1=IdvOp ( 'Mod'-        op2=IdvOp )*;
-IdvOp:              op1=MulOp ( '/'           op2=MulOp )*;
+ModOp:              op1=IdvOp ( opr='Mod'     op2=IdvOp )*;
+IdvOp:              op1=MulOp ( opr='/'       op2=MulOp )*;
 MulOp:              op1=NegOp ( opr=/(\*|\/)/ op2=NegOp )*;
 NegOp:              opr=Signal*               op1=ExpOp;
-ExpOp:              op1=_Atom ( '^'-          op2=_Atom )*;
-_Atom:              lvalue=LValue | '(' expr=Expression ')' | num=Numeral; // highest
+ExpOp:              op1=_Atom ( opr='^'       op2=_Atom )*;
+_Atom:              quoted=String | lvalue=LValue | '(' guarded=Expression ')' | num=Numeral; // highest
 
 CmpToken:           '=' | '<>' | '<=' | '<' | '>=' | '>';
 Signal:             /[-+]/;
