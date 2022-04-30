@@ -24,11 +24,20 @@ def processor(func_stmt, symbol_table):
     if not isinstance(body[-1], ReturnStmt):
         body.append(ReturnStmt())
 
-    return Group(statements=body)
+    for param in func_stmt.header.params:
+        type_ = get_type_from_id(param.name)
+        var = symbol_table.create_hitbasic_var(type_=type_, inner=True)
+
+    return Group(body)
 
 
 class ReturnStmt(CmdNode):
     keyword = 'RETURN'
+
+    def printables(self, append_to=None):
+        append_to = append_to or []
+        append_to.append(f'{self.keyword}{cfg.spacing}{self.target}')
+        return append_to
 
 
 class FuncStmt(Group):

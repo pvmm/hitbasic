@@ -9,14 +9,11 @@ from hitbasic.models import create_processors
 
 
 grammar = r"""
-Program[ws=" \t"]:
-    Sep*- statements*=Statements[/(:|\n)+/] Sep*-;
+Program[ws=" \t"]:  Sep*- statements*=Statements[/(:|\n)+/] Sep*-;
 
-Statements:
-    Sep?- ( ( LabelMark Sep?- AllStmtTypes ) | AllStmtTypes | LabelMark )*;
+Statements:         Sep?- ( ( LabelMark Sep?- AllStmtTypes ) | AllStmtTypes | LabelMark )*;
 
-AllStmtTypes:
-    FuncStmt | SubStmt | MinStmtTypes;
+AllStmtTypes:       FuncStmt | SubStmt | MinStmtTypes;
 
 MinStmtTypes:
     ConstStmt | DimStmt | ConditionalStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt | ForStmt |
@@ -59,9 +56,11 @@ LabelMark:          &( /^[0-9@]/ ) ( identifier=Label? | line_num=Integer? );
 
 FuncStmt:           header=FuncHeads Sep*- statements*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
 FuncHeads:          FuncHead | FuncHeadTyped;
-FuncHead:           'Function' name=Name '(' params*=FuncVarDecl[/(,|\n)+/] ')' ret=FuncReturnType;
-FuncHeadTyped:      'Function' name=TypedName '(' params*=FuncVarDecl[/(,|\n)+/] ')';
-FuncVarDecl:        Name 'As' VarType | TypedName;
+FuncHead:           'Function' name=Name '(' params*=FuncParam[/(,|\n)+/] ')' ret=FuncReturnType;
+FuncHeadTyped:      'Function' name=TypedName '(' params*=FuncParam[/(,|\n)+/] ')';
+FuncParam:          FuncParamName 'As' VarType | FuncParamTypedName;
+FuncParamName:      name=Name;
+FuncParamTypedName: name=TypedName;
 FuncStmtTypes:      !('End' 'Function')- ( FuncExitStmt | ReturnStmt | MinStmtTypes );
 FuncExitStmt:       'Exit' 'Function';
 ReturnStmt:         'Return' ( target=Expression | target=Label );

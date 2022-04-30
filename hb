@@ -78,9 +78,11 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
         source_code = """
 year=2000 Imp 3 + 2
 If isLeapYear(year) Then
+    Cls
 	Print year; " is a leap year" + "bla"
 Else
 	Print year; " is NOT a leap year"
+    Cls
 End If
 End
 
@@ -90,16 +92,16 @@ End Function
 """
         mm = hitbasic.create_metamodel(debug=True)
         try:
-            model = create_model(mm, source_code, args.graphviz)
+            program = create_model(mm, source_code, args.graphviz)
         except:
             traceback.print_exc()
             argp.exit(status=-1)
         #print('==============')
-        #for stmt in model.statements:
+        #for stmt in program:
         #    print(stmt)
         #print('-------------')
         generator = ascii_file.Generator()
-        output = generator.process(model.statements)[0]
+        output = generator.process(program)
         print('-------------')
         print(output.getvalue().decode('utf-8'))
         argp.exit(status=0)

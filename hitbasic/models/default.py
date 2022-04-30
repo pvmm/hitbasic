@@ -1,16 +1,9 @@
 "Anything else goes here"
 
 
-from hitbasic.helpers.list import flatten
 from hitbasic import cfg
 from hitbasic.models import CmdNode, Node, MetaNode
-
-
-class EOL(MetaNode):
-    def printables(self, append_to=None):
-        append_to = append_to or []
-        append_to.append("\r\n")
-        return append_to
+from hitbasic.helpers.list import flatten
 
 
 class VarDefn(Node): pass
@@ -49,5 +42,15 @@ class Group(CmdNode):
     def printables(self, append_to=None):
         append_to = append_to or []
         append_to.extend(flatten([stmt.printables() for stmt in self.statements]))
+        return append_to
+
+
+class Program(Group):
+    sep = f'{cfg.arg_spacing}:{cfg.arg_spacing}'
+
+    def printables(self, append_to=None):
+        append_to = append_to or []
+        tmp = flatten([stmt.printables() for stmt in self.statements])
+        append_to.extend([cfg.spacing, self.keyword, cfg.spacing] + interleave(tmp, self.sep))
         return append_to
 

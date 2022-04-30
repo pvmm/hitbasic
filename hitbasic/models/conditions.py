@@ -2,11 +2,11 @@
 
 
 from hitbasic import cfg
-from hitbasic.helpers.list import flatten
+from hitbasic.helpers.list import flatten, interleave
 from hitbasic.models.expressions import Expression
-from hitbasic.models.default import Group
 from hitbasic.models import CmdNode
-from hitbasic.models.default import EOL
+from hitbasic.models.meta import EOL
+from hitbasic.models.default import Group
 
 
 class CaseExpr(Expression): pass
@@ -14,19 +14,24 @@ class CaseExpr(Expression): pass
 
 class ThenClause(Group):
     keyword = 'THEN'
+    sep = f'{cfg.arg_spacing}:{cfg.arg_spacing}'
+
+    def printables(self, append_to=None):
+        append_to = append_to or []
+        tmp = flatten([stmt.printables() for stmt in self.statements])
+        append_to.extend(interleave(tmp, self.sep))
+        return append_to
 
 
 class ElseClause(Group):
     keyword = 'ELSE'
+    sep = f'{cfg.arg_spacing}:{cfg.arg_spacing}'
 
     def printables(self, append_to=None):
         append_to = append_to or []
-        append_to.extend([self.keyword] + flatten([stmt.printables() for stmt in self.statements]))
+        tmp = flatten([stmt.printables() for stmt in self.statements])
+        append_to.extend([cfg.spacing, self.keyword, cfg.spacing] + interleave(tmp, self.sep))
         return append_to
-
-
-class EndIfClause(CmdNode):
-    keyword = 'ENDIF'
 
 
 class IfThenStmt(Group):
@@ -43,8 +48,7 @@ class IfThenStmt(Group):
     def printables(self, append_to=None):
         append_to = append_to or []
         append_to.append(f'{self.keyword}{cfg.spacing}{self.expr}{cfg.spacing}THEN')
-        append_to.extend(flatten([stmt.printables() for stmt in self.statements]))
-        append_to.append(EndIfClause())
+        append_to.extend([cfg.spacing] + flatten([stmt.printables() for stmt in self.statements]))
         return append_to
 
 
@@ -59,7 +63,7 @@ class IfThenElseStmt(Group):
     def printables(self, append_to=None):
         append_to = append_to or []
         append_to.append(f'{self.keyword}{cfg.spacing}{self.expr}{cfg.spacing}THEN')
-        append_to.extend(flatten([stmt.printables() for stmt in self.statements]))
+        append_to.extend([cfg.spacing] + flatten([stmt.printables() for stmt in self.statements]))
         return append_to
 
 
