@@ -10,27 +10,6 @@ from hitbasic.models.labels import LabelMark
 from hitbasic.msx.types import get_type_from_id
 
 
-def processor(func_stmt, symbol_table):
-    body = func_stmt.get_body()
-    begin, end = func_stmt.get_positions()
-
-    # Add function's entry point
-    body.insert(0, LabelMark(func_stmt.get_identifier(), parent=func_stmt.parent, _tx_position=begin))
-    # Add reference to symbol table
-    symbol_table.register_function(func_stmt.get_identifier(), params=func_stmt.get_params(),
-            type_=func_stmt.get_return_type())
-
-    # TODO: come up with a better job of detecting dangling code paths
-    if not isinstance(body[-1], ReturnStmt):
-        body.append(ReturnStmt())
-
-    for param in func_stmt.header.params:
-        type_ = get_type_from_id(param.name)
-        var = symbol_table.create_hitbasic_var(type_=type_, inner=True)
-
-    return Group(body)
-
-
 class ReturnStmt(CmdNode):
     keyword = 'RETURN'
 
@@ -63,3 +42,29 @@ class FuncStmt(Group):
         append_to = append_to or []
         append_to.extend(flatten([stmt.printables() for stmt in self.statements]))
         return append_to
+
+
+def processor(func_stmt, symbol_table):
+    body = func_stmt.get_body()
+    begin, end = func_stmt.get_positions()
+
+    # Add function's entry point
+    body.insert(0, LabelMark(func_stmt.get_identifier(), parent=func_stmt.parent, _tx_position=begin))
+    # Add reference to symbol table
+    symbol_table.register_function(func_stmt.get_identifier(), params=func_stmt.get_params(),
+            type_=func_stmt.get_return_type())
+
+    # TODO: come up with a better job of detecting dangling code paths
+    if not isinstance(body[-1], ReturnStmt):
+        body.append(ReturnStmt())
+
+    for param in func_stmt.header.params:
+        type_ = get_type_from_id(param.name)
+        var = symbol_table.create_hitbasic_var(type_=type_, inner=True)
+
+    return Group(body)
+
+
+def load_processors(symbol_table):
+    return { FuncStmt.__name__: lambda stmt: processor(stmt, symbol_table), }
+

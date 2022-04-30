@@ -216,3 +216,13 @@ class _Atom(Expression):
             return f'{self.num}'
         return '???'
 
+
+def processor(expr, symbol_table):
+    # TODO: find function call (depth-first search) and use AttrStmt to create tmp variables before expression,
+    #       then replace function call in expression by tmp variable
+    return expr
+
+
+def load_processors(symbol_table):
+    return { Expression.__name__ : lambda expr: processor(expr, symbol_table), }
+

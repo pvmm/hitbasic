@@ -74,3 +74,11 @@ class IfThenOneLiner(IfThenStmt):
 class IfThenElseOneLiner(IfThenElseStmt):
     keyword = 'IF5'
 
+
+def processor(if_then_else_stmt, symbol_table):
+    return if_then_else_stmt
+
+
+def create_processors(symbol_table):
+    return { IfThenElseStmt.__name__ : lambda stmt: processor(stmt, symbol_table), }
+

@@ -11,6 +11,31 @@ from hitbasic.exceptions import LineTooShort
 from hitbasic import cfg
 
 
+class CaseClause(CmdNode):
+    keyword = 'CASE'
+    group = True
+
+    def init(self):
+        # Detect label inside code block
+        for stmt in self.statements:
+            if type(stmt) == LabelMark:
+                self.multiline = True
+                break
+
+
+    def __iter__(self):
+        return iter(self.statements)
+
+
+class SelectStmt(CmdNode):
+    keyword = 'SELECT'
+    multiline = False
+    group = True
+
+    def __iter__(self):
+        return iter(self.clauses)
+
+
 def processor(select_stmt, symbol_table):
     print("select_case.processor called")
     statements = []
@@ -59,27 +84,6 @@ def processor(select_stmt, symbol_table):
     return Group(statements)
 
 
-class CaseClause(CmdNode):
-    keyword = 'CASE'
-    group = True
-
-    def init(self):
-        # Detect label inside code block
-        for stmt in self.statements:
-            if type(stmt) == LabelMark:
-                self.multiline = True
-                break
-
-
-    def __iter__(self):
-        return iter(self.statements)
-
-
-class SelectStmt(CmdNode):
-    keyword = 'SELECT'
-    multiline = False
-    group = True
-
-    def __iter__(self):
-        return iter(self.clauses)
+def load_processors(symbol_table):
+    return { SelectStmt.__name__: lambda stmt: processor(stmt, symbol_table), }
 

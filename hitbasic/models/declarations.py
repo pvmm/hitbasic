@@ -8,15 +8,6 @@ from hitbasic.msx.types import get_type_from_id
 from hitbasic.models import Node, CmdNode
 
 
-def processor(dim_stmt, symbol_table):
-    for decl in dim_stmt.declarations:
-        if get_type_from_id(decl.var.name):
-            symbol_table.create_hitbasic_var(decl.var.name, ranges=decl.var.ranges)
-        else:
-            symbol_table.create_hitbasic_var(decl.var.name, type=decl.type, ranges=decl.var.ranges)
-    return dim_stmt
-
-
 class DimRangeDecl(Node):
     def __str__(self):
         if self.begin:
@@ -48,4 +39,17 @@ class DimStmt(CmdNode):
         append_to.extend(tmp)
 
         return append_to
+
+
+def processor(dim_stmt, symbol_table):
+    for decl in dim_stmt.declarations:
+        if get_type_from_id(decl.var.name):
+            symbol_table.create_hitbasic_var(decl.var.name, ranges=decl.var.ranges)
+        else:
+            symbol_table.create_hitbasic_var(decl.var.name, type=decl.type, ranges=decl.var.ranges)
+    return dim_stmt
+
+
+def load_processors(symbol_table):
+    return { DimStmt.__name__: lambda stmt: processor(stmt, symbol_table), }
 
