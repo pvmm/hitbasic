@@ -3,12 +3,14 @@
 
 from hitbasic import cfg
 from hitbasic import msx
-from hitbasic.helpers import debug, string
+from hitbasic.helpers import debug
+from hitbasic.helpers.string import join_all
 from hitbasic.models import Node
 
 
 def find_terminal(expr):
     'detect if node leads to terminal node and return it, otherwise return None'
+    # Numeric
     if type(expr) == NumericExp:
         return find_terminal(expr.expr)
     if type(expr) == ImpOp and expr.op2:
@@ -39,19 +41,20 @@ def find_terminal(expr):
         return expr
     if type(expr) == _Atom and expr.lvalue:
         return expr
-
+    # String
     if type(expr) == StringExp:
         if expr.concat:
             return None
         if expr.opr:
             return None
         return expr
-
+    # Onion
     return find_terminal(expr.op1)
 
 
 def is_terminal(expr):
     'detect expression resulting type'
+    # Numeric
     if type(expr) == NumericExp:
         return is_terminal(expr.expr)
     if type(expr) == _Atom and expr.expr:
@@ -60,18 +63,20 @@ def is_terminal(expr):
         return True
     if type(expr) == _Atom and expr.lvalue:
         return True
-
+    # String
     if type(expr) == StringExp:
         if expr.concat:
             return False
         if expr.opr:
             return False
         return True
-
+    # Onion
     return is_terminal(expr.op1)
+
 
 def find_type(expr):
     'detect expression resulting type'
+    # Numeric
     if type(expr) == NumericExp:
         return find_type(expr.expr)
     if type(expr) == ImpOp and expr.op2:
@@ -102,15 +107,14 @@ def find_type(expr):
         return msx.types.Integer
     if type(expr) == _Atom and expr.lvalue:
         return msx.types.Integer
-
-
+    # String
     if type(expr) == StringExp:
         if expr.concat:
             return msx.types.String
         if expr.opr:
             return msx.types.Boolean
         return msx.types.String
-
+    # Onion
     return find_type(expr.op1)
 
 
@@ -119,7 +123,12 @@ class Scalar(Node):
         return self.identifier
 
 
-class StringExp(Node): pass
+class StringExp(Node):
+    def __str__(self):
+        if self.concat:
+            return f'"{self.op1}"{cfg.arg_spacing}+{cfg.arg_spacing}"{self.op2}"'
+        else:
+            return f'"{self.expr}"'
 
 
 class NumericExp(Node):
@@ -129,8 +138,7 @@ class NumericExp(Node):
 
 class Array(Node):
     def __str__(self):
-        print('sb=', self.subscripts)
-        return f'{self.identifier}({string.joinAll(self.subscripts)})'
+        return f'{self.identifier}({join_all(self.args)})'
 
 
 class ImpOp(Node):

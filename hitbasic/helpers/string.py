@@ -4,7 +4,7 @@ from io import StringIO
 from hitbasic import cfg
 
 
-join_all = lambda items, sep: f'{sep}{cfg.arg_spacing}'.join([str(item) if type(item) != None else '' for item in items])
+join_all = lambda items, sep=',': f'{sep}{cfg.arg_spacing}'.join([str(item) if type(item) != None else '' for item in items])
 
 none_list = lambda items: functools.reduce(lambda total, x: total and x == None, items, True)
 

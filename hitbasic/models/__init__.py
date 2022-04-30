@@ -45,9 +45,19 @@ class ASCIINode(object):
         print(self.__dict__)
 
 
+class ASCIIMetaNode(ASCIINode):
+    multiline = False
+    sep = ''
+
+    def printables(self, append_to=None):
+        append_to = append_to or []
+        return append_to
+
+
 class ASCIICmdNode(ASCIINode):
     multiline = False
     label_type = None
+    sep = ':'
 
     def __str__(self):
         return self.keyword
@@ -60,6 +70,8 @@ class ASCIICmdNode(ASCIINode):
 
 
 class ASCIINodeList(ASCIINode):
+    sep = ','
+
     def __init__(self, **kwargs):
         self.parent = kwargs['parent']
         del kwargs['parent']
@@ -68,5 +80,7 @@ class ASCIINodeList(ASCIINode):
 
 
 Node = ASCIINode
+MetaNode = ASCIIMetaNode
 CmdNode = ASCIICmdNode
 NodeList = ASCIINodeList
+

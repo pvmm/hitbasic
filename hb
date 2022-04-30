@@ -78,7 +78,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
         source_code = """
 year=2000
 If isLeapYear(year) Then
-	Print year; " is a leap year"
+	Print year; " is a leap year" + "bla"
 Else
 	Print year; " is NOT a leap year"
 End If

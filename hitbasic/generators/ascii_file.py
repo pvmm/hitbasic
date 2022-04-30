@@ -3,6 +3,7 @@ from io import BytesIO
 
 from hitbasic.models import *
 from hitbasic.models.labels import NUMERIC, PLACEHOLDER
+from hitbasic.models.default import EOL
 from hitbasic.exceptions import *
 from hitbasic import cfg
 from hitbasic.symbol_table import SymbolTable
@@ -39,7 +40,15 @@ class AsciiFileGenerator:
         s = next(it)
 
         while True:
-            line = f'{nl}{line_num} {s}' if first_stmt else f':{cfg.arg_spacing}{s}'
+            # Extend this to MetaNode
+            if isinstance(stmt, EOL):
+                first_stmt = True
+                line_len = 0
+                line_num += self.line_inc
+                break
+
+            print('x',stmt)
+            line = f'{nl}{line_num} {s}' if first_stmt else f'{stmt.sep}{cfg.arg_spacing}{s}'
             llen = len(line) - 1 if nl else 0
 
             if llen < self.max_len:
@@ -53,7 +62,7 @@ class AsciiFileGenerator:
                 line_len = 0
                 line_num += self.line_inc
                 first_stmt = True
-                nl = '\r\n'
+                nl = '\n'
 
         return first_stmt, line_len, line_num
 

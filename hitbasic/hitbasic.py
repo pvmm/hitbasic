@@ -121,9 +121,7 @@ ThenStmtTypes:      !( 'Else' )- MinStmtTypes;
 
 EndIfStmt:          'End' 'If' &Sep+-;
 
-SelectStmt:
-    'Select' expr=Expression Sep+- ( cases+=CaseClause | Sep+- )? SelectStmtEnd;
-
+SelectStmt:         'Select' expr=Expression Sep+- ( cases+=CaseClause | Sep+- )? SelectStmtEnd;
 CaseClause:         'Case' expr=CaseExpr Sep+- statements*=CaseStmtTypes[/(:|\n)+/] Sep+- CaseClauseEnd;
 CaseExpr:           else_clause?='Else' | 'Is' is_clause=CaseCmpOp | expr=Expression;
 //CaseStmtTypes:      !( 'End' 'Select' )- ( CaseClause | MinStmtTypes );
@@ -162,7 +160,7 @@ LetStmt:            'Let' vars+=LetVarDecl[/,/];
 LetVarDecl:         ( id=TypedName | id=Name 'As' VarType ) '=' expr=Expression |
                     ( id=TypedName | id=Name ) '=' expr=Expression;
 
-DefStmt:            'Def Fn';
+DefStmt:            'Def' 'Fn';
 
 InputStmt:          'Input' args=InputArgs;
 InputArgs:          InputPrompt | InputFile;
@@ -185,8 +183,7 @@ KeywordStmt:        'Beep' | 'Cls' | 'End' | 'Nop';
 AttrStmt:           'Let'? definition=VarDefn;
 VarDefn:            var=Var '=' expr=Expression;
 
-VarType:
-    'Boolean' | 'BOOL' | 'Integer' | 'INT' | 'String' | 'STR' | 'Single' | 'SNG' | 'Double' | 'DBL';
+VarType:            'Boolean' | 'BOOL' | 'Integer' | 'INT' | 'String' | 'STR' | 'Single' | 'SNG' | 'Double' | 'DBL';
 
 LValue:             Var;
 Var:                Array | Scalar;
@@ -195,8 +192,7 @@ Scalar:             identifier=Identifier;
 Identifier:         TypedName | Name;
 Label:              '@' Name;
 
-String[noskipws]:
-    '"' /[^"]*/ '"';
+String[noskipws]:   '"' /[^"]*/ '"';
 
 TypedName:          Name TypeDescriptor;
 
@@ -206,7 +202,7 @@ Name:               /[_A-Za-z][_A-Za-z0-9]*/;
 
 Expression:         NumericExp | StringExp;
 
-StringExp:          op1=String concat?='+' op2=String | op1=String opr=CmpOp op2=String | expr=Var | expr=STRING;
+StringExp:          op1=String concat?='+' op2=String | op1=String opr=CmpToken op2=String | expr=Var | expr=STRING;
 String:             Var | STRING;
 
 NumericExp:         expr=ImpOp; // Imp: lowest precedence operator

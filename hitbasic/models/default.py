@@ -3,13 +3,22 @@
 
 from hitbasic.helpers.list import flatten
 from hitbasic import cfg
-from hitbasic.models import CmdNode, Node
+from hitbasic.models import CmdNode, Node, MetaNode
+
+
+class EOL(MetaNode):
+    def printables(self, append_to=None):
+        append_to = append_to or []
+        append_to.append("\r\n")
+        return append_to
 
 
 class VarDefn(Node): pass
 
 
 class AttrStmt(CmdNode):
+    keyword = 'LET'
+
     def __init__(self, definition, value=None, **kwargs):
         super().__init__(**kwargs)
         if type(definition) == VarDefn:
@@ -28,7 +37,8 @@ class AttrStmt(CmdNode):
 class Group(CmdNode):
     group = True
 
-    def __init__(self, statements):
+    def __init__(self, statements, **kwargs):
+        super().__init__(**kwargs)
         self.statements = statements
 
 
@@ -40,3 +50,4 @@ class Group(CmdNode):
         append_to = append_to or []
         append_to.extend(flatten([stmt.printables() for stmt in self.statements]))
         return append_to
+

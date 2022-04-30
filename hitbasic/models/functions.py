@@ -24,7 +24,7 @@ def processor(func_stmt, symbol_table):
     if not isinstance(body[-1], ReturnStmt):
         body.append(ReturnStmt())
 
-    return Group(body)
+    return Group(statements=body)
 
 
 class ReturnStmt(CmdNode):
