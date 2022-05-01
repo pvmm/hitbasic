@@ -3,7 +3,7 @@
 
 from hitbasic import cfg
 from hitbasic.models import CmdNode, Node, MetaNode
-from hitbasic.helpers.list import flatten
+from hitbasic.helpers.list import flatten, interleave
 
 
 class VarDefn(Node): pass
@@ -50,7 +50,7 @@ class Program(Group):
 
     def printables(self, append_to=None):
         append_to = append_to or []
-        tmp = flatten([stmt.printables() for stmt in self.statements])
-        append_to.extend([cfg.spacing, self.keyword, cfg.spacing] + interleave(tmp, self.sep))
+        tmp = interleave([stmt.printables() for stmt in self.statements], self.sep)
+        append_to.extend(flatten(tmp))
         return append_to
 

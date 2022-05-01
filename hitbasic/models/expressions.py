@@ -117,12 +117,21 @@ def find_type(expr):
     return find_type(expr.op1)
 
 
-class Scalar(Node):
+class VarNode(Node):
+    def __init__(self, identifier, **kwargs):
+        self.identifier = identifier
+        super().__init__(**kwargs)
+
+
     def __str__(self):
         return self.identifier
 
 
-class Array(Node):
+class Scalar(VarNode):
+    pass
+
+
+class Array(VarNode):
     def __str__(self):
         return f'{self.identifier}({join_all(self.args)})'
 
