@@ -2,8 +2,8 @@
 
 
 from hitbasic import cfg
-from hitbasic.models import Node, MetaNode, CmdNode
-from hitbasic.models.simple import SimpleStmt
+from hitbasic.models import Node, MetaNode, CmdNode, find_parent_type
+from hitbasic.models.expressions import RValue
 from hitbasic.helpers.list import flatten, interleave
 from hitbasic.msx.types import get_type_from_id
 
@@ -11,7 +11,35 @@ from hitbasic.msx.types import get_type_from_id
 class VarDefn(Node): pass
 
 
-class AttrStmt(CmdNode):
+class LValue(Node):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+
+
+    def __str__(self):
+        return f'{self.var}'
+
+
+    def processor(self, symbol_table):
+        # Find statement this expression belongs to
+        stmt = find_parent_type(CmdNode, self)
+        assert stmt, "expected statement that contains this expression was not found"
+
+        # Create temporary variable for assignment
+        type_ = get_type_from_id(self.var.identifier)
+        var = symbol_table.create_hitbasic_var(type_=type_, inner=True)
+        mapping = (var, RValue(var=self.var))
+
+        # Mark assignment position in the source code
+        if hasattr(stmt, '_var_mapping'):
+            stmt._var_mapping.append(mapping)
+        else:
+            stmt._var_mapping = [mapping]
+
+        return var
+
+
+class AssignStmt(CmdNode):
     keyword = 'LET'
 
     def __init__(self, definition, value=None, **kwargs):
@@ -34,13 +62,17 @@ class Group(CmdNode):
     group = True
     sep = f'{cfg.arg_spacing}:{cfg.arg_spacing}'
 
-    def __init__(self, statements, **kwargs):
+    def __init__(self, statements=None, **kwargs):
         super().__init__(**kwargs)
-        self.statements = statements
+        self.statements = statements or []
 
 
     def insert(self, pos, stmt):
         self.statements.insert(pos, stmt)
+
+
+    def append(self, stmt):
+        self.statements.append(stmt)
 
 
     def __iter__(self):
@@ -67,9 +99,9 @@ def processor(node, symbol_table):
         it = iter(node)
 
         for pos, stmt in enumerate(it):
-            if hasattr(stmt, '_func_mapping'):
-                for var, func_call in stmt._func_mapping:
-                    node.insert(pos, AttrStmt(var, func_call, parent=node))
+            if hasattr(stmt, '_var_mapping'):
+                for var, expr in stmt._var_mapping:
+                    node.insert(pos, AssignStmt(var, expr, parent=node))
                     stmt = next(it)
 
     return node

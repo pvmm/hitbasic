@@ -8,7 +8,7 @@ from hitbasic import cfg
 from hitbasic import msx
 from hitbasic.helpers import debug
 from hitbasic.helpers.string import join_all
-from hitbasic.models import Node, CmdNode, find_parent_type
+from hitbasic.models import Node, CmdNode
 from hitbasic.msx.types import get_type_from_id
 
 
@@ -56,7 +56,7 @@ def find_terminal(expr):
             return find_terminal(expr.guarded)
         if expr.num:
             return expr
-        if expr.lvalue:
+        if expr.rvalue:
             return expr
         if expr.quoted:
             return expr
@@ -73,7 +73,7 @@ def is_terminal(expr):
             return find_type(expr.guarded)
         if expr.num:
             return True
-        if expr.lvalue:
+        if expr.rvalue:
             return True
         if expr.quoted:
             return True
@@ -108,7 +108,7 @@ def find_type(expr):
     if type(expr) == NegOp and expr.opr:
         return msx.types.Integer
     if type(expr) == _Atom:
-        if expr.lvalue:
+        if expr.rvalue:
             # TODO check variable type
             return msx.types.Integer
         if expr.guarded:
@@ -122,41 +122,39 @@ def find_type(expr):
     return find_type(expr.op1)
 
 
-class VarNode(Node):
-    def __init__(self, identifier, **kwargs):
-        self.identifier = identifier
+class RValue(Node):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
 
     def __str__(self):
-        return self.identifier
+        return f'{self.var}'
 
 
-class Scalar(VarNode):
-    pass
-
-
-class Array(VarNode):
+class Scalar(RValue):
     def __str__(self):
-        return f'{self.identifier}({join_all(self.args)})'
+        if hasattr(self, 'ref'):
+            return f'{self.ref}'
+        else:
+            return f'{self.identifier}'
 
 
     def processor(self, symbol_table):
-        # Find statement this expression belongs to
-        stmt = find_parent_type(CmdNode, self)
-        assert stmt, "expected statement that contains this expression was not found"
+        self.ref = symbol_table.get_hitbasic_var(self.identifier, params=None)
+        return self
 
-        # Create temporary variable for attribution statement
-        type_ = get_type_from_id(self.identifier)
-        var = symbol_table.create_hitbasic_var(type_=type_, inner=True)
-        mapping = (var, self)
 
-        if hasattr(stmt, '_func_mapping'):
-            stmt._func_mapping.append(mapping)
+class Array(RValue):
+    def __str__(self):
+        if hasattr(self, 'ref'):
+            return f'{self.ref}({join_all(self.params)})'
         else:
-            stmt._func_mapping = [mapping]
+            return f'{self.identifier}({join_all(self.params)})'
 
-        return var
+
+    def processor(self, symbol_table):
+        self.ref = symbol_table.get_hitbasic_var(self.identifier, params=self.params)
+        return self
 
 
 class Expression(Node):
@@ -250,8 +248,8 @@ class _Atom(Expression):
     def __str__(self):
         if self.quoted:
             return f'"{self.quoted}"'
-        if self.lvalue:
-            return f'{self.lvalue}'
+        if self.rvalue:
+            return f'{self.rvalue}'
         if self.guarded:
             return f'{self.guarded}'
         if self.num:

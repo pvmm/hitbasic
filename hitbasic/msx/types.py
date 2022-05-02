@@ -10,11 +10,12 @@ Any = 4
 OptInteger = 5
 
 default_type = Integer
-current_default_type_name = 'String'
+current_default_type_name = 'Integer'
 
 TYPEDES_CHARS = [ '$', '%', '#', '!' ]
 TYPEDES2NAME_MAPPING = { '$' : 'String', '%' : 'Integer', '#' : 'Double', '!' : 'Single' }
 NAME2TYPEDES_MAPPING = { 'String' : '$', 'Integer' : '%', 'Double' : '#', 'Single' : '!' }
+NAME2NUM_MAPPING = { 'String' : String, 'Integer' : Integer, 'Double' : Double, 'Single' : Single }
 NUM2TYPEDES_MAPPING = { String : '$', Integer : '%', Double : '#', Single : '!' }
 TYPEDES2NUM_MAPPING = { '$' : String, '%' : Integer, '#' : Double, '!' : Single }
 

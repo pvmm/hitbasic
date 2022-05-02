@@ -3,9 +3,9 @@
 from io import StringIO
 
 from hitbasic import cfg
-from hitbasic.helpers.string import write_list
-from hitbasic.msx.types import get_type_from_id
+from hitbasic.msx import types
 from hitbasic.models import Node, CmdNode
+from hitbasic.helpers.string import write_list
 
 
 class DimRangeDecl(Node):
@@ -19,10 +19,10 @@ class DimRangeDecl(Node):
 class DimVarDecl(Node):
     def __str__(self):
         if not self.var.ranges:
-            return f'{self.var.name}'
+            return f'{self.var.identifier}'
         else:
             ranges = write_list(self.var.ranges)
-            return f'{self.var.name}({ranges})'
+            return f'{self.var.identifier}({ranges})'
 
 
 class DimStmt(CmdNode):
@@ -30,10 +30,11 @@ class DimStmt(CmdNode):
 
     def processor(self, symbol_table):
         for decl in self.declarations:
-            if get_type_from_id(decl.var.name):
-                symbol_table.create_hitbasic_var(decl.var.name, ranges=decl.var.ranges)
+            if types.get_type_from_id(decl.var.identifier):
+                symbol_table.create_hitbasic_var(decl.var.identifier, ranges=decl.var.ranges)
             else:
-                symbol_table.create_hitbasic_var(decl.var.name, type=decl.type, ranges=decl.var.ranges)
+                type_ = decl.type if decl.type else types.default_type
+                symbol_table.create_hitbasic_var(decl.var.identifier, type_=type_, ranges=decl.var.ranges)
         return self
 
 

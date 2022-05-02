@@ -6,7 +6,7 @@ from hitbasic.models import Node, CmdNode
 from hitbasic.models.labels import LabelMark
 from hitbasic.models.expressions import find_type, is_terminal, find_terminal, CmpOp
 from hitbasic.models.conditions import IfThenStmt
-from hitbasic.models.default import AttrStmt, Group
+from hitbasic.models.default import AssignStmt, Group
 from hitbasic.exceptions import LineTooShort
 from hitbasic import cfg
 
@@ -52,7 +52,7 @@ class SelectStmt(CmdNode):
         else:
             # Not a terminal, so we put it in a variable.
             select_var = symbol_table.create_hitbasic_var(type = find_type(self.expr), inner=True)
-            statements.append(AttrStmt(select_var, self.expr))
+            statements.append(AssignStmt(select_var, self.expr))
 
         else_clause = False
 

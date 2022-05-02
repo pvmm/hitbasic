@@ -18,7 +18,7 @@ AllStmtTypes:       FuncStmt | SubStmt | MinStmtTypes;
 MinStmtTypes:
     ConstStmt | DimStmt | ConditionalStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt | ForStmt |
     PrintStmt | BranchStmt | GraphicStmtTypes | LetStmt | DefStmt | InputStmt | DataStmt | ReadStmt | PlayStmt | SwitcherStmt |
-    SimpleStmt | AttrStmt;
+    SimpleStmt | AssignStmt;
 
 GraphicStmtTypes:
     DrawStmt | CircleStmt | ColorDefStmt | ColorStmt | CopyStmt | LineStmt | PaintStmt | PresetStmt |
@@ -56,14 +56,12 @@ LabelMark:          &( /^[0-9@]/ ) ( identifier=Label? | line_num=Integer? );
 
 FuncStmt:           header=FuncHeads Sep*- statements*=FuncStmtTypes[/(:|\n)+/] Sep*- FuncStmtEnd;
 FuncHeads:          FuncHead | FuncHeadTyped;
-FuncHead:           'Function' name=Name '(' params*=FuncParam[/(,|\n)+/] ')' ret=FuncReturnType;
-FuncHeadTyped:      'Function' name=TypedName '(' params*=FuncParam[/(,|\n)+/] ')';
-FuncParam:          FuncParamName 'As' VarType | FuncParamTypedName;
-FuncParamName:      name=Name;
-FuncParamTypedName: name=TypedName;
+FuncHead:           'Function' identifier=Name '(' params*=FuncParam[/(,|\n)+/] ')' ret=FuncReturnType;
+FuncHeadTyped:      'Function' identifier=TypedName '(' params*=FuncParam[/(,|\n)+/] ')';
+FuncParam:          identifier=Name 'As' type=VarType | name=TypedName;
 FuncStmtTypes:      !('End' 'Function')- ( FuncExitStmt | ReturnStmt | MinStmtTypes );
 FuncExitStmt:       'Exit' 'Function';
-ReturnStmt:         'Return' ( target=Expression | target=Label );
+ReturnStmt:         'Return' ( expr=Expression | target=Label? );
 FuncReturnType:     'As'- type=VarType;
 FuncStmtEnd:        'End' 'Function';
 
@@ -85,8 +83,8 @@ DimVarDecl:         ( var=DimScalar | var=DimArray 'As' type=VarType ) '=' expr=
                     ( var=DimScalar | var=DimArray ) '=' expr=Expression |
                     ( var=DimScalar | var=DimArray );
 
-DimScalar:          name=TypedName;
-DimArray:           name=Name ( '(' ranges*=DimRangeDecl[/,/] ')' )?;
+DimScalar:          identifier=TypedName;
+DimArray:           identifier=Name ( '(' ranges*=DimRangeDecl[/,/] ')' )?;
 
 DimRangeDecl:       begin=Expression 'To' end=Expression | end=Expression;
 
@@ -149,7 +147,7 @@ PrintFileNo:        '#' id=Expression ',';
 PrintParams:        expressions*=PrintExpr ( using=PrintUsing )?;
 PrintExpr:          expr=Expression | sep=/[;,]/;
 PrintUsing:         'Using' fmt=PrintUsingFmt ';' expressions+=Expression[/(,|;)/];
-PrintUsingFmt:      String | LValue;
+PrintUsingFmt:      String | RValue;
 
 BranchStmt:         stmt=BranchType param=Address;
 BranchType:         'Goto' | 'Gosub' | 'Restore';
@@ -179,14 +177,15 @@ SimpleStmt:         keyword=KeywordStmt;
 
 KeywordStmt:        'Beep' | 'Cls' | 'End' | 'Nop';
 
-AttrStmt:           'Let'? definition=VarDefn;
-VarDefn:            var=Var '=' expr=Expression;
+AssignStmt:         'Let'? definition=VarDefn;
+VarDefn:            var=LValue '=' expr=Expression;
 
 VarType:            'Boolean' | 'BOOL' | 'Integer' | 'INT' | 'String' | 'STR' | 'Single' | 'SNG' | 'Double' | 'DBL';
 
-LValue:             Var;
+LValue:             var=Var;
+RValue:             var=Var;
 Var:                Array | Scalar;
-Array:              identifier=Identifier '(' ( args*=Expression[/,/] )? ')';
+Array:              identifier=Identifier '(' ( params*=Expression[/,/] )? ')';
 Scalar:             identifier=Identifier;
 Identifier:         TypedName | Name;
 Label:              '@' Name;
@@ -214,7 +213,7 @@ IdvOp:              op1=MulOp ( opr='/'       op2=MulOp )*;
 MulOp:              op1=NegOp ( opr=/(\*|\/)/ op2=NegOp )*;
 NegOp:              opr=Signal*               op1=ExpOp;
 ExpOp:              op1=_Atom ( opr='^'       op2=_Atom )*;
-_Atom:              quoted=String | lvalue=LValue | '(' guarded=Expression ')' | num=Numeral; // highest
+_Atom:              quoted=String | rvalue=RValue | '(' guarded=Expression ')' | num=Numeral; // highest
 
 CmpToken:           '=' | '<>' | '<=' | '<' | '>=' | '>';
 Signal:             /[-+]/;

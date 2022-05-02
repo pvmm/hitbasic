@@ -76,8 +76,22 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
-year=(2000 Imp 3) * (2 + isLeapYear(1))
+Dim year
+
+Function isLeapYear(myYear As Integer) As Integer
+	Return myYear Mod 4
+End Function
+
+year=2000 Imp 3 + 2
 Cls
+If isLeapYear(year) Then
+    Cls
+	Print year; " is a leap year" + "bla"
+Else
+	Print year; " is NOT a leap year"
+    Cls
+End If
+End
 """
         mm = hitbasic.create_metamodel(debug=True)
         try:
@@ -85,10 +99,10 @@ Cls
         except:
             traceback.print_exc()
             argp.exit(status=-1)
-        print('==============')
-        for stmt in program:
-            print(repr(stmt))
-        print('-------------')
+        #print('==============')
+        #for stmt in program:
+        #    print(stmt)
+        #print('-------------')
         generator = ascii_file.Generator()
         output = generator.process(program)
         print(output.getvalue().decode('utf-8'))

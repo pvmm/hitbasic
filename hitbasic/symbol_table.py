@@ -99,7 +99,7 @@ class SymbolTable(dict):
         assert type(identifier) == str
         try:
             var = self[context]['_hitbasic_vars'][identifier]
-            if params != None: var.check_boundaries(params)
+            #if params != None: var.check_boundaries(params)
             return var
         except KeyError:
             printable_id = types.strip_attrs_from_id(identifier)
@@ -139,23 +139,20 @@ class SymbolTable(dict):
 
     def register_variable(self, hb_id=None, basic_id=None, ranges=(), init_value=None, type_=None, node=None, context='_global'):
         'Register a HitBasic long named variable in the symbol table.'
+        if type(type_) == str:
+            type_ = types.NAME2NUM_MAPPING[type_]
+
         if hb_id == None:
             value = random.randint(10, 960)
             if value > 35 and value < 360: value += 360
             hb_id = self.base36(value)
             if type_ == None:
-                type_ = types.DEFAULT_TYPE
+                type_ = types.default_type
         elif hb_id[-1] in types.TYPEDES_CHARS:
             # detect type descriptor in hitbasic var if it exists.
             if type_ != None and types.get_type_from_id(hb_id) != type_:
                 raise TypeMismatch(types.printable(type_), types.printable(types.get_type_from_id(hb_id)))
             type_ = types.get_type_from_id(hb_id)
-        elif type(type_) == str:
-            type_ = types.NAME2NUM_MAPPING[type_]
-        elif type_ == None:
-            type_ = types.default_type
-        type_char = types.get_basic_typedes_char(type_)
-
         # Create basic_id if it didn't exist.
         if basic_id == None:
             basic_id = self.generate_basic_var_id(hb_id)
@@ -164,6 +161,7 @@ class SymbolTable(dict):
 
         vl = vr = int(basic_id, 36)
         suffix = '()' if ranges else ''
+        type_char = types.get_basic_typedes_char(type_)
         v = (basic_id + type_char + suffix).upper()
         hb_id = hb_id + suffix if hb_id else None
 
