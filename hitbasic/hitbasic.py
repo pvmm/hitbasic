@@ -258,8 +258,7 @@ def create_metamodel(use_processor = True, **kwargs):
 
     symbol_table = SymbolTable()
     mm = metamodel_from_str(grammar, classes=class_provider, ws=" \t", skipws=True, ignore_case=True, debug=debug_mode)
-    if use_processor:
-        mm.register_obj_processors(create_processors(symbol_table))
+    mm.register_obj_processors(create_processors(symbol_table))
     return mm
 
 

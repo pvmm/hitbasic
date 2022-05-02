@@ -34,48 +34,50 @@ class AsciiFileGenerator:
             raise e
 
 
-    def process_stmt(self, stmt, first_stmt, line_len, line_num, sep):
-        prev_line_num = 0
-        nl = '\n' if self.buffer.getvalue() else ''
+    def process_stmt(self, stmt, first_stmt, line_len, line_num):
         it = iter(stmt.printables())
         s = next(it)
+        nl = ''
 
         while True:
             # Extend this to MetaNode
-            if isinstance(stmt, EOL):
+            if s == '\n':
                 first_stmt = True
                 line_len = 0
                 line_num += self.line_inc
-                break
+                try:
+                    s = next(it)
+                except StopIteration:
+                    # Finished
+                    break
+                continue
 
-            line = f'{nl}{line_num} {s}' if first_stmt else f'{s}'
-            llen = len(line) - 1 if nl else 0
+            line = f'{nl}{line_num} {s}' if first_stmt else s
+            llen = len(line) - (2 if nl else 0)
 
             if llen < self.max_len:
                 self.buffer.write(bytes(line, 'utf-8'))
                 first_stmt = False
                 try:
                     s = next(it)
-                except(StopIteration):
+                except StopIteration:
+                    # Finished
                     break
             else:
                 line_len = 0
                 line_num += self.line_inc
                 first_stmt = True
-                sep = ' '
-                nl = '\n'
-            sep = stmt.sep
+                nl = '\r\n'
 
-        return first_stmt, line_len, line_num, sep
+        return first_stmt, line_len, line_num
 
 
     def process(self, program, line_start = 10, curr_label = None):
         first_stmt = True
         line_len = 0
         line_num = line_start
-        sep = ' '
 
-        self.process_stmt(program, first_stmt, line_len, line_num, sep)
+        self.process_stmt(program, first_stmt, line_len, line_num)
 
         return self.buffer
 

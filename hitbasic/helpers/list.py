@@ -26,14 +26,6 @@ def make_tuple(arg):
         return (arg,)
 
 
-def interleave(seq, delims):
+def interleave(seq, delim):
     'Interleave a sequence with delim inserted between each two elements.'
-    packet = []
-    packet.append(seq)
-    delims = make_tuple(delims)
-
-    for delim in delims:
-        packet.append(delim * len(seq))
-
-    result = [*itertools.chain(*zip(*packet))][0:-1 * len(delims)]
-    return seq.__class__(result)
+    return [elem for x in seq for elem in (x, delim)][:-1]

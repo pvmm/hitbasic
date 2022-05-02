@@ -60,6 +60,10 @@ class IfThenElseStmt(Group):
         super().__init__(statements, **kwargs)
 
 
+    def processor(self, symbol_table):
+        return self
+
+
     def printables(self, append_to=None):
         append_to = append_to or []
         append_to.append(f'{self.keyword}{cfg.spacing}{self.expr}{cfg.spacing}THEN')
@@ -73,12 +77,4 @@ class IfThenOneLiner(IfThenStmt):
 
 class IfThenElseOneLiner(IfThenElseStmt):
     keyword = 'IF5'
-
-
-def processor(if_then_else_stmt, symbol_table):
-    return if_then_else_stmt
-
-
-def create_processors(symbol_table):
-    return { IfThenElseStmt.__name__ : lambda stmt: processor(stmt, symbol_table), }
 

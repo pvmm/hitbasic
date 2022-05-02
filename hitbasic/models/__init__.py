@@ -1,8 +1,10 @@
+import inspect
 import os, pkgutil
 import textx
 
 from hitbasic import msx
 from hitbasic.exceptions import LineTooShort
+
 
 modules = __all__ = list(module for _, module, _ in pkgutil.iter_modules([os.path.dirname(__file__)]))
 modules = list(__all__)
@@ -15,8 +17,19 @@ def create_processors(symbol_table):
 
     for module_name in modules:
         module = globals()[module_name]
-        if hasattr(module, 'load_processors'):
-            processors.update(module.load_processors(symbol_table))
+
+        for key, value in module.__dict__.items():
+            if not inspect.isclass(value):
+                continue
+
+            # class-specific processor method
+            if hasattr(value, 'processor'):
+                processors.update({ key : lambda stmt: stmt.processor(symbol_table) })
+
+            # module-encompasing processor function
+            elif inspect.isclass(value) and hasattr(module, 'processor'):
+                processor = getattr(module, 'processor')
+                processors.update({ key : lambda stmt: processor(stmt, symbol_table) })
 
     return processors
 
@@ -48,7 +61,7 @@ class ASCIINode(object):
         print(self.__dict__)
 
 
-class ASCIIMetaNode(ASCIINode):
+class MetaNode(ASCIINode):
     multiline = False
     sep = ''
 
@@ -57,7 +70,7 @@ class ASCIIMetaNode(ASCIINode):
         return append_to
 
 
-class ASCIICmdNode(ASCIINode):
+class CmdNode(ASCIINode):
     multiline = False
     label_type = None
     sep = ':'
@@ -72,7 +85,7 @@ class ASCIICmdNode(ASCIINode):
         return append_to
 
 
-class ASCIINodeList(ASCIINode):
+class NodeList(ASCIINode):
     sep = ','
 
     def __init__(self, **kwargs):
@@ -82,8 +95,21 @@ class ASCIINodeList(ASCIINode):
         self.init()
 
 
-Node = ASCIINode
-MetaNode = ASCIIMetaNode
-CmdNode = ASCIICmdNode
-NodeList = ASCIINodeList
+def find_parent_type(type_, node):
+    from hitbasic.models.default import Group
+    def _find_type(type_, node):
+        if node == None:
+            return None
+        if isinstance(node, type_):
+            return node
+        if not hasattr(node, 'parent'):
+            return None
+        return _find_type(type_, node.parent)
 
+    if not hasattr(node, 'parent'):
+        return None
+
+    return _find_type(type_, node.parent)
+
+
+Node = ASCIINode

@@ -28,6 +28,15 @@ class DimVarDecl(Node):
 class DimStmt(CmdNode):
     keyword = 'Dim'
 
+    def processor(self, symbol_table):
+        for decl in self.declarations:
+            if get_type_from_id(decl.var.name):
+                symbol_table.create_hitbasic_var(decl.var.name, ranges=decl.var.ranges)
+            else:
+                symbol_table.create_hitbasic_var(decl.var.name, type=decl.type, ranges=decl.var.ranges)
+        return self
+
+
     def printables(self, append_to=None):
         append_to = append_to or []
         tmp = []
@@ -39,17 +48,4 @@ class DimStmt(CmdNode):
         append_to.extend(tmp)
 
         return append_to
-
-
-def processor(dim_stmt, symbol_table):
-    for decl in dim_stmt.declarations:
-        if get_type_from_id(decl.var.name):
-            symbol_table.create_hitbasic_var(decl.var.name, ranges=decl.var.ranges)
-        else:
-            symbol_table.create_hitbasic_var(decl.var.name, type=decl.type, ranges=decl.var.ranges)
-    return dim_stmt
-
-
-def load_processors(symbol_table):
-    return { DimStmt.__name__: lambda stmt: processor(stmt, symbol_table), }
 

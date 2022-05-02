@@ -6,7 +6,7 @@ import os
 class cfg:
     no_decl = os.getenv('HITBASIC_NO_DECL', 'FALSE').upper() == 'TRUE'
     spacing = os.getenv('HITBASIC_SPACING', ' ')
-    arg_spacing = os.getenv('HITBASIC_ARG_SPACING', '')
+    arg_spacing = os.getenv('HITBASIC_ARG_SPACING', ' ')
     compact = os.getenv('HITBASIC_COMPACT', 'true').upper() == 'TRUE'
     line_start = int(os.getenv('HITBASIC_LINE_START', 10))
     line_inc = int(os.getenv('HITBASIC_LINE_INCREMENT', 10))

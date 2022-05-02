@@ -1,14 +1,19 @@
 # Expressions related models
 
+from io import StringIO
+from collections import OrderedDict
+from textx import get_children_of_type
 
 from hitbasic import cfg
 from hitbasic import msx
 from hitbasic.helpers import debug
 from hitbasic.helpers.string import join_all
-from hitbasic.models import Node
+from hitbasic.models import Node, CmdNode, find_parent_type
+from hitbasic.msx.types import get_type_from_id
 
 
 def find_precedence(expr):
+    "precedence value of operation, from 0 to 13"
     if type(expr) == Expression:
         return find_precedence(expr.expr)
     if hasattr(expr, 'opr') and expr.opr:
@@ -136,18 +141,46 @@ class Array(VarNode):
         return f'{self.identifier}({join_all(self.args)})'
 
 
+    def processor(self, symbol_table):
+        # Find statement this expression belongs to
+        stmt = find_parent_type(CmdNode, self)
+        assert stmt, "expected statement that contains this expression was not found"
+
+        # Create temporary variable for attribution statement
+        type_ = get_type_from_id(self.identifier)
+        var = symbol_table.create_hitbasic_var(type_=type_, inner=True)
+        mapping = (var, self)
+
+        if hasattr(stmt, '_func_mapping'):
+            stmt._func_mapping.append(mapping)
+        else:
+            stmt._func_mapping = [mapping]
+
+        return var
+
+
 class Expression(Node):
     #precedence = 14
 
     def __str__(self):
         if hasattr(self, 'op2') and self.op2:
-            op1, [opr], [op2] = self.op1, self.opr, self.op2
+            buffer = StringIO()
+            op1 = self.op1
+
             if find_precedence(op1) > self.precedence:
-                return f'({op1}){cfg.arg_spacing}{opr}{cfg.arg_spacing}{op2}'
-            if self.precedence < find_precedence(op2):
-                return f'{op1}{cfg.arg_spacing}{opr}{cfg.arg_spacing}({op2})'
+                buffer.write(f'({op1})')
             else:
-                return f'{op1}{cfg.arg_spacing}{opr}{cfg.arg_spacing}{op2}'
+                buffer.write(f'{op1}')
+
+            for opr, op2 in zip(self.opr, self.op2):
+                buffer.write(f'{cfg.arg_spacing}{opr}{cfg.arg_spacing}')
+    
+                if find_precedence(op2) > self.precedence:
+                    buffer.write(f'({op2})')
+                else:
+                    buffer.write(f'{op2}')
+
+            return buffer.getvalue()
 
         elif hasattr(self, 'opr') and self.opr:
             opr, op1 = self.opr, self.op1
@@ -223,15 +256,5 @@ class _Atom(Expression):
             return f'{self.guarded}'
         if self.num:
             return f'{self.num}'
-        return '???'
-
-
-def processor(expr, symbol_table):
-    # TODO: find function call (depth-first search) and use AttrStmt to create tmp variables before expression,
-    #       then replace function call in expression by tmp variable
-    return expr
-
-
-def load_processors(symbol_table):
-    return { Expression.__name__ : lambda expr: processor(expr, symbol_table), }
+        assert(False)
 
