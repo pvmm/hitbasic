@@ -4,11 +4,10 @@ from io import StringIO
 from collections import OrderedDict
 from textx import get_children_of_type
 
-from hitbasic import cfg
-from hitbasic import msx
+from hitbasic import cfg, msx, exceptions
 from hitbasic.helpers import debug
 from hitbasic.helpers.string import join_all
-from hitbasic.models import Node, CmdNode
+from hitbasic.models import Node, CmdNode, find_parent_type
 from hitbasic.msx.types import get_type_from_id
 
 
@@ -140,7 +139,11 @@ class Scalar(RValue):
 
 
     def processor(self, symbol_table):
-        self.ref = symbol_table.get_hitbasic_var(self.identifier, params=None)
+        try:
+            self.ref = symbol_table.get_hitbasic_var(self.identifier, params=None)
+        except exceptions.NameNotDeclared as e:
+            print('parent', find_parent_type(CmdNode, self.parent))
+            raise e
         return self
 
 
@@ -171,7 +174,7 @@ class Expression(Node):
                 buffer.write(f'{op1}')
 
             for opr, op2 in zip(self.opr, self.op2):
-                buffer.write(f'{cfg.arg_spacing}{opr}{cfg.arg_spacing}')
+                buffer.write(f'{cfg.arg_spacing}{opr.upper()}{cfg.arg_spacing}')
     
                 if find_precedence(op2) > self.precedence:
                     buffer.write(f'({op2})')
@@ -182,7 +185,7 @@ class Expression(Node):
 
         elif hasattr(self, 'opr') and self.opr:
             opr, op1 = self.opr, self.op1
-            return f'{opr}{cfg.arg_spacing}{op1}'
+            return f'{opr.upper()}{cfg.arg_spacing}{op1}'
 
         if hasattr(self, 'op1') and self.op1:
             return f'{self.op1}'

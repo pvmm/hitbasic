@@ -7,7 +7,7 @@ from hitbasic.helpers.list import flatten
 from hitbasic.models import Node, CmdNode, find_parent_type
 from hitbasic.models.default import Group, AssignStmt, processor
 from hitbasic.models.labels import LabelMark
-from hitbasic.msx.types import get_type_from_id
+from hitbasic.msx import types
 
 
 class ReturnStmt(CmdNode):
@@ -56,7 +56,7 @@ class FuncHead(Node):
 
 
     def get_return_types(self):
-        return [self.ret.type] if self.ret else [get_type_from_id(self.identifier)]
+        return [self.ret.type] if self.ret else [types.get_type_from_id(self.identifier)]
 
 
     def get_return_vars(self):

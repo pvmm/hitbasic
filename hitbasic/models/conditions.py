@@ -5,6 +5,7 @@ from hitbasic import cfg
 from hitbasic.helpers.list import flatten, interleave
 from hitbasic.models.expressions import Expression
 from hitbasic.models import CmdNode
+from hitbasic.models.group import Group
 from hitbasic.models.meta import EOL
 from hitbasic.models.default import Group
 

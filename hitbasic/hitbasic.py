@@ -17,7 +17,7 @@ AllStmtTypes:       FuncStmt | SubStmt | MinStmtTypes;
 
 MinStmtTypes:
     ConstStmt | DimStmt | ConditionalStmt | SelectStmt | DoLoopStmt | CloseStmt | OpenStmt | NextStmt | ForStmt |
-    PrintStmt | BranchStmt | GraphicStmtTypes | LetStmt | DefStmt | InputStmt | DataStmt | ReadStmt | PlayStmt | SwitcherStmt |
+    PrintStmt | BranchStmt | GraphicStmtTypes | LetStmt | DefStmt | InputStmt | DataStmt | ReadStmt | PlayStmt |
     SimpleStmt | AssignStmt;
 
 GraphicStmtTypes:
@@ -76,17 +76,18 @@ ConstStmt:          'Const' vars+=ConstVarDecl[/,/];
 ConstVarDecl:       ( id=TypedName | id=Name 'As' VarType ) '=' expr=Expression |
                     ( id=TypedName | id=Name ) '=' expr=Expression;
 
-DimStmt[ws=' \t\n']: 'Dim' declarations+=DimVarDecl[/,/];
-
-DimVarDecl:         ( var=DimScalar | var=DimArray 'As' type=VarType ) '=' expr=Expression |
-                    ( var=DimScalar | var=DimArray 'As' type=VarType ) |
-                    ( var=DimScalar | var=DimArray ) '=' expr=Expression |
-                    ( var=DimScalar | var=DimArray );
-
-DimScalar:          identifier=TypedName;
-DimArray:           identifier=Name ( '(' ranges*=DimRangeDecl[/,/] ')' )?;
-
+DimStmt:            'Dim' declarations+=DimVarDecl[/,/];
+DimVarDecl:         ( var=DimTypedDecl | var=DimNameDecl 'As' type=VarType ) '=' expr=Expression |
+                    ( var=DimTypedDecl | var=DimNameDecl 'As' type=VarType ) |
+                    ( var=DimTypedDecl | var=DimNameDecl ) '=' expr=Expression |
+                    ( var=DimTypedDecl | var=DimNameDecl );
+DimTypedDecl:       identifier=TypedName ( '(' ranges*=DimRangeDecl[/,/] ')' )?;
+DimNameDecl:        identifier=Name ( '(' ranges*=DimRangeDecl[/,/] ')' )?;
 DimRangeDecl:       begin=Expression 'To' end=Expression | end=Expression;
+
+String[noskipws]:   ' '*- '"'- /[^"]/* '"'-;
+
+TypedName:          Name TypeDescriptor;
 
 ConditionalStmt:    IfThenElseStmt | IfThenStmt | IfThenElseOneLiner | IfThenOneLiner;
 
@@ -171,8 +172,6 @@ ReadStmt:           'Read' vars+=Var[/,/];
 
 PlayStmt:           'Play';
 
-SwitcherStmt:       'x';
-
 SimpleStmt:         keyword=KeywordStmt;
 
 KeywordStmt:        'Beep' | 'Cls' | 'End' | 'Nop';
@@ -245,9 +244,8 @@ classes = {}
 
 for module in [globals()[name] for name in modules]:
     for name, obj in inspect.getmembers(module):
-        if inspect.isclass(obj):
+        if inspect.isclass(obj) and obj.__module__ == module.__name__:
             classes[name] = obj
-
 
 def create_metamodel(use_processor = True, **kwargs):
     try:

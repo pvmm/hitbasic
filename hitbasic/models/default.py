@@ -4,39 +4,12 @@
 from hitbasic import cfg
 from hitbasic.models import Node, MetaNode, CmdNode, find_parent_type
 from hitbasic.models.expressions import RValue
+from hitbasic.models.group import Group
 from hitbasic.helpers.list import flatten, interleave
 from hitbasic.msx.types import get_type_from_id
 
 
 class VarDefn(Node): pass
-
-
-class LValue(Node):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-
-    def __str__(self):
-        return f'{self.var}'
-
-
-    def processor(self, symbol_table):
-        # Find statement this expression belongs to
-        stmt = find_parent_type(CmdNode, self)
-        assert stmt, "expected statement that contains this expression was not found"
-
-        # Create temporary variable for assignment
-        type_ = get_type_from_id(self.var.identifier)
-        var = symbol_table.create_hitbasic_var(type_=type_, inner=True)
-        mapping = (var, RValue(var=self.var))
-
-        # Mark assignment position in the source code
-        if hasattr(stmt, '_var_mapping'):
-            stmt._var_mapping.append(mapping)
-        else:
-            stmt._var_mapping = [mapping]
-
-        return var
 
 
 class AssignStmt(CmdNode):
@@ -55,34 +28,6 @@ class AssignStmt(CmdNode):
     def printables(self, append_to=None):
         append_to = append_to or []
         append_to.extend([f"{self.var}{cfg.arg_spacing}={cfg.arg_spacing}{self.value}"])
-        return append_to
-
-
-class Group(CmdNode):
-    group = True
-    sep = f'{cfg.arg_spacing}:{cfg.arg_spacing}'
-
-    def __init__(self, statements=None, **kwargs):
-        super().__init__(**kwargs)
-        self.statements = statements or []
-
-
-    def insert(self, pos, stmt):
-        self.statements.insert(pos, stmt)
-
-
-    def append(self, stmt):
-        self.statements.append(stmt)
-
-
-    def __iter__(self):
-        return iter(self.statements)
-
-
-    def printables(self, append_to=None):
-        append_to = append_to or []
-        tmp = interleave([stmt.printables() for stmt in self], self.sep)
-        append_to.extend(flatten(tmp))
         return append_to
 
 

@@ -10,7 +10,10 @@ def is_multiline(*statements):
     return False
 
 
-def debug(obj, caption=None, ignore_keys=['parent']):
+debug = print
+
+
+def debug_(obj, caption=None, ignore_keys=['parent']):
     if caption:
         print(f"======={caption}=======")
     else:

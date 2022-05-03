@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 
 import os
+
+if os.getenv('DEBUG'):
+    import pudb; pu.db
+
 import sys
 import argparse
 import textwrap
@@ -76,12 +80,16 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.''',
 
     if args.x:
         source_code = """
-Dim year
+
+Dim xyz as Integer
+Dim year as Integer
 
 Function isLeapYear(myYear As Integer) As Integer
 	Return myYear Mod 4
 End Function
 
+
+xyz = isLeapYear(year)
 year=2000 Imp 3 + 2
 Cls
 If isLeapYear(year) Then
